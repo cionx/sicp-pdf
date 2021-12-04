@@ -2,7 +2,7 @@
 \renewcommand{\baselinestretch}{1.05}
 
 % Font settings
-\usepackage[no-math]{fontspec} %-----------------------%  This exact order
+\usepackage{unicode-math} %----------------------------%  This exact order
 \defaultfontfeatures{%                                 %  of declarations
   Scale=MatchLowercase, % needed here ...              %  is important for
 }                                                      %  single quotes not
@@ -15,6 +15,7 @@
 }                                                      %  copy-pasteable to
 \setmainfont{Libertinus Serif}                         %  the REPL without
 \setsansfont{Libertinus Sans} %------------------------%  giving errors.
+\setmathfont{Libertinus Math}
 
 \usepackage{polyglossia}
 \setdefaultlanguage[variant=american]{english}
@@ -37,10 +38,6 @@
 \svgsetup{
 	inkscapelatex = false
 }
-
-% To use Libertine letters and numbers,
-% but tx-style operators in math environment:
-\usepackage[libertine]{newtxmath}
 
 % Workaround to fix mismatched left and right math delimiters. Taken from:
 % http://tex.stackexchange.com/questions/63410/parentheses-differ-xelatex-fontspec-newtxmath-libertine
