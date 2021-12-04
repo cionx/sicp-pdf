@@ -1,0 +1,1164 @@
+\section{Designing Register Machines}
+\label{Section 5.1}
+
+To design a register machine, we must design its \newterm{data paths}
+(registers and operations) and the \newterm{controller} that sequences these
+operations.  To illustrate the design of a simple register machine, let us
+examine Euclid's Algorithm, which is used to compute the greatest common
+divisor (\acronym{GCD}) of two integers.  As we saw in \link{Section 1.2.5},
+Euclid's Algorithm can be carried out by an iterative process, as specified by
+the following procedure:
+
+\begin{scheme}
+
+(define (gcd a b)
+  (if (= b 0)
+      a
+      (gcd b (remainder a b))))
+\end{scheme}
+
+\noindent
+A machine to carry out this algorithm must keep track of two numbers, \( a \) and
+\( b \), so let us assume that these numbers are stored in two registers with
+those names.  The basic operations required are testing whether the contents of
+register \code{b} is zero and computing the remainder of the contents of
+register \code{a} divided by the contents of register \code{b}.  The remainder
+operation is a complex process, but assume for the moment that we have a
+primitive device that computes remainders.  On each cycle of the \acronym{GCD}
+algorithm, the contents of register \code{a} must be replaced by the contents
+of register \code{b}, and the contents of \code{b} must be replaced by the
+remainder of the old contents of \code{a} divided by the old contents of
+\code{b}.  It would be convenient if these replacements could be done
+simultaneously, but in our model of register machines we will assume that only
+one register can be assigned a new value at each step.  To accomplish the
+replacements, our machine will use a third ``temporary'' register, which we
+call \code{t}.  (First the remainder will be placed in \code{t}, then the
+contents of \code{b} will be placed in \code{a}, and finally the remainder
+stored in \code{t} will be placed in \code{b}.)
+
+We can illustrate the registers and operations required for this machine by
+using the data-path diagram shown in \link{Figure 5.1}.  In this diagram, the
+registers (\code{a}, \code{b}, and \code{t}) are represented by rectangles.
+Each way to assign a value to a register is indicated by an arrow with an
+\code{X} behind the head, pointing from the source of data to the register.  We
+can think of the \code{X} as a button that, when pushed, allows the value at
+the source to ``flow'' into the designated register.  The label next to each
+button is the name we will use to refer to the button.  The names are
+arbitrary, and can be chosen to have mnemonic value (for example, \code{a←b}
+denotes pushing the button that assigns the contents of register \code{b} to
+register \code{a}).  The source of data for a register can be another register
+(as in the \code{a←b} assignment), an operation result (as in the \code{t←r}
+assignment), or a constant (a built-in value that cannot be changed,
+represented in a data-path diagram by a triangle containing the constant).
+
+\begin{figure}[tb]
+\phantomsection\label{Figure 5.1}
+\centering
+\begin{comment}
+\heading{Figure 5.1:} Data paths for a \acronym{GCD} machine.
+
+\begin{example}
+                              ___
++-----+          +-----+     /   \
+|  a  |<--(X)----|  b  +--->|  =  |
++--+--+   a<-b   +-+---+     \___/
+   |               |  ^        ^
+   +------+   +----+  |        |
+          |   |      (X) b<-t  |
+       .--+---+--.    |       / \
+        \  rem  /     |      / O \
+         \_____/      |     +-----+
+            |         |
+           (X) t<-r   |
+            |         |
+            V         |
+         +-----+      |
+         |  t  +------+
+         +-----+
+\end{example}
+\end{comment}
+\includesvg[width=58mm]{fig/chap5/Fig5.1a.svg}
+\par\bigskip
+\noindent
+\heading{Figure 5.1:} Data paths for a \acronym{GCD} machine.
+\end{figure}
+
+An operation that computes a value from constants and the contents of registers
+is represented in a data-path diagram by a trapezoid containing a name for the
+operation.  For example, the box marked \code{rem} in \link{Figure 5.1}
+represents an operation that computes the remainder of the contents of the
+registers \code{a} and \code{b} to which it is attached.  Arrows (without
+buttons) point from the input registers and constants to the box, and arrows
+connect the operation's output value to registers.  A test is represented by a
+circle containing a name for the test.  For example, our \acronym{GCD} machine
+has an operation that tests whether the contents of register \code{b} is zero.
+A test also has arrows from its input registers and constants, but it has no
+output arrows; its value is used by the controller rather than by the data
+paths.  Overall, the data-path diagram shows the registers and operations that
+are required for the machine and how they must be connected.  If we view the
+arrows as wires and the \code{X} buttons as switches, the data-path diagram is
+very like the wiring diagram for a machine that could be constructed from
+electrical components.
+
+\begin{figure}[tb]
+\phantomsection\label{Figure 5.2}
+\centering
+\begin{comment}
+\heading{Figure 5.2:} Controller for a \acronym{GCD} machine.
+
+\begin{example}
+     start
+       |
+       V
+      / \ yes
++--->< = >-----> done
+|     \ /
+|      | no
+|      V
+|  +------+
+|  | t<-r |
+|  +---+--+
+|      |
+|      V
+|  +------+
+|  | a<-b |
+|  +---+--+
+|      |
+|      V
+|  +------+
++--+ b<-t |
+   +------+
+\end{example}
+\end{comment}
+\includesvg[width=41mm]{fig/chap5/Fig5.2.svg}
+\par\bigskip
+\noindent
+\heading{Figure 5.2:} Controller for a \acronym{GCD} machine.
+\end{figure}
+
+In order for the data paths to actually compute \acronym{GCD}s, the buttons
+must be pushed in the correct sequence.  We will describe this sequence in
+terms of a controller diagram, as illustrated in \link{Figure 5.2}.  The
+elements of the controller diagram indicate how the data-path components should
+be operated.  The rectangular boxes in the controller diagram identify
+data-path buttons to be pushed, and the arrows describe the sequencing from one
+step to the next.  The diamond in the diagram represents a decision.  One of
+the two sequencing arrows will be followed, depending on the value of the
+data-path test identified in the diamond.  We can interpret the controller in
+terms of a physical analogy: Think of the diagram as a maze in which a marble
+is rolling.  When the marble rolls into a box, it pushes the data-path button
+that is named by the box.  When the marble rolls into a decision node (such as
+the test for \code{b} = 0), it leaves the node on the path determined by the
+result of the indicated test.  Taken together, the data paths and the
+controller completely describe a machine for computing \acronym{GCD}s.  We
+start the controller (the rolling marble) at the place marked \code{start},
+after placing numbers in registers \code{a} and \code{b}.  When the controller
+reaches \code{done}, we will find the value of the \acronym{GCD} in register
+\code{a}.
+
+\begin{quote}
+\heading{\phantomsection\label{Exercise 5.1}Exercise 5.1:} Design a register machine to
+compute factorials using the iterative algorithm specified by the following
+procedure.  Draw data-path and controller diagrams for this machine.
+
+\begin{scheme}
+(define (factorial n)
+  (define (iter product counter)
+    (if (> counter n)
+        product
+        (iter (* counter product)
+              (+ counter 1))))
+  (iter 1 1))
+\end{scheme}
+\end{quote}
+
+
+
+\subsection{A Language for Describing Register Machines}
+\label{Section 5.1.1}
+
+Data-path and controller diagrams are adequate for representing simple machines
+such as \acronym{GCD}, but they are unwieldy for describing large machines such
+as a Lisp interpreter.  To make it possible to deal with complex machines, we
+will create a language that presents, in textual form, all the information
+given by the data-path and controller diagrams.  We will start with a notation
+that directly mirrors the diagrams.
+
+We define the data paths of a machine by describing the registers and the
+operations.  To describe a register, we give it a name and specify the buttons
+that control assignment to it.  We give each of these buttons a name and
+specify the source of the data that enters the register under the button's
+control.  (The source is a register, a constant, or an operation.)  To describe
+an operation, we give it a name and specify its inputs (registers or
+constants).
+
+We define the controller of a machine as a sequence of \newterm{instructions}
+together with \newterm{labels} that identify \newterm{entry points} in the
+sequence. An instruction is one of the following:
+
+\begin{itemize}
+
+\item
+The name of a data-path button to push to assign a value to a register.  (This
+corresponds to a box in the controller diagram.)
+
+\item
+A \code{test} instruction, that performs a specified test.
+
+\item
+A conditional branch (\code{branch} instruction) to a location indicated by a
+controller label, based on the result of the previous test.  (The test and
+branch together correspond to a diamond in the controller diagram.)  If the
+test is false, the controller should continue with the next instruction in the
+sequence.  Otherwise, the controller should continue with the instruction after
+the label.
+
+\item
+An unconditional branch (\code{goto} instruction) naming a controller label at
+which to continue execution.
+
+\end{itemize}
+
+\noindent
+The machine starts at the beginning of the controller instruction sequence and
+stops when execution reaches the end of the sequence.  Except when a branch
+changes the flow of control, instructions are executed in the order in which
+they are listed.
+
+\begin{quote}
+\heading{\phantomsection\label{Figure 5.3}Figure 5.3:} \( \downarrow \) A specification of the \acronym{GCD}
+machine.
+
+\begin{scheme}
+(data-paths
+ (registers
+  ((name a)
+   (buttons ((name a<-b) (source (register b)))))
+  ((name b)
+   (buttons ((name b<-t) (source (register t)))))
+  ((name t)
+   (buttons ((name t<-r) (source (operation rem))))))
+ (operations
+  ((name rem) (inputs (register a) (register b)))
+  ((name =) (inputs (register b) (constant 0)))))
+(controller
+ test-b                           ~\textrm{; label}~
+   (test =)                       ~\textrm{; test}~
+   (branch (label gcd-done))      ~\textrm{; conditional branch}~
+   (t<-r)                         ~\textrm{; button push}~
+   (a<-b)                         ~\textrm{; button push}~
+   (b<-t)                         ~\textrm{; button push}~
+   (goto (label test-b))          ~\textrm{; unconditional branch}~
+ gcd-done)                        ~\textrm{; label}~
+\end{scheme}
+
+\end{quote}
+
+\noindent
+\link{Figure 5.3} shows the \acronym{GCD} machine described in this way.  This
+example only hints at the generality of these descriptions, since the
+\acronym{GCD} machine is a very simple case: Each register has only one button,
+and each button and test is used only once in the controller.
+
+Unfortunately, it is difficult to read such a description.  In order to
+understand the controller instructions we must constantly refer back to the
+definitions of the button names and the operation names, and to understand what
+the buttons do we may have to refer to the definitions of the operation names.
+We will thus transform our notation to combine the information from the
+data-path and controller descriptions so that we see it all together.
+
+To obtain this form of description, we will replace the arbitrary button and
+operation names by the definitions of their behavior.  That is, instead of
+saying (in the controller) ``Push button \code{t←r}'' and separately saying
+(in the data paths) ``Button \code{t←r} assigns the value of the \code{rem}
+operation to register \code{t}'' and ``The \code{rem} operation's inputs are
+the contents of registers \code{a} and \code{b},'' we will say (in the
+controller) ``Push the button that assigns to register \code{t} the value of
+the \code{rem} operation on the contents of registers \code{a} and \code{b}.''
+Similarly, instead of saying (in the controller) ``Perform the \code{=} test''
+and separately saying (in the data paths) ``The \code{=} test operates on the
+contents of register \code{b} and the constant 0,'' we will say ``Perform the
+\code{=} test on the contents of register \code{b} and the constant 0.''  We
+will omit the data-path description, leaving only the controller sequence.
+Thus, the \acronym{GCD} machine is described as follows:
+
+\begin{scheme}
+(controller
+ test-b
+   (test (op =) (reg b) (const 0))
+   (branch (label gcd-done))
+   (assign t (op rem) (reg a) (reg b))
+   (assign a (reg b))
+   (assign b (reg t))
+   (goto (label test-b))
+ gcd-done)
+\end{scheme}
+
+\noindent
+This form of description is easier to read than the kind illustrated in
+\link{Figure 5.3}, but it also has disadvantages:
+
+\begin{itemize}
+
+\item
+It is more verbose for large machines, because complete descriptions of the
+data-path elements are repeated whenever the elements are mentioned in the
+controller instruction sequence.  (This is not a problem in the \acronym{GCD}
+example, because each operation and button is used only once.)  Moreover,
+repeating the data-path descriptions obscures the actual data-path structure of
+the machine; it is not obvious for a large machine how many registers,
+operations, and buttons there are and how they are interconnected.
+
+\item
+Because the controller instructions in a machine definition look like Lisp
+expressions, it is easy to forget that they are not arbitrary Lisp expressions.
+They can notate only legal machine operations.  For example, operations can
+operate directly only on constants and the contents of registers, not on the
+results of other operations.
+
+\end{itemize}
+
+\noindent
+In spite of these disadvantages, we will use this register-machine language
+throughout this chapter, because we will be more concerned with understanding
+controllers than with understanding the elements and connections in data paths.
+We should keep in mind, however, that data-path design is crucial in designing
+real machines.
+
+\begin{quote}
+\heading{\phantomsection\label{Exercise 5.2}Exercise 5.2:} Use the register-machine language
+to describe the iterative factorial machine of \link{Exercise 5.1}.
+\end{quote}
+
+\subsubsection*{Actions}
+
+Let us modify the \acronym{GCD} machine so that we can type in the numbers
+whose \acronym{GCD} we want and get the answer printed at our terminal.  We
+will not discuss how to make a machine that can read and print, but will assume
+(as we do when we use \code{read} and \code{display} in Scheme) that they are
+available as primitive operations.\footnote{This assumption glosses over a
+great deal of complexity.  Usually a large portion of the implementation of a
+Lisp system is dedicated to making reading and printing work.}
+
+\begin{figure}[tb]
+\phantomsection\label{Figure 5.4}
+\centering
+\begin{comment}
+\heading{Figure 5.4:} A \acronym{GCD} machine that reads inputs and prints results.
+
+\begin{example}
+                   .--------.
+                    \ read /
+                     \____/
+                       |
+               +-------*------+
+               |              |
+        a<-rd (X)            (X) b<-rd
+               |              |
+               V              V           ___
+            +-----+        +-----+       /   \
+            |  a  |<--(X)--+  b  +----->|  =  |
+            +-+-+-+  a<-b  +-+---+       \___/
+              | |            |  ^          ^
+           +--+ +----+    +--+  |          |
+           |         |    |    (X) b<-t   / \
+           V         V    V     |        / O \
+      .---------.  .---------.  |       /_____\
+--(X)->\ print /    \  rem  /   |
+   P    \_____/      \_____/    |
+                        |       |
+                       (X) t<-r |
+                        |       |
+                        V       |
+                     +-----+    |
+                     |  t  +----+
+                     +-----+
+\end{example}
+
+\begin{scheme}
+ (controller
+  gcd-loop
+    (assign a (op read))
+    (assign b (op read))
+  test-b
+    (test (op =) (reg b) (const 0))
+    (branch (label gcd-done))
+    (assign t (op rem) (reg a) (reg b))
+    (assign a (reg b))
+    (assign b (reg t))
+    (goto (label test-b))
+  gcd-done
+    (perform (op print) (reg a))
+    (goto (label gcd-loop)))
+\end{scheme}
+
+\end{comment}
+\includesvg[width=107mm]{fig/chap5/Fig5.4b.svg}
+\par\bigskip
+\noindent
+\heading{Figure 5.4:} A \acronym{GCD} machine that reads inputs and prints results. 
+\end{figure}
+
+\code{read} is like the operations we have been using in that it produces a
+value that can be stored in a register.  But \code{read} does not take inputs
+from any registers; its value depends on something that happens outside the
+parts of the machine we are designing.  We will allow our machine's operations
+to have such behavior, and thus will draw and notate the use of \code{read}
+just as we do any other operation that computes a value.
+
+\code{print}, on the other hand, differs from the operations we have been using
+in a fundamental way: It does not produce an output value to be stored in a
+register.  Though it has an effect, this effect is not on a part of the machine
+we are designing.  We will refer to this kind of operation as an
+\newterm{action}.  We will represent an action in a data-path diagram just as
+we represent an operation that computes a value---as a trapezoid that contains
+the name of the action.  Arrows point to the action box from any inputs
+(registers or constants).  We also associate a button with the action.  Pushing
+the button makes the action happen.  To make a controller push an action button
+we use a new kind of instruction called \code{perform}.  Thus, the action of
+printing the contents of register \code{a} is represented in a controller
+sequence by the instruction
+
+\begin{scheme}
+(perform (op print) (reg a))
+\end{scheme}
+
+\noindent
+\link{Figure 5.4} shows the data paths and controller for the new \acronym{GCD}
+machine.  Instead of having the machine stop after printing the answer, we have
+made it start over, so that it repeatedly reads a pair of numbers, computes
+their \acronym{GCD}, and prints the result.  This structure is like the driver
+loops we used in the interpreters of \link{Chapter 4}.
+
+\subsection{Abstraction in Machine Design}
+\label{Section 5.1.2}
+
+We will often define a machine to include ``primitive'' operations that are
+actually very complex.  For example, in \link{Section 5.4} and \link{Section 5.5} we
+will treat Scheme's environment manipulations as primitive.  Such abstraction
+is valuable because it allows us to ignore the details of parts of a machine so
+that we can concentrate on other aspects of the design.  The fact that we have
+swept a lot of complexity under the rug, however, does not mean that a machine
+design is unrealistic.  We can always replace the complex ``primitives'' by
+simpler primitive operations.
+
+Consider the \acronym{GCD} machine. The machine has an instruction that
+computes the remainder of the contents of registers \code{a} and \code{b} and
+assigns the result to register \code{t}.  If we want to construct the
+\acronym{GCD} machine without using a primitive remainder operation, we must
+specify how to compute remainders in terms of simpler operations, such as
+subtraction.  Indeed, we can write a Scheme procedure that finds remainders in
+this way:
+
+\begin{scheme}
+
+
+(define (remainder n d)
+  (if (< n d)
+      n
+      (remainder (- n d) d)))
+\end{scheme}
+
+\begin{figure}[tp]
+\phantomsection\label{Figure 5.5}
+\centering
+\begin{comment}
+\heading{Figure 5.5:} Data paths and controller for the elaborated \acronym{GCD} machine.
+
+\begin{example}
+                                    ___
++-----+         +-----+            /   \
+|  a  |<--(X)---+  b  +-------*-->|  =  |
++--+--+   a<-b  +-+---+       |    \___/
+   |              |  ^        |
+  (X) t<-a        |  |        |
+   |              | (X) b<-t  |
+   V              |  |       _V_
++-----+           |  |      /   \
+|  t  +-------*---|--*-----|  <  |
++-----+       |   |         \___/
+   ^          V   V
+   |        ---------
+  (X) t<-d   \  -  /
+   |          --+--
+   |            |
+   +------------+
+
+
+   start
+     |
+     V
+    / \ yes            +-------+
++->< = >----> done     | t<-d  |<--+
+|   \ /                +---+---+   |
+|    | no                  |       |
+|    |                     V       |
+|    |   +------+         / \ no   |
+|    +-->| t<-a +------->< < >-----+
+|        +------+         \ /
+|                          | yes
+|      +-------------------+
+|      V
+|  +-------+
+|  | a<-b  |
+|  +---+---+
+|      |
+|      V
+|  +-------+
++--+ b<-t  |
+   +-------+
+\end{example}
+\end{comment}
+\includesvg[width=67mm]{fig/chap5/Fig5.5a.svg}
+\begin{quote}
+\heading{Figure 5.5:} Data paths and controller for the elaborated \acronym{GCD} machine.
+\end{quote}
+\end{figure}
+
+We can thus replace the remainder operation in the \acronym{GCD} machine's data
+paths with a subtraction operation and a comparison test.  \link{Figure 5.5}
+shows the data paths and controller for the elaborated machine.  The
+instruction
+
+\begin{scheme}
+(assign t (op rem) (reg a) (reg b))
+\end{scheme}
+
+\noindent
+in the \acronym{GCD} controller definition is replaced by a sequence of
+instructions that contains a loop, as shown in \link{Figure 5.6}.
+
+\begin{quote}
+\heading{\phantomsection\label{Figure 5.6}\mbox{Figure 5.6:}} \( \downarrow \) Controller instruction sequence for the \acronym{GCD} machine in \link{Figure 5.5}.
+
+\begin{scheme}
+(controller test-b
+              (test (op =) (reg b) (const 0))
+              (branch (label gcd-done))
+              (assign t (reg a))
+            rem-loop
+              (test (op <) (reg t) (reg b))
+              (branch (label rem-done))
+              (assign t (op -) (reg t) (reg b))
+              (goto (label rem-loop))
+            rem-done
+              (assign a (reg b))
+              (assign b (reg t))
+              (goto (label test-b))
+            gcd-done)
+\end{scheme}
+\end{quote}
+
+\begin{quote}
+\heading{\phantomsection\label{Exercise 5.3}Exercise 5.3:} Design a machine to compute square
+roots using Newton's method, as described in \link{Section 1.1.7}:
+
+\begin{scheme}
+(define (sqrt x)
+  (define (good-enough? guess)
+    (< (abs (- (square guess) x)) 0.001))
+  (define (improve guess)
+    (average guess (/ x guess)))
+  (define (sqrt-iter guess)
+    (if (good-enough? guess)
+        guess
+        (sqrt-iter (improve guess))))
+  (sqrt-iter 1.0))
+\end{scheme}
+
+Begin by assuming that \code{good\-/enough?} and \code{improve} operations are
+available as primitives.  Then show how to expand these in terms of arithmetic
+operations.  Describe each version of the \code{sqrt} machine design by drawing
+a data-path diagram and writing a controller definition in the register-machine
+language.
+\end{quote}
+
+\subsection{Subroutines}
+\label{Section 5.1.3}
+
+When designing a machine to perform a computation, we would often prefer to
+arrange for components to be shared by different parts of the computation
+rather than duplicate the components.  Consider a machine that includes two
+\acronym{GCD} computations---one that finds the \acronym{GCD} of the contents
+of registers \code{a} and \code{b} and one that finds the \acronym{GCD} of the
+contents of registers \code{c} and \code{d}.  We might start by assuming we
+have a primitive \code{gcd} operation, then expand the two instances of
+\code{gcd} in terms of more primitive operations.  \link{Figure 5.7} shows just
+the \acronym{GCD} portions of the resulting machine's data paths, without
+showing how they connect to the rest of the machine.  The figure also shows the
+corresponding portions of the machine's controller sequence.
+
+\begin{figure}[tb]
+\phantomsection\label{Figure 5.7}
+\centering
+\begin{comment}
+\heading{Figure 5.7:} Portions of the data paths and controller sequence for a machine with two \acronym{GCD} computations.
+
+\begin{example}
+                            ___                                 ___
++-----+        +-----+     /   \    +-----+        +-----+     /   \
+|  a  |<-(X)---+  b  |--->|  =  |   |  c  |<-(X)---+  d  |--->|  =  |
++--+--+  a<-b  ++----+     \___/    +--+--+  c<-d  ++----+     \___/
+   |            |  ^         ^         |            |  ^         ^
+   `----.   .---'  |         |         `----.   .---'  |         |
+        V   V     (X) b<-t   |              V   V     (X) d<-t   |
+       -------     |        / \            -------     |        / \
+       \ rem /     |       /_0_\           \ rem /     |       /_0_\
+        --+--      |                        --+--      |
+          |        |                          |        |
+         (X) t<-r  |                         (X) s<-r  |
+          |        |                          |        |
+          V        |                          V        |
+       +-----+     |                       +-----+     |
+       |  t  +-----'                       |  s  +-----'
+       +-----+                             +-----+
+\end{example}
+
+\begin{scheme}
+gcd-1
+ (test (op =) (reg b) (const 0))
+ (branch (label after-gcd-1))
+ (assign t (op rem) (reg a) (reg b))
+ (assign a (reg b))
+ (assign b (reg t))
+ (goto (label gcd-1))
+after-gcd-1
+   ~\( \dots \)~
+gcd-2
+ (test (op =) (reg d) (const 0))
+ (branch (label after-gcd-2))
+ (assign s (op rem) (reg c) (reg d))
+ (assign c (reg d))
+ (assign d (reg s))
+ (goto (label gcd-2))
+after-gcd-2
+\end{scheme}
+
+\end{comment}
+\includesvg[width=105mm]{fig/chap5/Fig5.7b.svg}
+\begin{quote}
+\heading{Figure 5.7:} Portions of the data paths and controller sequence for a \mbox{machine} with two \acronym{GCD} computations.
+\end{quote}
+\end{figure}
+
+This machine has two remainder operation boxes and two boxes for testing
+equality.  If the duplicated components are complicated, as is the remainder
+box, this will not be an economical way to build the machine.  We can avoid
+duplicating the data-path components by using the same components for both
+\acronym{GCD} computations, provided that doing so will not affect the rest of
+the larger machine's computation.  If the values in registers \code{a} and
+\code{b} are not needed by the time the controller gets to \code{gcd\-/2} (or if
+these values can be moved to other registers for safekeeping), we can change
+the machine so that it uses registers \code{a} and \code{b}, rather than
+registers \code{c} and \code{d}, in computing the second \acronym{GCD} as well
+as the first.  If we do this, we obtain the controller sequence shown in
+\link{Figure 5.8}.
+
+\begin{quote}
+\heading{\phantomsection\label{Figure 5.8}Figure 5.8:} \( \downarrow \) Portions of the
+controller sequence for a machine that uses the same data-path components
+for two different \acronym{GCD} computations.
+\begin{scheme}
+gcd-1
+ (test (op =) (reg b) (const 0))
+ (branch (label after-gcd-1))
+ (assign t (op rem) (reg a) (reg b))
+ (assign a (reg b))
+ (assign b (reg t))
+ (goto (label gcd-1))
+after-gcd-1
+  ~\( \dots \)~
+gcd-2
+ (test (op =) (reg b) (const 0))
+ (branch (label after-gcd-2))
+ (assign t (op rem) (reg a) (reg b))
+ (assign a (reg b))
+ (assign b (reg t))
+ (goto (label gcd-2))
+after-gcd-2
+\end{scheme}
+\end{quote}
+
+\noindent
+We have removed the duplicate data-path components (so that the data paths are
+again as in \link{Figure 5.1}), but the controller now has two \acronym{GCD}
+sequences that differ only in their entry-point labels.  It would be better to
+replace these two sequences by branches to a single sequence---a \code{gcd}
+\newterm{subroutine}---at the end of which we branch back to the correct place
+in the main instruction sequence.  We can accomplish this as follows: Before
+branching to \code{gcd}, we place a distinguishing value (such as 0 or 1) into
+a special register, \code{continue}.  At the end of the \code{gcd} subroutine
+we return either to \code{after\-/gcd\-/1} or to \code{after\-/gcd\-/2}, depending on
+the value of the \code{continue} register. \link{Figure 5.9} shows the relevant
+portion of the resulting controller sequence, which includes only a single copy
+of the \code{gcd} instructions.
+
+\begin{quote}
+\heading{\phantomsection\label{Figure 5.9}Figure 5.9:} \( \downarrow \) Using a \code{continue}
+register to avoid the duplicate controller sequence in \link{Figure 5.8}.
+\begin{scheme}
+gcd
+ (test (op =) (reg b) (const 0))
+ (branch (label gcd-done))
+ (assign t (op rem) (reg a) (reg b))
+ (assign a (reg b))
+ (assign b (reg t))
+ (goto (label gcd))
+gcd-done
+ (test (op =) (reg continue) (const 0))
+ (branch (label after-gcd-1))
+ (goto (label after-gcd-2))
+  ~\( \dots \)~
+ ~\textrm{;; Before branching to \code{gcd} from the first place where}~
+ ~\textrm{;; it is needed, we place 0 in the \code{continue} register}~
+ (assign continue (const 0))
+ (goto (label gcd))
+after-gcd-1
+  ~\( \dots \)~
+
+ ~\textrm{;; Before the second use of \code{gcd}, we place 1}~
+ ~\textrm{;; in the \code{continue} register}~
+ (assign continue (const 1))
+ (goto (label gcd))
+after-gcd-2
+\end{scheme}
+\end{quote}
+
+\noindent
+This is a reasonable approach for handling small problems, but it would be
+awkward if there were many instances of \acronym{GCD} computations in the
+controller sequence.  To decide where to continue executing after the
+\code{gcd} subroutine, we would need tests in the data paths and branch
+instructions in the controller for all the places that use \code{gcd}.  A more
+powerful method for implementing subroutines is to have the \code{continue}
+register hold the label of the entry point in the controller sequence at which
+execution should continue when the subroutine is finished.  Implementing this
+strategy requires a new kind of connection between the data paths and the
+controller of a register machine: There must be a way to assign to a register a
+label in the controller sequence in such a way that this value can be fetched
+from the register and used to continue execution at the designated entry point.
+
+To reflect this ability, we will extend the \code{assign} instruction of the
+register-machine language to allow a register to be assigned as value a label
+from the controller sequence (as a special kind of constant).  We will also
+extend the \code{goto} instruction to allow execution to continue at the entry
+point described by the contents of a register rather than only at an entry
+point described by a constant label.  Using these new constructs we can
+terminate the \code{gcd} subroutine with a branch to the location stored in the
+\code{continue} register.  This leads to the controller sequence shown in
+\link{Figure 5.10}.
+
+\begin{quote}
+\heading{\phantomsection\label{Figure 5.10}Figure 5.10:} \( \downarrow \) Assigning labels to the
+\code{continue} register simplifies and generalizes the strategy shown in
+\link{Figure 5.9}.
+\begin{scheme}
+gcd
+ (test (op =) (reg b) (const 0))
+ (branch (label gcd-done))
+ (assign t (op rem) (reg a) (reg b))
+ (assign a (reg b))
+ (assign b (reg t))
+ (goto (label gcd))
+gcd-done
+ (goto (reg continue))
+   ~\( \dots \)~
+ ~\textrm{;; Before calling \code{gcd}, we assign to \code{continue}}~
+ ~\textrm{;; the label to which \code{gcd} should return.}~
+ (assign continue (label after-gcd-1))
+ (goto (label gcd))
+after-gcd-1
+   ~\( \dots \)~
+ ~\textrm{;; Here is the second call to \code{gcd},}~
+ ~\textrm{;; with a different continuation.}~
+ (assign continue (label after-gcd-2))
+ (goto (label gcd))
+after-gcd-2
+\end{scheme}
+\end{quote}
+
+\noindent
+A machine with more than one subroutine could use multiple continuation
+registers (e.g., \code{gcd\-/continue}, \code{factorial\-/continue}) or we could
+have all subroutines share a single \code{continue} register.  Sharing is more
+economical, but we must be careful if we have a subroutine (\code{sub1}) that
+calls another subroutine (\code{sub2}).  Unless \code{sub1} saves the contents
+of \code{continue} in some other register before setting up \code{continue} for
+the call to \code{sub2}, \code{sub1} will not know where to go when it is
+finished.  The mechanism developed in the next section to handle recursion also
+provides a better solution to this problem of nested subroutine calls.
+
+\subsection{Using a Stack to Implement Recursion}
+\label{Section 5.1.4}
+
+With the ideas illustrated so far, we can implement any iterative process by
+specifying a register machine that has a register corresponding to each state
+variable of the process.  The machine repeatedly executes a controller loop,
+changing the contents of the registers, until some termination condition is
+satisfied.  At each point in the controller sequence, the state of the machine
+(representing the state of the iterative process) is completely determined by
+the contents of the registers (the values of the state variables).
+
+Implementing recursive processes, however, requires an additional mechanism.
+Consider the following recursive method for computing factorials, which we
+first examined in \link{Section 1.2.1}:
+
+\begin{scheme}
+(define (factorial n)
+  (if (= n 1) 1 (* (factorial (- n 1)) n)))
+\end{scheme}
+
+\noindent
+As we see from the procedure, computing \( n! \) requires computing \( (n - 1)! \).
+Our \acronym{GCD} machine, modeled on the procedure
+
+\begin{scheme}
+(define (gcd a b)
+  (if (= b 0) a (gcd b (remainder a b))))
+\end{scheme}
+
+\noindent
+similarly had to compute another \acronym{GCD}.  But there is an important
+difference between the \code{gcd} procedure, which reduces the original
+computation to a new \acronym{GCD} computation, and \code{factorial}, which
+requires computing another factorial as a subproblem.  In \acronym{GCD}, the
+answer to the new \acronym{GCD} computation is the answer to the original
+problem.  To compute the next \acronym{GCD}, we simply place the new arguments
+in the input registers of the \acronym{GCD} machine and reuse the machine's
+data paths by executing the same controller sequence.  When the machine is
+finished solving the final \acronym{GCD} problem, it has completed the entire
+computation.
+
+In the case of factorial (or any recursive process) the answer to the new
+factorial subproblem is not the answer to the original problem.  The value
+obtained for \( (n - 1)! \) must be multiplied by \( n \) to get the final answer.
+If we try to imitate the \acronym{GCD} design, and solve the factorial
+subproblem by decrementing the \code{n} register and rerunning the factorial
+machine, we will no longer have available the old value of \code{n} by which to
+multiply the result.  We thus need a second factorial machine to work on the
+subproblem.  This second factorial computation itself has a factorial
+subproblem, which requires a third factorial machine, and so on.  Since each
+factorial machine contains another factorial machine within it, the total
+machine contains an infinite nest of similar machines and hence cannot be
+constructed from a fixed, finite number of parts.
+
+Nevertheless, we can implement the factorial process as a register machine if
+we can arrange to use the same components for each nested instance of the
+machine.  Specifically, the machine that computes \( n! \)  should use the same
+components to work on the subproblem of computing \( (n - 1)! \), on the
+subproblem for \( (n - 2)! \), and so on.  This is plausible because, although
+the factorial process dictates that an unbounded number of copies of the same
+machine are needed to perform a computation, only one of these copies needs to
+be active at any given time.  When the machine encounters a recursive
+subproblem, it can suspend work on the main problem, reuse the same physical
+parts to work on the subproblem, then continue the suspended computation.
+
+\enlargethispage{\baselineskip}
+
+In the subproblem, the contents of the registers will be different than they
+were in the main problem. (In this case the \code{n} register is decremented.)
+In order to be able to continue the suspended computation, the machine must
+save the contents of any registers that will be needed after the subproblem is
+solved so that these can be restored to continue the suspended computation.  In
+the case of factorial, we will save the old value of \code{n}, to be restored
+when we are finished computing the factorial of the decremented \code{n}
+register.\footnote{One might argue that we don't need to save the old \code{n};
+after we decrement it and solve the subproblem, we could simply increment it to
+recover the old value.  Although this strategy works for factorial, it cannot
+work in general, since the old value of a register cannot always be computed
+from the new one.}
+
+Since there is no \emph{a priori} limit on the depth of nested recursive calls,
+we may need to save an arbitrary number of register values.  These values must
+be restored in the reverse of the order in which they were saved, since in a
+nest of recursions the last subproblem to be entered is the first to be
+finished.  This dictates the use of a \newterm{stack}, or ``last in, first
+out'' data structure, to save register values.  We can extend the
+register-machine language to include a stack by adding two kinds of
+instructions: Values are placed on the stack using a \code{save} instruction
+and restored from the stack using a \code{restore} instruction.  After a
+sequence of values has been \code{save}d on the stack, a sequence of
+\code{restore}s will retrieve these values in reverse order.\footnote{In
+\link{Section 5.3} we will see how to implement a stack in terms of more
+primitive operations.}
+
+With the aid of the stack, we can reuse a single copy of the factorial
+machine's data paths for each factorial subproblem.  There is a similar design
+issue in reusing the controller sequence that operates the data paths.  To
+reexecute the factorial computation, the controller cannot simply loop back to
+the beginning, as with an iterative process, because after solving the
+\( (n - 1)! \) subproblem the machine must still multiply the result by \( n \).  The
+controller must suspend its computation of \( n! \), solve the \( (n - 1)! \)
+subproblem, then continue its computation of \( n! \).  This view of the
+factorial computation suggests the use of the subroutine mechanism described in
+\link{Section 5.1.3}, which has the controller use a \code{continue} register to
+transfer to the part of the sequence that solves a subproblem and then continue
+where it left off on the main problem.  We can thus make a factorial subroutine
+that returns to the entry point stored in the \code{continue} register.  Around
+each subroutine call, we save and restore \code{continue} just as we do the
+\code{n} register, since each ``level'' of the factorial computation will use
+the same \code{continue} register.  That is, the factorial subroutine must put
+a new value in \code{continue} when it calls itself for a subproblem, but it
+will need the old value in order to return to the place that called it to solve
+a subproblem.
+
+\link{Figure 5.11} shows the data paths and controller for a machine that
+implements the recursive \code{factorial} procedure.  The machine has a stack
+and three registers, called \code{n}, \code{val}, and \code{continue}.  To
+simplify the data-path diagram, we have not named the register-assignment
+buttons, only the stack-operation buttons (\code{sc} and \code{sn} to save
+registers, \code{rc} and \code{rn} to restore registers).  To operate the
+machine, we put in register \code{n} the number whose factorial we wish to
+compute and start the machine.  When the machine reaches \code{fact\-/done}, the
+computation is finished and the answer will be found in the \code{val}
+register.  In the controller sequence, \code{n} and \code{continue} are saved
+before each recursive call and restored upon return from the call.  Returning
+from a call is accomplished by branching to the location stored in
+\code{continue}.  \code{continue} is initialized when the machine starts so
+that the last return will go to \code{fact\-/done}.  The \code{val} register,
+which holds the result of the factorial computation, is not saved before the
+recursive call, because the old contents of \code{val} is not useful after the
+subroutine returns.  Only the new value, which is the value produced by the
+subcomputation, is needed.
+
+\begin{figure}[tp]
+\phantomsection\label{Figure 5.11}
+\centering
+\begin{comment}
+\heading{Figure 5.11:} A recursive factorial machine.
+
+\begin{example}
+                             ___
+                            /   \
+    +----------*-----------|  =  |
+    |          |            \___/
+   (X)         |              ^
+    |          |              |
+    V          |          +---+---+   sn    +-------+
++-------+      |          |       +---(X)-->|       |
+|  val  |<-(X)-|----------+   n   |         | stack |
++-----+-+      |          |       |<--(X)---+       |
+  ^   |        |          +-------+   rn    +-+-----+
+  |   |        |            ^                 |   ^
+ (X)  |        |            |                 |   |
+  |   |   +----|--------*  (X)                |  (X) sc
+  |   |   |    |        |   |             rc (X)  |
+  |   |   |    *----.   |   |                 |   |
+  |   V   V    |    V   V   |                 V   |
+  |  -------   |   -------  |              +------+-+
+  |  \  *  /   |   \  -  /  |              |continue+--> controller
+  |   --+--    |    --+--   |              +--------+
+  |     |      |      |     |               ^      ^
+  +-----+      |      +-----+               |      |
+               |                           (X)    (X)
+               |                            |      |
+              / \                   after- / \    / \  fact-
+             /_1_\                  fact  /___\  /___\ done
+\end{example}
+
+\begin{smallscheme}
+(controller
+   (assign continue (label fact-done))     ~\textrm{; set up final return address}~
+ fact-loop
+   (test (op =) (reg n) (const 1))
+   (branch (label base-case))
+   ~\textrm{;; Set up for the recursive call by saving \code{n} and \code{continue}.}~
+   ~\textrm{;; Set up \code{continue} so that the computation will continue}~
+   ~\textrm{;; at \code{after\-/fact} when the subroutine returns.}~
+   (save continue)
+   (save n)
+   (assign n (op -) (reg n) (const 1))
+   (assign continue (label after-fact))
+   (goto (label fact-loop))
+ after-fact
+   (restore n)
+   (restore continue)
+   (assign val (op *) (reg n) (reg val))   ~\textrm{; \code{val} now contains}~ ~\( n(n-1)! \)~
+   (goto (reg continue))                   ~\textrm{; return to caller}~
+ base-case
+   (assign val (const 1))                  ~\textrm{; base case: }~1! = 1
+   (goto (reg continue))                   ~\textrm{; return to caller}~
+ fact-done)
+\end{smallscheme}
+
+\end{comment}
+\includesvg[width=106mm]{fig/chap5/Fig5.11a.svg}
+\par\bigskip
+\noindent
+\heading{Figure 5.11:} A recursive factorial machine.
+\end{figure}
+
+Although in principle the factorial computation requires an infinite machine,
+the machine in \link{Figure 5.11} is actually finite except for the stack, which
+is potentially unbounded.  Any particular physical implementation of a stack,
+however, will be of finite size, and this will limit the depth of recursive
+calls that can be handled by the machine.  This implementation of factorial
+illustrates the general strategy for realizing recursive algorithms as ordinary
+register machines augmented by stacks.  When a recursive subproblem is
+encountered, we save on the stack the registers whose current values will be
+required after the subproblem is solved, solve the recursive subproblem, then
+restore the saved registers and continue execution on the main problem.  The
+\code{continue} register must always be saved.  Whether there are other
+registers that need to be saved depends on the particular machine, since not
+all recursive computations need the original values of registers that are
+modified during solution of the subproblem (see \link{Exercise 5.4}).
+
+\subsubsection*{A double recursion}
+
+Let us examine a more complex recursive process, the tree-recursive computation
+of the Fibonacci numbers, which we introduced in \link{Section 1.2.2}:
+
+\begin{scheme}
+(define (fib n)
+  (if (< n 2)
+      n
+      (+ (fib (- n 1)) (fib (- n 2)))))
+\end{scheme}
+
+\noindent
+Just as with factorial, we can implement the recursive Fibonacci computation as
+a register machine with registers \code{n}, \code{val}, and \code{continue}.
+The machine is more complex than the one for factorial, because there are two
+places in the controller sequence where we need to perform recursive
+calls---once to compute \( {\rm Fib}(n - 1) \) and once to compute \( {\rm Fib}(n - 2) \).  To
+set up for each of these calls, we save the registers whose values will be
+needed later, set the \code{n} register to the number whose Fib we need to
+compute recursively (\( n - 1 \) or \( n - 2 \)), and assign to \code{continue} the
+entry point in the main sequence to which to return (\code{afterfib\-/n\-/1} or
+\code{afterfib\-/n\-/2}, respectively).  We then go to \code{fib\-/loop}.  When we
+return from the recursive call, the answer is in \code{val}.  \link{Figure 5.12}
+shows the controller sequence for this machine.
+
+\begin{quote}
+\heading{\phantomsection\label{Figure 5.12}Figure 5.12:} \( \downarrow \) Controller for a machine to compute
+Fibonacci numbers.
+
+\begin{scheme}
+(controller
+   (assign continue (label fib-done))
+ fib-loop
+   (test (op <) (reg n) (const 2))
+   (branch (label immediate-answer))
+   ~\textrm{;; set up to compute Fib\( (n-1) \)}~
+   (save continue)
+   (assign continue (label afterfib-n-1))
+   (save n)                 ~\textrm{; save old value of \code{n}}~
+   (assign n (op -) (reg n) (const 1)) ~\textrm{; clobber \code{n} to \code{n\-/1}}~
+   (goto (label fib-loop))  ~\textrm{; perform recursive call}~
+ afterfib-n-1     ~\textrm{; upon return, \code{val} contains Fib\( (n-1) \)}~
+   (restore n)
+   (restore continue)
+   ~\textrm{;; set up to compute Fib\( (n - 2) \)}~
+   (assign n (op -) (reg n) (const 2))
+   (save continue)
+   (assign continue (label afterfib-n-2))
+   (save val)               ~\textrm{; save Fib\( (n-1) \)}~
+   (goto (label fib-loop))
+ afterfib-n-2     ~\textrm{; upon return, \code{val} contains Fib\( (n-2) \)}~
+   (assign n (reg val))     ~\textrm{; \code{n} now contains Fib\( (n-2) \)}~
+   (restore val)            ~\textrm{; \code{val} now contains Fib\( (n-1) \)}~
+   (restore continue)
+   (assign val              ~\textrm{; Fib\( (n-1) \) + Fib\( (n-2) \)}~
+           (op +) (reg val) (reg n))
+   (goto (reg continue))    ~\textrm{; return to caller, answer is in \code{val}}~
+ immediate-answer
+   (assign val (reg n))     ~\textrm{; base case: Fib\( (n) = n \)}~
+   (goto (reg continue))
+ fib-done)
+\end{scheme}
+
+\end{quote}
+
+\begin{quote}
+\heading{\phantomsection\label{Exercise 5.4}Exercise 5.4:} Specify register machines that
+implement each of the following procedures.  For each machine, write a
+controller instruction sequence and draw a diagram showing the data paths.
+
+\begin{enumerate}[a.]
+
+\item
+Recursive exponentiation:
+
+\begin{scheme}
+(define (expt b n)
+  (if (= n 0)
+      1
+      (* b (expt b (- n 1)))))
+\end{scheme}
+
+\item
+Iterative exponentiation:
+
+\begin{scheme}
+(define (expt b n)
+  (define (expt-iter counter product)
+    (if (= counter 0)
+        product
+        (expt-iter (- counter 1)
+                   (* b product))))
+  (expt-iter n 1))
+\end{scheme}
+
+\end{enumerate}
+\end{quote}
+
+\begin{quote}
+\heading{\phantomsection\label{Exercise 5.5}Exercise 5.5:} Hand-simulate the factorial and
+Fibonacci machines, using some nontrivial input (requiring execution of at
+least one recursive call).  Show the contents of the stack at each significant
+point in the execution.
+\end{quote}
+
+\begin{quote}
+\heading{\phantomsection\label{Exercise 5.6}Exercise 5.6:} Ben Bitdiddle observes that the
+Fibonacci machine's controller sequence has an extra \code{save} and an extra
+\code{restore}, which can be removed to make a faster machine.  Where are these
+instructions?
+\end{quote}
+
+\subsection{Instruction Summary}
+\label{Section 5.1.5}
+
+A controller instruction in our register-machine language has one of the
+following forms, where each \( \langle \)\var{input}\( _i\rangle \) is either \code{(reg
+\( \langle \)\var{register\-/name}\( \rangle \))} or \code{(const \( \langle \)\var{constant\-/value}\( \rangle \))}.  These
+instructions were introduced in \link{Section 5.1.1}:
+
+\begin{scheme}
+(assign ~\( \dark \langle \)~~\var{\dark register-name}~~\( \dark \rangle \)~ (reg ~\( \dark \langle \)~~\var{\dark register-name}~~\( \dark \rangle \)~))
+(assign ~\( \dark \langle \)~~\var{\dark register-name}~~\( \dark \rangle \)~ (const ~\( \dark \langle \)~~\var{\dark constant-value}~~\( \dark \rangle \)~))
+(assign ~\( \dark \langle \)~~\var{\dark register-name}~~\( \dark \rangle \)~
+        (op ~\( \dark \langle \)~~\var{\dark operation-name}~~\( \dark \rangle \)~)
+        ~\( \dark \langle \)~~\var{\dark input}~~\( \dark _{\mono{1}}\rangle \)~ ~\( \dots \)~ ~\( \dark \langle \)~~\var{\dark input}~~\( \dark _{\monoit{n}}\rangle \)~)
+(perform (op ~\( \dark \langle \)~~\var{\dark operation-name}~~\( \dark \rangle \)~) ~\( \dark \langle \)~~\var{\dark input}~~\( \dark _{\mono{1}}\rangle \)~ ~\( \dots \)~ ~\( \dark \langle \)~~\var{\dark input}~~\( \dark _{\monoit{n}}\rangle \)~)
+(test (op ~\( \dark \langle \)~~\var{\dark operation-name}~~\( \dark \rangle \)~) ~\( \dark \langle \)~~\var{\dark input}~~\( \dark _{\mono{1}}\rangle \)~ ~\( \dots \)~ ~\( \dark \langle \)~~\var{\dark input}~~\( \dark _{\monoit{n}}\rangle \)~)
+(branch (label ~\( \dark \langle \)~~\var{\dark label-name}~~\( \dark \rangle \)~))
+(goto (label ~\( \dark \langle \)~~\var{\dark label-name}~~\( \dark \rangle \)~))
+\end{scheme}
+
+\noindent
+The use of registers to hold labels was introduced in \link{Section 5.1.3}:
+
+\begin{scheme}
+(assign ~\( \dark \langle \)~~\var{\dark register-name}~~\( \dark \rangle \)~ (label ~\( \dark \langle \)~~\var{\dark label-name}~~\( \dark \rangle \)~))
+(goto (reg ~\( \dark \langle \)~~\var{\dark register-name}~~\( \dark \rangle \)~))
+\end{scheme}
+
+\noindent
+Instructions to use the stack were introduced in \link{Section 5.1.4}:
+
+\begin{scheme}
+(save ~\( \dark \langle \)~~\var{\dark register-name}~~\( \dark \rangle \)~)
+(restore ~\( \dark \langle \)~~\var{\dark register-name}~~\( \dark \rangle \)~)
+\end{scheme}
+
+\noindent
+The only kind of \( \langle \)\var{constant-value}\( \rangle \) we have seen
+so far is a number, but later we will use strings, symbols, and lists.
+For example,
+\begin{scheme}
+(const "abc") ~\textrm{is the string}~ "abc",
+(const abc) ~\textrm{is the symbol}~ abc,
+(const (a b c)) ~\textrm{is the list}~ (a b c),
+~\textrm{and}~ (const ()) ~\textrm{is the empty list.}~
+\end{scheme}
