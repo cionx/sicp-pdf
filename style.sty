@@ -4,7 +4,12 @@
 \usepackage{microtype}
 
 % Font settings
-\usepackage{unicode-math} %----------------------------%  This exact order
+\RequirePackage[
+	% no space around the following equal sign!
+	warnings-off={mathtools-colon,mathtools-overbracket},
+	partial = upright
+]{unicode-math}
+%------------------------------------------------------%  This exact order
 \defaultfontfeatures{%                                 %  of declarations
   Scale=MatchLowercase, % needed here ...              %  is important for
 }                                                      %  single quotes not
@@ -41,30 +46,11 @@
 	inkscapelatex = false
 }
 
-% Workaround to fix mismatched left and right math delimiters. Taken from:
-% http://tex.stackexchange.com/questions/63410/parentheses-differ-xelatex-fontspec-newtxmath-libertine
-\DeclareSymbolFont{parenthesis}{T1}{fxl}{m}{n}
-\DeclareMathDelimiter{(}{\mathopen}{parenthesis}{"28}{largesymbols}{"00}
-\DeclareMathDelimiter{)}{\mathclose}{parenthesis}{"29}{largesymbols}{"01}
-\DeclareMathDelimiter{[}{\mathopen}{parenthesis}{"5B}{largesymbols}{"02}
-\DeclareMathDelimiter{]}{\mathclose}{parenthesis}{"5D}{largesymbols}{"03}
-\DeclareMathDelimiter{\lbrace}{\mathopen}{parenthesis}{"7B}{largesymbols}{"08}
-\DeclareMathDelimiter{\rbrace}{\mathclose}{parenthesis}{"7D}{largesymbols}{"09}
-
 \usepackage{fancyvrb}
 \usepackage{imakeidx}
 \usepackage[totoc,font=footnotesize]{idxlayout}
 \usepackage{fancyhdr}
-\pagestyle{plain}
 \usepackage[final]{pdfpages} % inserts pages from a pdf file
-
-% Page geometry for 10-inch tablets:
-\usepackage[papersize={148mm,197mm},
-            top=21mm,
-            textwidth=111mm,  % increase one or both of these by 1mm or so to
-            textheight=148mm, % make the source compile with TeX Live 2013
-            hcentering,       % if you get "Too many unprocessed floats" error
-]{geometry}
 
 \usepackage{titlesec}  % to change the appearance of section titles
 \usepackage{listings}  % for syntax highlighted code listings
@@ -229,4 +215,3 @@
 
 \frenchspacing
 \makeindex
-
