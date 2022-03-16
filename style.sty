@@ -11,14 +11,14 @@
 ]{unicode-math}
 %------------------------------------------------------%  This exact order
 \defaultfontfeatures{%                                 %  of declarations
-  Scale=MatchLowercase, % needed here ...              %  is important for
+	Scale=MatchLowercase, % needed here ...              %  is important for
 }                                                      %  single quotes not
-\setmonofont{Inconsolata}                              %  to turn out curly
+\setmonofont{JuliaMono}                                %  to turn out curly
                                                        %  ("typographic")
 \defaultfontfeatures{%                                 %  in verbatim blocks
-  Scale=MatchLowercase, % ... and here again           %  of Scheme code.
-  Mapping=tex-text,                                    %  Now the quote is
-  SmallCapsFeatures={LetterSpace=2.5,WordSpace=1.05},  %  upright and safely
+	Scale=MatchLowercase, % ... and here again           %  of Scheme code.
+	Mapping=tex-text,                                    %  Now the quote is
+	SmallCapsFeatures={LetterSpace=2.5,WordSpace=1.05},  %  upright and safely
 }                                                      %  copy-pasteable to
 \setmainfont{Libertinus Serif}                         %  the REPL without
 \setsansfont{Libertinus Sans} %------------------------%  giving errors.
