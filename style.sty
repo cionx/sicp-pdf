@@ -48,10 +48,8 @@
 \usepackage{fancyvrb}
 \usepackage{imakeidx}
 \usepackage[totoc,font=footnotesize]{idxlayout}
-\usepackage{fancyhdr}
 \usepackage[final]{pdfpages} % inserts pages from a pdf file
 
-\usepackage{titlesec}  % to change the appearance of section titles
 \usepackage{listings}  % for syntax highlighted code listings
 \usepackage{verbatim}  % for simple verbatim and comment environments
 \usepackage{enumerate} % allows customized labels in enumerations
@@ -412,26 +410,6 @@
 \lstnewenvironment{smallscheme}[1][]
 {\lstset{basicstyle=\ttfamily\footnotesize\color{SchemeLight},#1}}
 {}
-
-\titleformat{\chapter}[display]
-  {\color{SchemeDark}\normalfont\sffamily\bfseries\LARGE}
-  {\filright \color{ChapterViolet}\sffamily\mdseries
-    \fontsize{6em}{0em}\selectfont
-    \oldstylenums{\thechapter}}
-  {1em}
-  {\filright}
-
-\titleformat{\section}
-{\color{SchemeDark}\normalfont\Large\sffamily\bfseries}
-{\color{DropCapViolet}\thesection}{0.8em}{}
-
-\titleformat{\subsection}
-{\color{SchemeDark}\normalfont\large\sffamily\bfseries}
-{\color{DropCapViolet}\thesubsection}{0.8em}{}
-
-\titleformat{\subsubsection}
-{\color{black}\normalfont\normalsize\sffamily\bfseries}
-{\color{DropCapViolet}\thesubsubsection}{0.8em}{}
 
 \setcounter{secnumdepth}{3}
 \setcounter{tocdepth}{3}
