@@ -52,7 +52,7 @@
 
 \usepackage{listings}  % for syntax highlighted code listings
 \usepackage{verbatim}  % for simple verbatim and comment environments
-\usepackage{enumerate} % allows customized labels in enumerations
+\usepackage{enumitem}  % allows customized labels in enumerations
 \usepackage{hyperref}  % makes cross references and URLs clickable
 \definecolor{LinkRed}{HTML}{80171F}
 \hypersetup{
@@ -416,3 +416,10 @@
 
 \frenchspacing
 \makeindex
+
+\setlist[description, 1]{
+	leftmargin = *,
+	labelsep = 0pt
+}
+
+\DeclarePairedDelimiter{\abs}{\lvert}{\rvert}
