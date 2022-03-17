@@ -6,19 +6,21 @@
 	warnings-off={mathtools-colon,mathtools-overbracket},
 	partial = upright
 ]{unicode-math}
-%------------------------------------------------------%  This exact order
-\defaultfontfeatures{%                                 %  of declarations
-	Scale=MatchLowercase, % needed here ...              %  is important for
-}                                                      %  single quotes not
-\setmonofont{JuliaMono}                                %  to turn out curly
-                                                       %  ("typographic")
-\defaultfontfeatures{%                                 %  in verbatim blocks
-	Scale=MatchLowercase, % ... and here again           %  of Scheme code.
-	Mapping=tex-text,                                    %  Now the quote is
-	SmallCapsFeatures={LetterSpace=2.5,WordSpace=1.05},  %  upright and safely
-}                                                      %  copy-pasteable to
-\setmainfont{Libertinus Serif}                         %  the REPL without
-\setsansfont{Libertinus Sans} %------------------------%  giving errors.
+
+\defaultfontfeatures{%
+	Scale=MatchLowercase, % needed here ...
+}
+\setmonofont{JuliaMono}
+
+\defaultfontfeatures{%
+	Scale=MatchLowercase, % ... and here again
+	Mapping=tex-text,
+	SmallCapsFeatures={LetterSpace=2.5,WordSpace=1.05},
+}
+\setmainfont[
+	Numbers = OldStyle
+]{Libertinus Serif}
+\setsansfont{Libertinus Sans}
 \setmathfont{Libertinus Math}
 
 \usepackage{polyglossia}
