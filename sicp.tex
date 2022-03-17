@@ -5,30 +5,55 @@
 \begin{document}
 
 \VerbatimFootnotes
+
+\frontmatter
+\include{content/coverpage.tex}
+\include{content/information.tex}
+\include{content/unofficial_texinfo_format.tex}
+\tableofcontents
+\include{content/dedication.tex}
+\include{content/foreword.tex}
+\include{content/preface_second_edition.tex}
+\include{content/preface_first_edition.tex}
+\include{content/acknowledgments.tex}
+
+\mainmatter
+\include{content/1_building_abstraction_with_procedures.tex}
+\include{content/2_building_abstraction_with_data.tex}
+\include{content/3_modularity_objects_and_state.tex}
+\include{content/4_metalinguistic_abstraction.tex}
+\include{content/5_computing_with_register_machines.tex}
+
+\backmatter
+\include{content/references.tex}
+\include{content/list_of_exercises.tex}
+\include{content/list_of_figures.tex}
+\include{content/index.tex}
+
+\end{document}
+
+
+
 %
-%             **********************************************************
-%         sicp
-%            Structure and Interpretation of Computer Programs, 2e
-%             Unofficial Texinfo Format
+% ***********************************************************
+%  sicp
+%  Structure and Interpretation of Computer Programs, 2e
+%  Unofficial Texinfo Format
 %
 %
-%             This file is licensed under a Creative Commons
-%             Attribution-ShareAlike 4.0 International License
-%             (http://creativecommons.org/licenses/by-sa/4.0/).
+%  This file is licensed under a Creative Commons
+%  Attribution-ShareAlike 4.0 International License
+%  (http://creativecommons.org/licenses/by-sa/4.0/).
 %
-%             This is a Texinfo file with embedded LaTeX commands.
-%             To compile it to PDF, enter `make' in current directory.
-%             For more information about this file, see the text under
-%             `\label{UTF' below.}
+%  Various versions of sicp.texi and preformatted sicp.info
+%  can be found at the following Web pages:
 %
-%             Various versions of sicp.texi and preformatted sicp.info
-%             can be found at the following Web pages:
+%      http://www.neilvandyke.org/sicp-texi/
+%      http://sicpebook.wordpress.com/
+%      [add your own here]
 %
-%                 http://www.neilvandyke.org/sicp-texi/
-%                 http://sicpebook.wordpress.com/
-%                 [add your own here]
+% ***********************************************************
 %
-%             **********************************************************
 % HISTORY:
 %
 % * Version 1 (April, 2001) by Lytha Ayth.
@@ -84,37 +109,3 @@
 %   Improved microtypography in code listings. Removed manual
 %   word breaks. Fixed broken links.
 %
-
-
-
-\frontmatter
-
-\pagestyle{plain}
-\include{content/coverpage.tex}
-\include{content/information.tex}
-
-\tableofcontents
-
-\include{content/version.tex}
-\include{content/frontmatter.tex}
-
-
-
-\mainmatter
-
-\include{content/1_building_abstraction_with_procedures.tex}
-\include{content/2_building_abstraction_with_data.tex}
-\include{content/3_modularity_objects_and_state.tex}
-\include{content/4_metalinguistic_abstraction.tex}
-\include{content/5_computing_with_register_machines.tex}
-
-
-
-\backmatter
-
-\include{content/references.tex}
-\include{content/list_of_exercises.tex}
-\include{content/list_of_figures.tex}
-\include{content/index.tex}
-
-\end{document}
