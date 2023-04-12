@@ -1,0 +1,293 @@
+\subsection{Interfacing Compiled Code to the Evaluator}
+\label{Section 5.5.7}
+
+We have not yet explained how to load compiled code into the evaluator machine or how to run it.
+We will assume that the explicit-control-evaluator machine has been defined as in \link{Section 5.4.4}, with the additional operations specified in \link{Footnote 38}.
+We will implement a procedure \code{compile-and-go} that compiles a Scheme expression, loads the resulting object code into the evaluator machine, and causes the machine to run the code in the evaluator global environment, print the result, and enter the evaluator’s driver loop.
+We will also modify the evaluator so that interpreted expressions can call compiled procedures as well as interpreted ones.
+We can then put a compiled procedure into the machine and use the evaluator to call it:
+
+\begin{scheme}
+  (compile-and-go
+   '(define (factorial n)
+      (if (= n 1)
+          1
+          (* (factorial (- n 1)) n))))
+  ~\outprint{;;; EC-Eval value:}~
+  ~\outprint{ok}~
+
+  ~\outprint{;;; EC-Eval input:}~
+  (factorial 5)
+  ~\outprint{;;; EC-Eval value:}~
+  ~\outprint{120}~
+\end{scheme}
+
+To allow the evaluator to handle compiled procedures (for example, to evaluate the call to \code{factorial} above), we need to change the code at \code{apply-dispatch} (\link{Section 5.4.1}) so that it recognizes compiled procedures (as distinct from compound or primitive procedures) and transfers control directly to the entry point of the compiled code:%
+\footnote{
+	Of course, compiled procedures as well as interpreted procedures are compound (nonprimitive).
+	For compatibility with the terminology used in the explicit-control evaluator, in this section we will use “compound” to mean interpreted (as opposed to compiled).
+}
+\begin{scheme}
+  apply-dispatch
+    (test (op primitive-procedure?) (reg proc))
+    (branch (label primitive-apply))
+    (test (op compound-procedure?) (reg proc))
+    (branch (label compound-apply))
+    (test (op compiled-procedure?) (reg proc))
+    (branch (label compiled-apply))
+    (goto (label unknown-procedure-type))
+
+  compiled-apply
+    (restore continue)
+    (assign val (op compiled-procedure-entry) (reg proc))
+    (goto (reg val))
+\end{scheme}
+Note the restore of \code{continue} at \code{compiled-apply}.
+Recall that the evaluator was arranged so that at \code{apply-dispatch}, the continuation would be at the top of the stack.
+The compiled code entry point, on the other hand, expects the continuation to be in \code{continue}, so \code{continue} must be restored before the compiled code is executed.
+
+To enable us to run some compiled code when we start the evaluator machine, we add a \code{branch} instruction at the beginning of the evaluator machine, which causes the machine to go to a new entry point if the \code{flag} register is set.%
+\footnote{
+	Now that the evaluator machine starts with a \code{branch}, we must always initialize the \code{flag} register before starting the evaluator machine.
+	To start the machine at its ordinary read-eval-print loop, we could use
+	\begin{smallscheme}
+	  (define (start-eceval)
+	    (set! the-global-environment (setup-environment))
+	    (set-register-contents! eceval 'flag false)
+	    (start eceval))
+	\end{smallscheme}
+}
+\begin{scheme}
+  (branch (label external-entry))    ~\textrm{; branches if \code{flag} is set}~
+read-eval-print-loop
+  (perform (op initialize-stack))
+  …
+\end{scheme}
+\code{external-entry} assumes that the machine is started with \code{val} containing the location of an instruction sequence that puts a result into \code{val} and ends with \code{(goto (reg continue))}.
+Starting at this entry point jumps to the location designated by \code{val}, but first assigns \code{continue} so that execution will return to \code{print-result}, which prints the value in \code{val} and then goes to the beginning of the evaluator’s read-eval-print loop.%
+\footnote{
+	Since a compiled procedure is an object that the system may try to print, we also modify the system print operation \code{user-print} (from \link{Section 4.1.4}) so that it will not attempt to print the components of a compiled procedure:
+	\begin{smallscheme}
+	  (define (user-print object)
+	    (cond ((compound-procedure? object)
+	           (display (list 'compound-procedure
+	                          (procedure-parameters object)
+	                          (procedure-body object)
+	                          '<procedure-env>)))
+	          ((compiled-procedure? object)
+	           (display '<compiled-procedure>))
+	          (else (display object))))
+	\end{smallscheme}
+}
+\begin{scheme}
+  external-entry
+    (perform (op initialize-stack))
+    (assign env (op get-global-environment))
+    (assign continue (label print-result))
+    (goto (reg val))
+\end{scheme}
+
+Now we can use the following procedure to compile a procedure definition, execute the compiled code, and run the read-eval-print loop so we can try the procedure.
+Because we want the compiled code to return to the location in \code{continue} with its result in \code{val}, we compile the expression with a target of \code{val} and a linkage of \code{return}.
+In order to transform the object code produced by the compiler into executable instructions for the evaluator register machine, we use the procedure \code{assemble} from the register-machine simulator (\link{Section 5.2.2}).
+We then initialize the \code{val} register to point to the list of instructions, set the \code{flag} so that the evaluator will go to \code{external-entry}, and start the evaluator.
+\begin{scheme}
+  (define (compile-and-go expression)
+    (let ((instructions
+           (assemble
+            (statements
+             (compile expression 'val 'return))
+            eceval)))
+      (set! the-global-environment (setup-environment))
+      (set-register-contents! eceval 'val instructions)
+      (set-register-contents! eceval 'flag true)
+      (start eceval)))
+\end{scheme}
+
+If we have set up stack monitoring, as at the end of \link{Section 5.4.4}, we
+can examine the stack usage of compiled code:
+\begin{scheme}
+  (compile-and-go
+   '(define (factorial n)
+      (if (= n 1)
+          1
+          (* (factorial (- n 1)) n))))
+
+  ~\outprint{(total-pushes = 0 maximum-depth = 0)}~
+  ~\outprint{;;; EC-Eval value:}~
+  ~\outprint{ok}~
+
+  ~\outprint{;;; EC-Eval input:}~
+  (factorial 5)
+  ~\outprint{(total-pushes = 31 maximum-depth = 14)}~
+  ~\outprint{;;; EC-Eval value:}~
+  ~\outprint{120}~
+\end{scheme}
+
+Compare this example with the evaluation of \code{(factorial 5)} using the interpreted version of the same procedure, shown at the end of \link{Section 5.4.4}.
+The interpreted version required 144 pushes and a maximum stack depth of \( 28 \).
+This illustrates the optimization that results from our compilation strategy.
+
+
+
+\subsubsection*{Interpretation and compilation}
+
+With the programs in this section, we can now experiment with the alternative execution strategies of interpretation and compilation.%
+\footnote{
+	We can do even better by extending the compiler to allow compiled code to call interpreted procedures.
+	See \link{Exercise 5.47}.
+}
+An interpreter raises the machine to the level of the user program;
+a compiler lowers the user program to the level of the machine language.
+We can regard the Scheme language (or any programming language) as a coherent family of abstractions erected on the machine language.
+Interpreters are good for interactive program development and debugging because the steps of program execution are organized in terms of these abstractions, and are therefore more intelligible to the programmer.
+Compiled code can execute faster, because the steps of program execution are organized in terms of the machine language, and the compiler is free to make optimizations that cut across the higher-level abstractions.%
+\footnote{
+	Independent of the strategy of execution, we incur significant overhead if we insist that errors encountered in execution of a user program be detected and signaled, rather than being allowed to kill the system or produce wrong answers.
+	For example, an out-of-bounds array reference can be detected by checking the validity of the reference before performing it.
+	The overhead of checking, however, can be many times the cost of the array reference itself, and a programmer should weigh speed against safety in determining whether such a check is desirable.
+	A good compiler should be able to produce code with such checks, should avoid redundant checks, and should allow programmers to control the extent and type of error checking in the compiled code.
+
+	Compilers for popular languages, such as C and C++, put hardly any error-checking operations into running code, so as to make things run as fast as possible.
+	As a result, it falls to programmers to explicitly provide error checking.
+	Unfortunately, people often neglect to do this, even in critical applications where speed is not a constraint.
+	Their programs lead fast and dangerous lives.
+	For example, the notorious “Worm” that paralyzed the Internet in 1988 exploited the \acronym{UNIX}(tm) operating system’s failure to check whether the input buffer has overflowed in the finger daemon.
+	(See \link{Spafford 1989}.)
+}
+
+The alternatives of interpretation and compilation also lead to different strategies for porting languages to new computers.
+Suppose that we wish to implement Lisp for a new machine.
+One strategy is to begin with the explicit-control evaluator of \link{Section 5.4} and translate its instructions to instructions for the new machine.
+A different strategy is to begin with the compiler and change the code generators so that they generate code for the new machine.
+The second strategy allows us to run any Lisp program on the new machine by first compiling it with the compiler running on our original Lisp system, and linking it with a compiled version of the run-time library.%
+\footnote{
+	Of course, with either the interpretation or the compilation strategy we must also implement for the new machine storage allocation, input and output, and all the various operations that we took as “primitive” in our discussion of the evaluator and compiler.
+	One strategy for minimizing work here is to write as many of these operations as possible in Lisp and then compile them for the new machine.
+	Ultimately, everything reduces to a small kernel (such as garbage collection and the mechanism for applying actual machine primitives) that is hand-coded for the new machine.
+}
+Better yet, we can compile the compiler itself, and run this on the new machine to compile other Lisp programs.%
+\footnote{
+	This strategy leads to amusing tests of correctness of the compiler, such as checking whether the compilation of a program on the new machine, using the compiled compiler, is identical with the compilation of the program on the original Lisp system.
+	Tracking down the source of differences is fun but often frustrating, because the results are extremely sensitive to minuscule details.
+}
+Or we can compile one of the interpreters of \link{Section 4.1} to produce an interpreter that runs on the new machine.
+
+
+
+\begin{exercise}
+	\label{Exercise 5.45}
+	By comparing the stack operations used by compiled code to the stack operations used by the evaluator for the same computation, we can determine the extent to which the compiler optimizes use of the stack, both in speed (reducing the total number of stack operations) and in space (reducing the maximum stack depth).
+	Comparing this optimized stack use to the performance of a special-purpose machine for the same computation gives some indication of the quality of the compiler.
+	\begin{enumerate}[label = \alph*., leftmargin = *]
+
+		\item
+			\link{Exercise 5.27} asked you to determine, as a function of \( n \), the number of pushes and the maximum stack depth needed by the evaluator to compute \( n! \) using the recursive factorial procedure given above.
+			\link{Exercise 5.14} asked you to do the same measurements for the special-purpose factorial machine shown in \link{Figure 5.11}.
+			Now perform the same analysis using the compiled \code{factorial} procedure.
+
+			Take the ratio of the number of pushes in the compiled version to the number of pushes in the interpreted version, and do the same for the maximum stack depth.
+			Since the number of operations and the stack depth used to compute \( n! \)  are linear in \( n \), these ratios should approach constants as \( n \) becomes large.
+			What are these constants?
+			Similarly, find the ratios of the stack usage in the special-purpose machine to the usage in the interpreted version.
+			Compare the ratios for special-purpose versus interpreted code to the ratios for compiled versus interpreted code.
+			You should find that the special-purpose machine does much better than the compiled code, since the hand-tailored controller code should be much better than what is produced by our rudimentary general-purpose compiler.
+
+		\item
+			Can you suggest improvements to the compiler that would help it generate code that would come closer in performance to the hand-tailored version?
+
+	\end{enumerate}
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 5.46}
+	Carry out an analysis like the one in \link{Exercise 5.45} to determine the effectiveness of compiling the tree-recursive Fibonacci procedure
+	\begin{scheme}
+	  (define (fib n)
+	    (if (< n 2)
+	        n
+	        (+ (fib (- n 1))
+	          (fib (- n 2)))))
+	\end{scheme}
+	compared to the effectiveness of using the special-purpose Fibonacci machine of \link{Figure 5.12}.
+	(For measurement of the interpreted performance, see \link{Exercise 5.29}.)
+	For Fibonacci, the time resource used is not linear in \( n \);
+	hence the ratios of stack operations will not approach a limiting value that is independent of \( n \).
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 5.47}
+	This section described how to modify the explicit-control evaluator so that interpreted code can call compiled procedures.
+	Show how to modify the compiler so that compiled procedures can call not only primitive procedures and compiled procedures, but interpreted procedures as well.
+	This requires modifying \code{compile-procedure-call} to handle the case of compound (interpreted) procedures.
+	Be sure to handle all the same \code{target} and \code{linkage} combinations as in \code{compile-proc-appl}.
+	To do the actual procedure application, the code needs to jump to the evaluator’s \code{compound-apply} entry point.
+	This label cannot be directly referenced in object code (since the assembler requires that all labels referenced by the code it is assembling be defined there), so we will add a register called \code{compapp} to the evaluator machine to hold this entry point, and add an instruction to initialize it:
+	\begin{scheme}
+	   (assign compapp (label compound-apply))
+	   (branch (label external-entry)) ~\textrm{; branches if \code{flag} is set}~
+	  read-eval-print-loop …
+	\end{scheme}
+	To test your code, start by defining a procedure \code{f} that calls a procedure \code{g}.
+	Use \code{compile-and-go} to compile the definition of \code{f} and start the evaluator.
+	Now, typing at the evaluator, define \code{g} and try to call \code{f}.
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 5.48}
+	The \code{compile-and-go} interface implemented in this section is awkward, since the compiler can be called only once (when the evaluator machine is started).
+	Augment the compiler-interpreter interface by providing a \code{compile-and-run} primitive that can be called from within the explicit-control evaluator as follows:
+	\begin{scheme}
+	  ~\outprint{;;; EC-Eval input:}~
+	  (compile-and-run
+	   '(define (factorial n)
+	      (if (= n 1) 1 (* (factorial (- n 1)) n))))
+	  ~\outprint{;;; EC-Eval value:}~
+	  ~\outprint{ok}~
+
+	  ~\outprint{;;; EC-Eval input:}~
+	  (factorial 5)
+	  ~\outprint{;;; EC-Eval value:}~
+	  ~\outprint{120}~
+	\end{scheme}
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 5.49}
+	As an alternative to using the explicit-control evaluator’s read-eval-print loop, design a register machine that performs a read-compile-execute-print loop.
+	That is, the machine should run a loop that reads an expression, compiles it, assembles and executes the resulting code, and prints the result.
+	This is easy to run in our simulated setup, since we can arrange to call the procedures \code{compile} and \code{assemble} as “register-machine operations.”
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 5.50}
+	Use the compiler to compile the metacircular evaluator of \link{Section 4.1} and run this program using the register-machine simulator.
+	(To compile more than one definition at a time, you can package the definitions in a \code{begin}.)
+	The resulting interpreter will run very slowly because of the multiple levels of interpretation, but getting all the details to work is an instructive exercise.
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 5.51}
+	Develop a rudimentary implementation of Scheme in C (or some other low-level language of your choice) by translating the explicit-control evaluator of \link{Section 5.4} into C.
+	In order to run this code you will need to also provide appropriate storage-allocation routines and other run-time support.
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 5.52}
+	As a counterpoint to \link{Exercise 5.51}, modify the compiler so that it compiles Scheme procedures into sequences of C instructions.
+	Compile the metacircular evaluator of \link{Section 4.1} to produce a Scheme interpreter written in C.
+\end{exercise}

@@ -1,0 +1,417 @@
+\subsection{Representing Expressions}
+\label{Section 4.1.2}
+
+The evaluator is reminiscent of the symbolic differentiation program discussed in \link{Section 2.3.2}.
+Both programs operate on symbolic expressions.
+In both programs, the result of operating on a compound expression is determined by operating recursively on the pieces of the expression and combining the results in a way that depends on the type of the expression.
+In both programs we used data abstraction to decouple the general rules of operation from the details of how expressions are represented.
+In the differentiation program this meant that the same differentiation procedure could deal with algebraic expressions in prefix form, in infix form, or in some other form.
+For the evaluator, this means that the syntax of the language being evaluated is determined solely by the procedures that classify and extract pieces of expressions.
+
+Here is the specification of the syntax of our language:
+\begin{itemize}[leftmargin=*]
+
+	\item
+		The only self-evaluating items are numbers and strings:
+
+		\begin{scheme}
+		  (define (self-evaluating? exp)
+		    (cond ((number? exp) true)
+		          ((string? exp) true)
+		          (else false)))
+		\end{scheme}
+
+	\item
+		Variables are represented by symbols:
+
+		\begin{scheme}
+		  (define (variable? exp) (symbol? exp))
+		\end{scheme}
+
+	\item
+		Quotations have the form \code{(quote ⟨\var{text-of-quotation}⟩)}:%
+		\footnote{
+			As mentioned in \link{Section 2.3.1}, the evaluator sees a quoted expression as a list beginning with \code{quote}, even if the expression is typed with the quotation mark.
+			For example, the expression \code{'a} would be seen by the evaluator as \code{(quote a)}.
+		See \link{Exercise 2.55}.
+		}
+		\begin{scheme}
+		  (define (quoted? exp) (tagged-list? exp 'quote))
+		  (define (text-of-quotation exp) (cadr exp))
+		\end{scheme}
+		\code{quoted?} is defined in terms of the procedure \code{tagged-list?}, which identifies lists beginning with a designated symbol:
+		\begin{scheme}
+		  (define (tagged-list? exp tag)
+		    (if (pair? exp)
+		        (eq? (car exp) tag)
+		        false))
+		\end{scheme}
+
+	\item
+		Assignments have the form \code{(set! ⟨\var{var}⟩ ⟨\var{value}⟩)}:
+
+		\begin{scheme}
+		  (define (assignment? exp) (tagged-list? exp 'set!))
+
+		  (define (assignment-variable exp) (cadr exp))
+
+		  (define (assignment-value exp) (caddr exp))
+		\end{scheme}
+
+	\item
+		Definitions have the form
+		\begin{scheme}
+		  (define ⟨~\var{var}~⟩ ⟨~\var{value}~⟩)
+		\end{scheme}
+		or the form
+		\begin{scheme}
+		  (define (⟨~\var{var}~⟩ ⟨~\var{parameter}\ind{1}~⟩ … ⟨~\var{parameter}\ind{n}~⟩
+		    ⟨~\var{body}~⟩)
+		\end{scheme}
+		The latter form (standard procedure definition) is syntactic sugar for
+		\begin{scheme}
+		  (define ⟨~\var{var}~⟩
+		    (lambda (⟨~\var{parameter}\ind{1}~⟩ … ⟨~\var{parameter}\ind{n}~⟩)
+		      ⟨~\var{body}~⟩))
+		\end{scheme}
+		The corresponding syntax procedures are the following:
+		\begin{scheme}
+		  (define (definition? exp) (tagged-list? exp 'define))
+
+		  (define (definition-variable exp)
+		    (if (symbol? (cadr exp))
+		        (cadr exp)
+		        (caadr exp)))
+
+		  (define (definition-value exp)
+		    (if (symbol? (cadr exp))
+		        (caddr exp)
+		        (make-lambda (cdadr exp)     ~\textrm{; formal parameters}~
+		                     (cddr exp))))   ~\textrm{; body}~
+		\end{scheme}
+
+	\item
+		\code{lambda} expressions are lists that begin with the symbol \code{lambda}:
+
+	\begin{scheme}
+	  (define (lambda? exp) (tagged-list? exp 'lambda))
+
+	  (define (lambda-parameters exp) (cadr exp))
+
+	  (define (lambda-body exp) (cddr exp))
+	\end{scheme}
+	We also provide a constructor for \code{lambda} expressions, which is used by
+	\code{definition-value}, above:
+	\begin{scheme}
+	  (define (make-lambda parameters body)
+	    (cons 'lambda (cons parameters body)))
+	\end{scheme}
+
+	\item
+		Conditionals begin with \code{if} and have a predicate, a consequent, and an (optional) alternative.
+		If the expression has no alternative part, we provide \code{false} as the alternative.%
+		\footnote{
+			The value of an \code{if} expression when the predicate is false and there is no alternative is unspecified in Scheme;
+			we have chosen here to make it false.
+			We will support the use of the variables \code{true} and \code{false} in expressions to be evaluated by binding them in the global environment.
+			See \link{Section 4.1.4}.
+		}
+
+		\begin{scheme}
+		  (define (if? exp) (tagged-list? exp 'if))
+
+		  (define (if-predicate exp) (cadr exp))
+
+		  (define (if-consequent exp) (caddr exp))
+
+		  (define (if-alternative exp)
+		    (if (not (null? (cdddr exp)))
+		        (cadddr exp)
+		        'false))
+		\end{scheme}
+
+		We also provide a constructor for \code{if} expressions, to be used by \code{cond->if} to transform \code{cond} expressions into \code{if} expressions:
+
+		\begin{scheme}
+		  (define (make-if predicate consequent alternative)
+		    (list 'if predicate consequent alternative))
+		\end{scheme}
+
+	\item
+		\code{begin} packages a sequence of expressions into a single expression.
+		We include syntax operations on \code{begin} expressions to extract the actual sequence from the \code{begin} expression, as well as selectors that return the first expression and the rest of the expressions in the sequence.%
+		\footnote{
+			These selectors for a list of expressions---and the corresponding ones for a list of operands---are not intended as a data abstraction.
+			They are introduced as mnemonic names for the basic list operations in order to make it easier to understand the explicit-control evaluator in \link{Section 5.4}.
+		}
+
+		\begin{scheme}
+		  (define (begin? exp) (tagged-list? exp 'begin))
+
+		  (define (begin-actions exp) (cdr exp))
+
+		  (define (last-exp? seq) (null? (cdr seq)))
+
+		  (define (first-exp seq) (car seq))
+
+		  (define (rest-exps seq) (cdr seq))
+		\end{scheme}
+
+		We also include a constructor \code{sequence->exp} (for use by \code{cond->if}) that transforms a sequence into a single expression, using \code{begin} if necessary:
+
+		\begin{scheme}
+		  (define (sequence->exp seq)
+		    (cond ((null? seq) seq)
+		          ((last-exp? seq) (first-exp seq))
+		          (else (make-begin seq))))
+
+		  (define (make-begin seq) (cons 'begin seq))
+		\end{scheme}
+
+	\item
+		A procedure application is any compound expression that is not one of the above expression types.
+		The \code{car} of the expression is the operator, and the \code{cdr} is the list of operands:
+
+		\begin{scheme}
+		  (define (application? exp) (pair? exp))
+
+		  (define (operator exp) (car exp))
+
+		  (define (operands exp) (cdr exp))
+
+		  (define (no-operands? ops) (null? ops))
+
+		  (define (first-operand ops) (car ops))
+
+		  (define (rest-operands ops) (cdr ops))
+		\end{scheme}
+
+\end{itemize}
+
+
+
+\subsubsection*{Derived expressions}
+
+Some special forms in our language can be defined in terms of expressions involving other special forms, rather than being implemented directly.
+One example is \code{cond}, which can be implemented as a nest of \code{if} expressions.
+For example, we can reduce the problem of evaluating the expression
+\begin{scheme}
+  (cond ((> x 0) x)
+        ((= x 0) (display 'zero) 0)
+        (else (- x)))
+\end{scheme}
+to the problem of evaluating the following expression involving \code{if} and \code{begin} expressions:
+\begin{scheme}
+  (if (> x 0)
+      x
+      (if (= x 0)
+          (begin (display 'zero) 0)
+          (- x)))
+\end{scheme}
+Implementing the evaluation of \code{cond} in this way simplifies the evaluator because it reduces the number of special forms for which the evaluation process must be explicitly specified.
+
+We include syntax procedures that extract the parts of a \code{cond} expression, and a procedure \code{cond->if} that transforms \code{cond} expressions into \code{if} expressions.
+A case analysis begins with \code{cond} and has a list of predicate-action clauses.
+A clause is an \code{else} clause if its predicate is the symbol \code{else}.%
+\footnote{
+	The value of a \code{cond} expression when all the predicates are false and there is no \code{else} clause is unspecified in Scheme;
+	we have chosen here to make it false.
+}
+\begin{scheme}
+  (define (cond? exp) (tagged-list? exp 'cond))
+
+  (define (cond-clauses exp) (cdr exp))
+
+  (define (cond-else-clause? clause)
+    (eq? (cond-predicate clause) 'else))
+
+  (define (cond-predicate clause) (car clause))
+
+  (define (cond-actions clause) (cdr clause))
+
+  (define (cond->if exp) (expand-clauses (cond-clauses exp)))
+
+  (define (expand-clauses clauses)
+    (if (null? clauses)
+        'false                        ~\textrm{; no \code{else} clause}~
+        (let ((first (car clauses))
+              (rest (cdr clauses)))
+          (if (cond-else-clause? first)
+              (if (null? rest)
+                  (sequence->exp (cond-actions first))
+                  (error "ELSE clause isn’t last: COND->IF"
+                         clauses))
+              (make-if (cond-predicate first)
+                       (sequence->exp (cond-actions first))
+                       (expand-clauses rest))))))
+\end{scheme}
+
+Expressions (such as \code{cond}) that we choose to implement as syntactic transformations are called \newterm{derived expressions}.
+\code{let} expressions are also derived expressions (see
+\link{Exercise 4.6}).%
+\footnote{
+	Practical Lisp systems provide a mechanism that allows a user to add new derived expressions and specify their implementation as syntactic transformations without modifying the evaluator.
+	Such a user-defined transformation is called a \newterm{macro}.
+	Although it is easy to add an elementary mechanism for defining macros, the resulting language has subtle name-conflict problems.
+	There has been much research on mechanisms for macro definition that do not cause these difficulties.
+	See, for example, \link{Kohlbecker 1986}, \link{Clinger and Rees 1991}, and \link{Hanson 1991}.
+}
+
+
+
+\begin{exercise}
+	\label{Exercise 4.2}
+	Louis Reasoner plans to reorder the \code{cond} clauses in \code{eval} so that the clause for procedure applications appears before the clause for assignments.
+	He argues that this will make the interpreter more efficient:
+	Since programs usually contain more applications than assignments, definitions, and so on, his modified \code{eval} will usually check fewer clauses than the original \code{eval} before identifying the type of an expression.
+	\begin{enumerate}[label=\alph*., leftmargin = *]
+
+		\item
+			What is wrong with Louis’s plan?
+			(Hint: What will Louis’s evaluator do with the expression \code{(define x 3)}?)
+
+		\item
+			Louis is upset that his plan didn’t work.
+			He is willing to go to any lengths to make his evaluator recognize procedure applications before it checks for most other kinds of expressions.
+			Help him by changing the syntax of the evaluated language so that procedure applications start with \code{call}.
+			For example, instead of \code{(factorial 3)} we will now have to write \code{(call factorial 3)} and instead of \code{(+ 1 2)} we will have to write \code{(call + 1 2)}.
+
+	\end{enumerate}
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 4.3}
+	Rewrite \code{eval} so that the dispatch is done in data-directed style.
+	Compare this with the data-directed differentiation procedure of \link{Exercise 2.73}.
+	(You may use the \code{car} of a compound expression as the type of the expression, as is appropriate for the syntax implemented in this section.)
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 4.4}
+	Recall the definitions of the
+	special forms \code{and} and \code{or} from \link{Chapter 1}:
+	\begin{itemize}
+
+		\item
+			\code{and}:
+			The expressions are evaluated from left to right.
+			If any expression evaluates to false, false is returned;
+			any remaining expressions are not evaluated.
+			If all the expressions evaluate to true values, the value of the last expression is returned.
+			If there are no expressions then true is returned.
+
+
+		\item
+			\code{or}:
+			The expressions are evaluated from left to right.
+			If any expression evaluates to a true value, that value is returned;
+			any remaining expressions are not evaluated.
+			If all expressions evaluate to false, or if there are no expressions, then false is returned.
+
+	\end{itemize}
+
+	Install \code{and} and \code{or} as new special forms for the evaluator by defining appropriate syntax procedures and evaluation procedures \code{eval-and} and \code{eval-or}.
+	Alternatively, show how to implement \code{and} and \code{or} as derived expressions.
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 4.5}
+	Scheme allows an additional syntax for \code{cond} clauses, \code{(⟨\var{test}⟩ => ⟨\var{recipient}⟩)}.
+	If \code{⟨\var{test}⟩} evaluates to a true value, then \code{⟨\var{recipient}⟩} is evaluated.
+	Its value must be a procedure of one argument;
+	this procedure is then invoked on the value of the \code{⟨\var{test}⟩}, and the result is returned as the value of the \code{cond} expression.
+	For example
+	\begin{scheme}
+	  (cond ((assoc 'b '((a 1) (b 2))) => cadr)
+	        (else false))
+	\end{scheme}
+	returns \( 2 \).
+	Modify the handling of \code{cond} so that it supports this extended syntax.
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 4.6}
+	\code{let} expressions are derived expressions, because
+	\begin{scheme}
+	  (let ((⟨~\var{var}\ind{1}~⟩ ⟨~\var{exp}\ind{1}⟩~) … (⟨~\var{var}\ind{n}~⟩ ⟨~\var{exp}\ind{n}~⟩))
+	    ⟨~\var{body}~⟩)
+	\end{scheme}
+	is equivalent to
+	\begin{scheme}
+	  ((lambda (⟨~\var{var}\ind{1}~⟩ … ⟨~\var{var}\ind{n}~⟩)
+	     ⟨~\var{body}~⟩)
+	     ⟨~\var{exp}\ind{1}~⟩
+	     ⋮
+	     ⟨~\var{exp}\ind{n}~⟩
+	\end{scheme}
+	Implement a syntactic transformation \code{let->combination} that reduces evaluating \code{let} expressions to evaluating combinations of the type shown above, and add the appropriate clause to \code{eval} to handle \code{let}
+	expressions.
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 4.7}
+	\code{let*} is similar to \code{let}, except that the bindings of the \code{let*} variables are performed sequentially from left to right, and each binding is made in an environment in which all of the preceding bindings are visible.
+	For example
+	\begin{scheme}
+	  (let* ((x 3)  (y (+ x 2))  (z (+ x y 5)))
+	    (* x z))
+	\end{scheme}
+	returns \( 39 \).
+	Explain how a \code{let*} expression can be rewritten as a set of nested \code{let} expressions, and write a procedure \code{let*->nested-lets} that performs this transformation.
+	If we have already implemented \code{let} (\link{Exercise 4.6}) and we want to extend the evaluator to handle \code{let*}, is it sufficient to add a clause to \code{eval} whose action is
+	\begin{scheme}
+	  (eval (let*->nested-lets exp) env)
+	\end{scheme}
+	or must we explicitly expand \code{let*} in terms of non-derived expressions?
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 4.8}
+	“Named \code{let}” is a variant of \code{let} that has the form
+	\begin{scheme}
+		(let ⟨~\var{var}~⟩ ⟨~\var{bindings}~⟩ ⟨~\var{body}~⟩)
+	\end{scheme}
+	The \code{⟨\var{bindings}⟩} and \code{⟨\var{body}⟩} are just as in ordinary \code{let}, except that \code{⟨\var{var}⟩} is bound within \code{⟨\var{body}⟩} to a procedure whose body is \code{⟨\var{body}⟩} and whose parameters are the variables in the \code{⟨\var{bindings}⟩}.
+	Thus, one can repeatedly execute the \code{⟨\var{body}⟩} by invoking the procedure named \code{⟨\var{var}⟩}.
+	For example, the iterative Fibonacci procedure (\link{Section 1.2.2}) can be rewritten using named \code{let} as follows:
+	\begin{scheme}
+	  (define (fib n)
+	    (let fib-iter ((a 1)
+	                   (b 0)
+	                   (count n))
+	      (if (= count 0)
+	          b
+	          (fib-iter (+ a b) a (- count 1)))))
+	\end{scheme}
+	Modify \code{let->combination} of \link{Exercise 4.6} to also support named \code{let}.
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 4.9}
+	Many languages support a variety of iteration constructs, such as \code{do}, \code{for}, \code{while}, and \code{until}.
+	In Scheme, iterative processes can be expressed in terms of ordinary procedure calls, so special iteration constructs provide no essential gain in computational power.
+	On the other hand, such constructs are often convenient.
+	Design some iteration constructs, give examples of their use, and show how to implement them as derived expressions.
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 4.10}
+	By using data abstraction, we were able to write an \code{eval} procedure that is independent of the particular syntax of the language to be evaluated.
+	To illustrate this, design and implement a new syntax for Scheme by modifying the procedures in this section, without changing \code{eval} or \code{apply}.
+\end{exercise}

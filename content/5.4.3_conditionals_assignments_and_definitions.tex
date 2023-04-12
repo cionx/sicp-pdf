@@ -1,0 +1,109 @@
+\subsection{Conditionals, Assignments, and Definitions}
+\label{Section 5.4.3}
+
+As with the metacircular evaluator, special forms are handled by selectively evaluating fragments of the expression.
+For an \code{if} expression, we must evaluate the predicate and decide, based on the value of predicate, whether to evaluate the consequent or the alternative.
+
+Before evaluating the predicate, we save the \code{if} expression itself so that we can later extract the consequent or alternative.
+We also save the environment, which we will need later in order to evaluate the consequent or the alternative, and we save \code{continue}, which we will need later in order to return to the evaluation of the expression that is waiting for the value of the \code{if}.
+
+\begin{scheme}
+  ev-if
+    (save exp)                    ~\textrm{; save expression for later}~
+    (save env)
+    (save continue)
+    (assign continue (label ev-if-decide))
+    (assign exp (op if-predicate) (reg exp))
+    (goto (label eval-dispatch))  ~\textrm{; evaluate the predicate}~
+\end{scheme}
+
+When we return from evaluating the predicate, we test whether it was true or false and, depending on the result, place either the consequent or the alternative in \code{exp} before going to \code{eval-dispatch}.
+Notice that restoring \code{env} and \code{continue} here sets up \code{eval-dispatch} to have the correct environment and to continue at the right place to receive the value of the \code{if} expression.
+
+\begin{scheme}
+  ev-if-decide
+    (restore continue)
+    (restore env)
+    (restore exp)
+    (test (op true?) (reg val))
+    (branch (label ev-if-consequent))
+  ev-if-alternative
+    (assign exp (op if-alternative) (reg exp))
+    (goto (label eval-dispatch))
+  ev-if-consequent
+    (assign exp (op if-consequent) (reg exp))
+    (goto (label eval-dispatch))
+\end{scheme}
+
+
+
+\subsubsection*{Assignments and definitions}
+
+Assignments are handled by \code{ev-assignment}, which is reached from \code{eval-dispatch} with the assignment expression in \code{exp}.
+The code at \code{ev-assignment} first evaluates the value part of the expression and then installs the new value in the environment.
+\code{set-variable-value!} is assumed to be available as a machine operation.
+\begin{scheme}
+  ev-assignment
+    (assign unev (op assignment-variable) (reg exp))
+    (save unev)                   ~\textrm{; save variable for later}~
+    (assign exp (op assignment-value) (reg exp))
+    (save env)
+    (save continue)
+    (assign continue (label ev-assignment-1))
+    (goto (label eval-dispatch))  ~\textrm{; evaluate the assignment value}~
+  ev-assignment-1
+    (restore continue)
+    (restore env)
+    (restore unev)
+    (perform
+     (op set-variable-value!) (reg unev) (reg val) (reg env))
+    (assign val (const ok))
+    (goto (reg continue))
+\end{scheme}
+
+Definitions are handled in a similar way:
+\begin{scheme}
+  ev-definition
+    (assign unev (op definition-variable) (reg exp))
+    (save unev)                   ~\textrm{; save variable for later}~
+    (assign exp (op definition-value) (reg exp))
+    (save env)
+    (save continue)
+    (assign continue (label ev-definition-1))
+    (goto (label eval-dispatch))  ~\textrm{; evaluate the definition value}~
+  ev-definition-1
+    (restore continue)
+    (restore env)
+    (restore unev)
+    (perform
+     (op define-variable!) (reg unev) (reg val) (reg env))
+    (assign val (const ok))
+    (goto (reg continue))
+\end{scheme}
+
+
+
+\begin{exercise}
+	\label{Exercise 5.23}
+	Extend the evaluator to handle derived expressions such as \code{cond}, \code{let}, and so on (\link{Section 4.1.2}).
+	You may “cheat” and assume that the syntax transformers such as \code{cond->if} are available as machine operations.%
+	\footnote{
+		This isn’t really cheating.
+		In an actual implementation built from scratch, we would use our explicit-control evaluator to interpret a Scheme program that performs source-level transformations like \code{cond->if} in a syntax phase that runs before execution.
+	}
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 5.24}
+	Implement \code{cond} as a new basic special form without reducing it to \code{if}.
+	You will have to construct a loop that tests the predicates of successive \code{cond} clauses until you find one that is true, and then use \code{ev-sequence} to evaluate the actions of the clause.
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 5.25}
+	Modify the evaluator so that it uses normal-order evaluation, based on the lazy evaluator of \link{Section 4.2}.
+\end{exercise}

@@ -1,0 +1,111 @@
+\subsection{The Rules for Evaluation}
+\label{Section 3.2.1}
+
+The overall specification of how the interpreter evaluates a combination remains the same as when we first introduced it in \link{Section 1.1.3}:
+\begin{itemize}
+
+	\item
+		To evaluate a combination:
+		\begin{enumerate}[leftmargin = *]
+
+			\item
+				Evaluate the subexpressions of the combination.%
+				\footnote{
+					Assignment introduces a subtlety into step 1 of the evaluation rule.
+					As shown in \link{Exercise 3.8}, the presence of assignment allows us to write expressions that will produce different values depending on the order in which the subexpressions in a combination are evaluated.
+					Thus, to be precise, we should specify an evaluation order in step 1 (e.g., left to right or right to left).
+					However, this order should always be considered to be an implementation detail, and one should never write programs that depend on some particular order.
+					For instance, a sophisticated compiler might optimize a program by varying the order in which subexpressions are evaluated.
+				}
+
+			\item
+				Apply the value of the operator subexpression to the values of the operand subexpressions.
+
+		\end{enumerate}
+\end{itemize}
+The environment model of evaluation replaces the substitution model in specifying what it means to apply a compound procedure to arguments.
+
+In the environment model of evaluation, a procedure is always a pair consisting of some code and a pointer to an environment.
+Procedures are created in one way only:
+by evaluating a λ-expression.
+This produces a procedure whose code is obtained from the text of the λ-expression and whose environment is the environment in which the λ-expression was evaluated to produce the procedure.
+For example, consider the procedure definition
+\begin{scheme}
+  (define (square x)
+    (* x x))
+\end{scheme}
+evaluated in the global environment.
+The procedure definition syntax is just syntactic sugar for an underlying implicit λ-expression.
+It would have been equivalent to have used
+\begin{scheme}
+  (define square
+    (lambda (x) (* x x)))
+\end{scheme}
+which evaluates \code{(lambda (x) (* x x))} and binds \code{square} to the resulting value, all in the global environment.
+
+\begin{figure}[tb]
+	\centering
+	\includesvg[width=49mm]{fig/chap3/Fig3.2b.svg}
+	\caption{
+		Environment structure produced by evaluating \code{(define (square x) (* x x))} in the global environment.
+	}
+	\label{Figure 3.2}
+\end{figure}
+
+\link{Figure 3.2} shows the result of evaluating this \code{define} expression.
+The procedure object is a pair whose code specifies that the procedure has one formal parameter, namely \code{x}, and a procedure body \code{(* x x)}.
+The environment part of the procedure is a pointer to the global environment, since that is the environment in which the λ-expression was evaluated to produce the procedure.
+A new binding, which associates the procedure object with the symbol \code{square}, has been added to the global frame.
+In general, \code{define} creates definitions by adding bindings to frames.
+
+Now that we have seen how procedures are created, we can describe how procedures are applied.
+The environment model specifies:
+To apply a procedure to arguments, create a new environment containing a frame that binds the parameters to the values of the arguments.
+The enclosing environment of this frame is the environment specified by the procedure.
+Now, within this new environment, evaluate the procedure body.
+
+\begin{figure}[tb]
+	\centering
+	\includesvg[width=78mm]{fig/chap3/Fig3.3b.svg}
+	\caption{
+		Environment created by evaluating \code{(square 5)} in the global environment.
+	}
+	\label{Figure 3.3}
+\end{figure}
+
+To show how this rule is followed, \link{Figure 3.3} illustrates the environment structure created by evaluating the expression \code{(square 5)} in the global environment, where \code{square} is the procedure generated in \link{Figure 3.2}.
+Applying the procedure results in the creation of a new environment, labeled E1 in the figure, that begins with a frame in which \code{x}, the formal parameter for the procedure, is bound to the argument \( 5 \).
+The pointer leading upward from this frame shows that the frame’s enclosing environment is the global environment.
+The global environment is chosen here, because this is the environment that is indicated as part of the \code{square} procedure object.
+Within E1, we evaluate the body of the procedure, \code{(* x x)}.
+Since the value of \code{x} in E1 is \( 5 \), the result is \code{(* 5 5)}, or \( 25 \).
+
+The environment model of procedure application can be summarized by two rules:
+\begin{itemize}
+
+	\item
+		A procedure object is applied to a set of arguments by constructing a frame, binding the formal parameters of the procedure to the arguments of the call, and then evaluating the body of the procedure in the context of the new environment constructed.
+		The new frame has as its enclosing environment the environment part of the procedure object being applied.
+
+	\item
+		A procedure is created by evaluating a λ-expression relative to a given environment.
+		The resulting procedure object is a pair consisting of the text of the λ-expression and a pointer to the environment in which the procedure was created.
+
+\end{itemize}
+
+We also specify that defining a symbol using \code{define} creates a binding in the current environment frame and assigns to the symbol the indicated value.%
+\footnote{
+	If there is already a binding for the variable in the current frame, then the binding is changed.
+	This is convenient because it allows redefinition of symbols;
+	however, it also means that \code{define} can be used to change values, and this brings up the issues of assignment without explicitly using \code{set!}.
+	Because of this, some people prefer redefinitions of existing symbols to signal errors or warnings.
+}
+Finally, we specify the behavior of \code{set!}, the operation that forced us to introduce the environment model in the first place.
+Evaluating the expression \code{(set! ⟨\var{variable}⟩ ⟨\var{value}⟩} in some environment locates the binding of the variable in the environment and changes that binding to indicate the new value.
+That is, one finds the first frame in the environment that contains a binding for the variable and modifies that frame.
+If the variable is unbound in the environment, then \code{set!} signals an error.
+
+These evaluation rules, though considerably more complex than the substitution model, are still reasonably straightforward.
+Moreover, the evaluation model, though abstract, provides a correct description of how the interpreter evaluates expressions.
+In \link{Chapter 4} we shall see how this model can serve as a blueprint for implementing a working interpreter.
+The following sections elaborate the details of the model by analyzing some illustrative programs.

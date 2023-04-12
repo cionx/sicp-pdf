@@ -1,0 +1,168 @@
+\subsection{Quotation}
+\label{Section 2.3.1}
+
+If we can form compound data using symbols, we can have lists such as
+\begin{scheme}
+  (a b c d)
+  (23 45 17)
+  ((Norah 12) (Molly 9) (Anna 7) (Lauren 6) (Charlotte 4))
+\end{scheme}
+Lists containing symbols can look just like the expressions of our  language:
+
+\begin{scheme}
+  (* (+ 23 45)
+     (+ x 9))
+
+  (define (fact n)
+    (if (= n 1) 1 (* n (fact (- n 1)))))
+\end{scheme}
+
+In order to manipulate symbols we need a new element in our language:
+the ability to \newterm{quote} a data object.
+Suppose we want to construct the list \code{(a b)}.
+We can’t accomplish this with \code{(list a b)}, because this expression constructs a list of the \newterm{values} of \code{a} and \code{b} rather than the symbols themselves.
+This issue is well known in the context of natural languages, where words and sentences may be regarded either as semantic entities or as character strings (syntactic entities).
+The common practice in natural languages is to use quotation marks to indicate that a word or a sentence is to be treated literally as a string of characters.
+For instance, the first letter of “John”  is clearly  “J.”
+If we tell somebody “say your name aloud,” we expect to hear that person’s name.
+However, if we tell somebody “say ‘your name’ aloud,” we expect to hear the words “your name.”
+Note that we are forced to nest quotation marks to describe what somebody else might say.%
+\footnote{
+	Allowing quotation in a language wreaks havoc with the ability to reason about the language in simple terms, because it destroys the notion that equals can be substituted for equals.
+	For example, three is one plus two, but the word “three” is not the phrase “one plus two.”
+	Quotation is powerful because it gives us a way to build expressions that manipulate other expressions (as we will see when we write an interpreter in \link{Chapter 4}).
+	But allowing statements in a language that talk about other statements in that language makes it very difficult to maintain any coherent principle of what “equals can be substituted for equals” should mean.
+	For example, if we know that the evening star is the morning star, then from the statement “the evening star is Venus” we can deduce “the morning star is Venus.”
+	However, given that  “John knows that the evening star is Venus” we cannot infer that “John knows that the morning star is Venus.”
+}
+
+We can follow this same practice to identify lists and symbols that are to be treated as data objects rather than as expressions to be evaluated.
+However, our format for quoting differs from that of natural languages in that we place a quotation mark (traditionally, the single quote symbol \code{'}) only at the beginning of the object to be quoted.
+We can get away with this in Scheme syntax because we rely on blanks and parentheses to delimit objects.
+Thus, the meaning of the single quote character is to quote the next object.%
+\footnote{
+	The single quote is different from the double quote we have been using to enclose character strings to be printed.
+	Whereas the single quote can be used to denote lists or symbols, the double quote is used only with character strings.
+	In this book, the only use for character strings is as items to be printed.
+}
+
+Now we can distinguish between symbols and their values:
+
+\begin{scheme}
+  (define a 1)
+
+  (define b 2)
+
+  (list a b)
+  ~\outprint{(1 2)}~
+
+  (list 'a 'b)
+  ~\outprint{(a b)}~
+
+  (list 'a b)
+  ~\outprint{(a 2)}~
+\end{scheme}
+
+Quotation also allows us to type in compound objects, using the conventional printed representation for lists:%
+\footnote{
+	Strictly, our use of the quotation mark violates the general rule that all compound expressions in our language should be delimited by parentheses and look like lists.
+	We can recover this consistency by introducing a special form \code{quote}, which serves the same purpose as the quotation mark.
+	Thus, we would type \code{(quote a)} instead of \code{'a}, and we would type \code{(quote (a b c))} instead of \code{'(a b c)}.
+	This is precisely how the interpreter works.
+	The quotation mark is just a single-character abbreviation for wrapping the next complete expression with \code{quote} to form \code{(quote ⟨\var{expression}⟩)}.
+	This is important because it maintains the principle that any expression seen by the interpreter can be manipulated as a data object.
+	For instance, we could construct the expression \code{(car '(a b c))}, which is the same as \code{(car (quote (a b c)))}, by evaluating \code{(list 'car (list 'quote '(a b c)))}.
+}
+\begin{scheme}
+  (car '(a b c))
+  ~\outprint{a}~
+
+  (cdr '(a b c))
+  ~\outprint{(b c)}~
+\end{scheme}
+In keeping with this, we can obtain the empty list by evaluating \code{'()}, and thus dispense with the variable \code{nil}.
+
+One additional primitive used in manipulating symbols is \code{eq?}, which takes two symbols as arguments and tests whether they are the same.%
+\footnote{
+	We can consider two symbols to be “the same” if they consist of the same characters in the same order.
+	Such a definition skirts a deep issue that we are not yet ready to address:
+	the meaning of “sameness” in a programming language.
+	We will return to this in \link{Chapter 3} (\link{Section 3.1.3}).
+}
+Using \code{eq?}, we can implement a useful procedure called \code{memq}.
+This takes two arguments, a symbol and a list.
+If the symbol is not contained in the list (i.e., is not \code{eq?} to any item in the list), then \code{memq} returns false.
+Otherwise, it returns the sublist of the list beginning with the first occurrence of the symbol:
+\begin{scheme}
+  (define (memq item x)
+    (cond ((null? x) false)
+          ((eq? item (car x)) x)
+          (else (memq item (cdr x)))))
+\end{scheme}
+For example, the value of
+\begin{scheme}
+  (memq 'apple '(pear banana prune))
+\end{scheme}
+is false, whereas the value of
+\begin{scheme}
+  (memq 'apple '(x (apple sauce) y apple pear))
+\end{scheme}
+is \code{(apple pear)}.
+
+
+
+\begin{exercise}
+	\label{Exercise 2.53}
+	What would the interpreter print in response to evaluating each of the following expressions?
+	\begin{scheme}
+	  (list 'a 'b 'c)
+
+	  (list (list 'george))
+
+	  (cdr '((x1 x2) (y1 y2)))
+
+	  (cadr '((x1 x2) (y1 y2)))
+
+	  (pair? (car '(a short list)))
+
+	  (memq 'red '((red shoes) (blue socks)))
+
+	  (memq 'red '(red shoes blue socks))
+	\end{scheme}
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 2.54}
+	Two lists are said to be \code{equal?} if they contain equal elements arranged in the same order.
+	For example,
+	\begin{scheme}
+	  (equal? '(this is a list) '(this is a list))
+	\end{scheme}
+	is true, but
+	\begin{scheme}
+	  (equal? '(this is a list) '(this (is a) list))
+	\end{scheme}
+	is false.
+	To be more precise, we can define \code{equal?}  recursively in terms of the basic \code{eq?} equality of symbols by saying that \code{a} and \code{b} are \code{equal?} if they are both symbols and the symbols are \code{eq?}, or if they are both lists such that \code{(car a)} is \code{equal?} to \code{(car b)} and \code{(cdr a)} is \code{equal?} to \code{(cdr b)}.
+	Using this idea, implement \code{equal?} as a procedure.%
+	\footnote{
+		In practice, programmers use \code{equal?} to compare lists that contain numbers as well as symbols.
+		Numbers are not considered to be symbols.
+		The question of whether two numerically equal numbers (as tested by \code{=}) are also \code{eq?} is highly implementation-dependent.
+		A better definition of \code{equal?} (such as the one that comes as a primitive in Scheme) would also stipulate that if \code{a} and \code{b} are both numbers, then \code{a} and \code{b} are \code{equal?} if they are numerically equal.
+	}
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 2.55}
+	Eva Lu Ator types to the interpreter the expression
+	\begin{scheme}
+	  (car ''abracadabra)
+	\end{scheme}
+	To her surprise, the interpreter prints back \code{quote}.
+	Explain.
+\end{exercise}

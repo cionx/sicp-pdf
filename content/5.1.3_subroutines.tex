@@ -1,0 +1,134 @@
+\subsection{Subroutines}
+\label{Section 5.1.3}
+
+When designing a machine to perform a computation, we would often prefer to arrange for components to be shared by different parts of the computation rather than duplicate the components.
+Consider a machine that includes two \acronym{GCD} computations---one that finds the \acronym{GCD} of the contents of registers \code{a} and \code{b} and one that finds the \acronym{GCD} of the contents of registers \code{c} and \code{d}.
+We might start by assuming we have a primitive \code{gcd} operation, then expand the two instances of \code{gcd} in terms of more primitive operations.
+\link{Figure 5.7} shows just the \acronym{GCD} portions of the resulting machine’s data paths, without showing how they connect to the rest of the machine.
+The figure also shows the corresponding portions of the machine’s controller sequence.
+
+\begin{figure}[tb]
+	\centering
+	\includesvg[width=105mm]{fig/chap5/Fig5.7b.svg}
+	\caption{
+		Portions of the data paths and controller sequence for a machine with two \acronym{GCD} computations.
+	}
+	\label{Figure 5.7}
+\end{figure}
+
+This machine has two remainder operation boxes and two boxes for testing equality.
+If the duplicated components are complicated, as is the remainder box, this will not be an economical way to build the machine.
+We can avoid duplicating the data-path components by using the same components for both \acronym{GCD} computations, provided that doing so will not affect the rest of the larger machine’s computation.
+If the values in registers \code{a} and \code{b} are not needed by the time the controller gets to \code{gcd-2} (or if these values can be moved to other registers for safekeeping), we can change the machine so that it uses registers \code{a} and \code{b}, rather than registers \code{c} and \code{d}, in computing the second \acronym{GCD} as well as the first.
+If we do this, we obtain the controller sequence shown in \link{Figure 5.8}.
+
+\begin{figure}
+	\begin{scheme}
+	  gcd-1
+	   (test (op =) (reg b) (const 0))
+	   (branch (label after-gcd-1))
+	   (assign t (op rem) (reg a) (reg b))
+	   (assign a (reg b))
+	   (assign b (reg t))
+	   (goto (label gcd-1))
+	  after-gcd-1
+	   ⋮
+	  gcd-2
+	   (test (op =) (reg b) (const 0))
+	   (branch (label after-gcd-2))
+	   (assign t (op rem) (reg a) (reg b))
+	   (assign a (reg b))
+	   (assign b (reg t))
+	   (goto (label gcd-2))
+	  after-gcd-2
+	\end{scheme}
+	\caption{
+		Portions of the controller sequence for a machine that uses the same data-path components for two different \acronym{GCD} computations.
+	}
+	\label{Figure 5.8}
+\end{figure}
+
+We have removed the duplicate data-path components (so that the data paths are again as in \link{Figure 5.1}), but the controller now has two \acronym{GCD} sequences that differ only in their entry-point labels.
+It would be better to replace these two sequences by branches to a single sequence---a \code{gcd} \newterm{subroutine}---at the end of which we branch back to the correct place in the main instruction sequence.
+We can accomplish this as follows:
+Before branching to \code{gcd}, we place a distinguishing value (such as 0 or 1) into a special register, \code{continue}.
+At the end of the \code{gcd} subroutine we return either to \code{after-gcd-1} or to \code{after-gcd-2}, depending on the value of the \code{continue} register.
+\link{Figure 5.9} shows the relevant portion of the resulting controller sequence, which includes only a single copy of the \code{gcd} instructions.
+
+\begin{figure}
+	\begin{scheme}
+	  gcd
+	   (test (op =) (reg b) (const 0))
+	   (branch (label gcd-done))
+	   (assign t (op rem) (reg a) (reg b))
+	   (assign a (reg b))
+	   (assign b (reg t))
+	   (goto (label gcd))
+	  gcd-done
+	   (test (op =) (reg continue) (const 0))
+	   (branch (label after-gcd-1))
+	   (goto (label after-gcd-2))
+	   ⋮
+	   ~\textrm{;; Before branching to \code{gcd} from the first place where}~
+	   ~\textrm{;; it is needed, we place 0 in the \code{continue} register}~
+	   (assign continue (const 0))
+	   (goto (label gcd))
+	  after-gcd-1
+	   ⋮
+	   ~\textrm{;; Before the second use of \code{gcd}, we place 1}~
+	   ~\textrm{;; in the \code{continue} register}~
+	   (assign continue (const 1))
+	   (goto (label gcd))
+	  after-gcd-2
+	\end{scheme}
+	\caption{
+		Using a \code{continue} register to avoid the duplicate controller sequence in \link{Figure 5.8}.
+	}
+	\label{Figure 5.9}
+\end{figure}
+
+This is a reasonable approach for handling small problems, but it would be awkward if there were many instances of \acronym{GCD} computations in the controller sequence.
+To decide where to continue executing after the \code{gcd} subroutine, we would need tests in the data paths and branch instructions in the controller for all the places that use \code{gcd}.
+A more powerful method for implementing subroutines is to have the \code{continue} register hold the label of the entry point in the controller sequence at which execution should continue when the subroutine is finished.
+Implementing this strategy requires a new kind of connection between the data paths and the controller of a register machine:
+There must be a way to assign to a register a label in the controller sequence in such a way that this value can be fetched from the register and used to continue execution at the designated entry point.
+
+To reflect this ability, we will extend the \code{assign} instruction of the register-machine language to allow a register to be assigned as value a label from the controller sequence (as a special kind of constant).
+We will also extend the \code{goto} instruction to allow execution to continue at the entry point described by the contents of a register rather than only at an entry point described by a constant label.
+Using these new constructs we can terminate the \code{gcd} subroutine with a branch to the location stored in the \code{continue} register.
+This leads to the controller sequence shown in \link{Figure 5.10}.
+
+\begin{figure}
+	\begin{scheme}
+	  gcd
+	   (test (op =) (reg b) (const 0))
+	   (branch (label gcd-done))
+	   (assign t (op rem) (reg a) (reg b))
+	   (assign a (reg b))
+	   (assign b (reg t))
+	   (goto (label gcd))
+	  gcd-done
+	   (goto (reg continue))
+	   ⋮
+	   ~\textrm{;; Before calling \code{gcd}, we assign to \code{continue}}~
+	   ~\textrm{;; the label to which \code{gcd} should return.}~
+	   (assign continue (label after-gcd-1))
+	   (goto (label gcd))
+	  after-gcd-1
+	   ⋮
+	   ~\textrm{;; Here is the second call to \code{gcd},}~
+	   ~\textrm{;; with a different continuation.}~
+	   (assign continue (label after-gcd-2))
+	   (goto (label gcd))
+	  after-gcd-2
+	\end{scheme}
+	\caption{
+		Assigning labels to the \code{continue} register simplifies and generalizes the strategy shown in \link{Figure 5.9}.
+	}
+	\label{Figure 5.10}
+\end{figure}
+
+A machine with more than one subroutine could use multiple continuation registers (e.g., \code{gcd-continue}, \code{factorial-continue}) or we could have all subroutines share a single \code{continue} register.
+Sharing is more economical, but we must be careful if we have a subroutine (\code{sub1}) that calls another subroutine (\code{sub2}).
+Unless \code{sub1} saves the contents of \code{continue} in some other register before setting up \code{continue} for the call to \code{sub2}, \code{sub1} will not know where to go when it is finished.
+The mechanism developed in the next section to handle recursion also provides a better solution to this problem of nested subroutine calls.

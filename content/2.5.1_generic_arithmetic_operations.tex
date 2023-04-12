@@ -1,0 +1,202 @@
+\subsection{Generic Arithmetic Operations}
+\label{Section 2.5.1}
+
+The task of designing generic arithmetic operations is analogous to that of designing the generic complex-number operations.
+We would like, for instance, to have a generic addition procedure \code{add} that acts like ordinary primitive addition \code{+} on ordinary numbers, like \code{add-rat} on rational numbers, and like \code{add-complex} on complex numbers.
+We can implement \code{add}, and the other generic arithmetic operations, by following the same strategy we used in \link{Section 2.4.3} to implement the generic selectors for complex numbers.
+We will attach a type tag to each kind of number and cause the generic procedure to dispatch to an appropriate package according to the data type of its arguments.
+
+The generic arithmetic procedures are defined as follows:
+\begin{scheme}
+  (define (add x y) (apply-generic 'add x y))
+  (define (sub x y) (apply-generic 'sub x y))
+  (define (mul x y) (apply-generic 'mul x y))
+  (define (div x y) (apply-generic 'div x y))
+\end{scheme}
+
+We begin by installing a package for handling \newterm{ordinary} numbers, that is, the primitive numbers of our language.
+We will tag these with the symbol \code{scheme-number}.
+The arithmetic operations in this package are the primitive arithmetic procedures (so there is no need to define extra procedures to handle the untagged numbers).
+Since these operations each take two arguments, they are installed in the table keyed by the list \code{(scheme-number scheme-number)}:
+\begin{scheme}
+  (define (install-scheme-number-package)
+    (define (tag x) (attach-tag 'scheme-number x))
+    (put 'add '(scheme-number scheme-number)
+         (lambda (x y) (tag (+ x y))))
+    (put 'sub '(scheme-number scheme-number)
+         (lambda (x y) (tag (- x y))))
+    (put 'mul '(scheme-number scheme-number)
+         (lambda (x y) (tag (* x y))))
+    (put 'div '(scheme-number scheme-number)
+         (lambda (x y) (tag (/ x y))))
+    (put 'make 'scheme-number (lambda (x) (tag x)))
+    'done)
+\end{scheme}
+
+Users of the Scheme-number package will create (tagged) ordinary numbers by means of the procedure:
+\begin{scheme}
+  (define (make-scheme-number n)
+    ((get 'make 'scheme-number) n))
+\end{scheme}
+
+Now that the framework of the generic arithmetic system is in place, we can readily include new kinds of numbers.
+Here is a package that performs rational arithmetic.
+Notice that, as a benefit of additivity, we can use without modification the rational-number code from \link{Section 2.1.1} as the internal procedures in the package:
+\begin{scheme}
+  (define (install-rational-package)
+    ~\textrm{;; internal procedures}~
+    (define (numer x) (car x))
+    (define (denom x) (cdr x))
+    (define (make-rat n d)
+      (let ((g (gcd n d)))
+        (cons (/ n g) (/ d g))))
+    (define (add-rat x y)
+      (make-rat (+ (* (numer x) (denom y))
+                   (* (numer y) (denom x)))
+                (* (denom x) (denom y))))
+    (define (sub-rat x y)
+      (make-rat (- (* (numer x) (denom y))
+                   (* (numer y) (denom x)))
+                (* (denom x) (denom y))))
+    (define (mul-rat x y)
+      (make-rat (* (numer x) (numer y))
+                (* (denom x) (denom y))))
+    (define (div-rat x y)
+      (make-rat (* (numer x) (denom y))
+                (* (denom x) (numer y))))
+
+    ~\textrm{;; interface to rest of the system}~
+    (define (tag x) (attach-tag 'rational x))
+    (put 'add '(rational rational)
+         (lambda (x y) (tag (add-rat x y))))
+    (put 'sub '(rational rational)
+         (lambda (x y) (tag (sub-rat x y))))
+    (put 'mul '(rational rational)
+         (lambda (x y) (tag (mul-rat x y))))
+    (put 'div '(rational rational)
+         (lambda (x y) (tag (div-rat x y))))
+    (put 'make 'rational
+         (lambda (n d) (tag (make-rat n d))))
+    'done)
+  (define (make-rational n d)
+    ((get 'make 'rational) n d))
+\end{scheme}
+
+We can install a similar package to handle complex numbers, using the tag \code{complex}.
+In creating the package, we extract from the table the operations \code{make-from-real-imag} and \code{make-from-mag-ang} that were defined by the rectangular and polar packages.
+Additivity permits us to use, as the internal operations, the same \code{add-complex}, \code{sub-complex}, \code{mul-complex}, and \code{div-complex} procedures from \link{Section 2.4.1}.
+
+\begin{scheme}
+  (define (install-complex-package)
+    ~\textrm{;; imported procedures from rectangular and polar packages}~
+    (define (make-from-real-imag x y)
+      ((get 'make-from-real-imag 'rectangular) x y))
+    (define (make-from-mag-ang r a)
+      ((get 'make-from-mag-ang 'polar) r a))
+
+    ~\textrm{;; internal procedures}~
+    (define (add-complex z1 z2)
+      (make-from-real-imag (+ (real-part z1) (real-part z2))
+                           (+ (imag-part z1) (imag-part z2))))
+    (define (sub-complex z1 z2)
+      (make-from-real-imag (- (real-part z1) (real-part z2))
+                           (- (imag-part z1) (imag-part z2))))
+    (define (mul-complex z1 z2)
+      (make-from-mag-ang (* (magnitude z1) (magnitude z2))
+                         (+ (angle z1) (angle z2))))
+    (define (div-complex z1 z2)
+      (make-from-mag-ang (/ (magnitude z1) (magnitude z2))
+                         (- (angle z1) (angle z2))))
+
+    ~\textrm{;; interface to rest of the system}~
+    (define (tag z) (attach-tag 'complex z))
+    (put 'add '(complex complex)
+         (lambda (z1 z2) (tag (add-complex z1 z2))))
+    (put 'sub '(complex complex)
+         (lambda (z1 z2) (tag (sub-complex z1 z2))))
+    (put 'mul '(complex complex)
+         (lambda (z1 z2) (tag (mul-complex z1 z2))))
+    (put 'div '(complex complex)
+         (lambda (z1 z2) (tag (div-complex z1 z2))))
+    (put 'make-from-real-imag 'complex
+         (lambda (x y) (tag (make-from-real-imag x y))))
+    (put 'make-from-mag-ang 'complex
+         (lambda (r a) (tag (make-from-mag-ang r a))))
+    'done)
+\end{scheme}
+
+Programs outside the complex-number package can construct complex numbers either from real and imaginary parts or from magnitudes and angles.
+Notice how the underlying procedures, originally defined in the rectangular and polar packages, are exported to the complex package, and exported from there to the outside world.
+\begin{scheme}
+  (define (make-complex-from-real-imag x y)
+    ((get 'make-from-real-imag 'complex) x y))
+  (define (make-complex-from-mag-ang r a)
+    ((get 'make-from-mag-ang 'complex) r a))
+\end{scheme}
+
+What we have here is a two-level tag system.
+A typical complex number, such as \( 3 + 4i \) in rectangular form, would be represented as shown in \link{Figure 2.24}.
+The outer tag (\code{complex}) is used to direct the number to the complex package.
+Once within the complex package, the next tag (\code{rectangular}) is used to direct the number to the rectangular package.
+In a large and complicated system there might be many levels, each interfaced with the next by means of generic operations.
+As a data object is passed “downward,” the outer tag that is used to direct it to the appropriate package is stripped off (by applying \code{contents}) and the next level of tag (if any) becomes visible to be used for further dispatching.
+
+\begin{figure}[tb]
+	\centering
+	\includesvg[width=64mm]{fig/chap2/Fig2.24c.svg}
+	\caption{Representation of \( 3 + 4i \) in rectangular form.}
+	\label{Figure 2.24}
+\end{figure}
+
+In the above packages, we used \code{add-rat}, \code{add-complex}, and the other arithmetic procedures exactly as originally written.
+Once these definitions are internal to different installation procedures, however, they no longer need names that are distinct from each other:
+we could simply name them \code{add}, \code{sub}, \code{mul}, and \code{div} in both packages.
+
+
+
+\begin{exercise}
+	\label{Exercise 2.77}
+	Louis Reasoner tries to evaluate the expression \code{(magnitude z)} where \code{z} is the object shown in \link{Figure 2.24}.
+	To his surprise, instead of the answer 5 he gets an error message from \code{apply-generic}, saying there is no method for the operation \code{magnitude} on the types \code{(complex)}.
+	He shows this interaction to Alyssa P.
+	Hacker, who says “The problem is that the complex-number selectors were never defined for \code{complex} numbers, just for \code{polar} and \code{rectangular} numbers.
+	All you have to do to make this work is add the following to the \code{complex} package:”
+	\begin{scheme}
+	  (put 'real-part '(complex) real-part)
+	  (put 'imag-part '(complex) imag-part)
+	  (put 'magnitude '(complex) magnitude)
+	  (put 'angle '(complex) angle)
+	\end{scheme}
+	Describe in detail why this works.
+	As an example, trace through all the procedures called in evaluating the expression \code{(magnitude z)} where \code{z} is the object shown in \link{Figure 2.24}.
+	In particular, how many times is \code{apply-generic} invoked?
+	What procedure is dispatched to in each case?
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 2.78}
+	The internal procedures in the \code{scheme-number} package are essentially nothing more than calls to the primitive procedures \code{+}, \code{-}, etc.
+	It was not possible to use the primitives of the language directly because our type-tag system requires that each data object have a type attached to it.
+	In fact, however, all Lisp implementations do have a type system, which they use internally.
+	Primitive predicates such as \code{symbol?} and \code{number?}  determine whether data objects have particular types.
+	Modify the definitions of \code{type-tag}, \code{contents}, and \code{attach-tag} from \link{Section 2.4.2} so that our generic system takes advantage of Scheme’s internal type system.
+	That is to say, the system should work as before except that ordinary numbers should be represented simply as Scheme numbers rather than as pairs whose \code{car} is the symbol \code{scheme-number}.
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 2.79}
+	Define a generic equality predicate \code{equ?} that tests the equality of two numbers, and install it in the generic arithmetic package.
+	This operation should work for ordinary numbers, rational numbers, and complex numbers.
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 2.80}
+	Define a generic predicate \code{=zero?} that tests if its argument is zero, and install it in the generic arithmetic package.
+	This operation should work for ordinary numbers, rational numbers, and complex numbers.
+\end{exercise}

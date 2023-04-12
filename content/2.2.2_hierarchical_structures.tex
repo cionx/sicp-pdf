@@ -1,0 +1,297 @@
+\subsection{Hierarchical Structures}
+\label{Section 2.2.2}
+
+The representation of sequences in terms of lists generalizes naturally to represent sequences whose elements may themselves be sequences.
+For example, we can regard the object \code{((1 2) 3 4)} constructed by
+\begin{scheme}
+  (cons (list 1 2) (list 3 4))
+\end{scheme}
+as a list of three items, the first of which is itself a list, \code{(1 2)}.
+Indeed, this is suggested by the form in which the result is printed by the interpreter.
+\link{Figure 2.5} shows the representation of this structure in terms of pairs.
+
+\begin{figure}[tb]
+	\centering
+	\includesvg[width=91mm]{fig/chap2/Fig2.5c.svg}
+	\caption{
+		Structure formed by \code{(cons (list 1 2) (list 3 4))}.
+	}
+	\label{Figure 2.5}
+\end{figure}
+
+Another way to think of sequences whose elements are sequences is as \newterm{trees}.
+The elements of the sequence are the branches of the tree, and elements that are themselves sequences are subtrees.
+\link{Figure 2.6} shows the structure in \link{Figure 2.5} viewed as a tree.
+
+
+\begin{figure}[tb]
+	\label{Figure 2.6}
+	\centering
+	\includesvg[width=22mm]{fig/chap2/Fig2.6a.svg}
+	\caption{
+		The list structure in \link{Figure 2.5} viewed as a tree.
+	}
+\end{figure}
+Recursion is a natural tool for dealing with tree structures, since we can often reduce operations on trees to operations on their branches, which reduce in turn to operations on the branches of the branches, and so on, until we reach the leaves of the tree.
+As an example, compare the \code{length} procedure of \link{Section 2.2.1} with the \code{count-leaves} procedure, which returns the total number of leaves of a tree:
+\begin{scheme}
+  (define x (cons (list 1 2) (list 3 4)))
+
+  (length x)
+  ~\outprint{3}~
+
+  (count-leaves x)
+  ~\outprint{4}~
+
+  (list x x)
+  ~\outprint{(((1 2) 3 4) ((1 2) 3 4))}~
+
+  (length (list x x))
+  ~\outprint{2}~
+
+  (count-leaves (list x x))
+  ~\outprint{8}~
+\end{scheme}
+
+To implement \code{count-leaves}, recall the recursive plan for computing
+\code{length}:
+\begin{itemize}
+
+	\item
+		\code{length} of a list \code{x} is 1 plus \code{length} of the \code{cdr} of \code{x}.
+
+	\item
+		\code{length} of the empty list is 0.
+
+\end{itemize}
+\code{count-leaves} is similar.  The value for the empty list is the same:
+\begin{itemize}
+
+	\item
+		\code{count-leaves} of the empty list is 0.
+
+\end{itemize}
+But in the reduction step, where we strip off the \code{car} of the list, we must take into account that the \code{car} may itself be a tree whose leaves we need to count.
+Thus, the appropriate reduction step is
+\begin{itemize}
+
+	\item
+		\code{count-leaves} of a tree \code{x} is \code{count-leaves} of the \code{car}  of \code{x} plus \code{count-leaves} of the \code{cdr} of \code{x}.
+
+\end{itemize}
+Finally, by taking \code{car}s we reach actual leaves, so we need another base
+case:
+\begin{itemize}
+
+	\item
+		\code{count-leaves} of a leaf is 1.
+
+\end{itemize}
+To aid in writing recursive procedures on trees, Scheme provides the primitive predicate \code{pair?}, which tests whether its argument is a pair.
+Here is the complete procedure:%
+\footnote{
+	The order of the first two clauses in the \code{cond} matters, since the empty list satisfies \code{null?} and also is not a pair.
+}
+\begin{scheme}
+  (define (count-leaves x)
+    (cond ((null? x) 0)
+          ((not (pair? x)) 1)
+          (else (+ (count-leaves (car x))
+                   (count-leaves (cdr x))))))
+\end{scheme}
+
+
+
+\begin{exercise}
+	\label{Exercise 2.24}
+	Suppose we evaluate the expression \code{(list 1 (list 2 (list 3 4)))}.
+	Give the result printed by the interpreter, the corresponding box-and-pointer structure, and the interpretation of this as a tree (as in \link{Figure 2.6}).
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 2.25}
+	Give combinations of \code{car}s and \code{cdr}s that will pick 7 from each of the following lists:
+	\begin{scheme}
+	  (1 3 (5 7) 9)
+
+	  ((7))
+
+	  (1 (2 (3 (4 (5 (6 7))))))
+	\end{scheme}
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 2.26}
+	Suppose we define \code{x} and \code{y} to be two lists:
+	\begin{scheme}
+	  (define x (list 1 2 3))
+
+	  (define y (list 4 5 6))
+	\end{scheme}
+	What result is printed by the interpreter in response to evaluating each of the
+	following expressions:
+	\begin{scheme}
+	  (append x y)
+
+	  (cons x y)
+
+	  (list x y)
+	\end{scheme}
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 2.27}
+	Modify your \code{reverse} procedure of \link{Exercise 2.18} to produce a \code{deep-reverse} procedure that takes a list as argument and returns as its value the list with its elements reversed and with all sublists deep-reversed as well.
+	For example,
+	\begin{scheme}
+	  (define x (list (list 1 2) (list 3 4)))
+
+	  x
+	  ~\outprint{((1 2) (3 4))}~
+
+	  (reverse x)
+	  ~\outprint{((3 4) (1 2))}~
+
+	  (deep-reverse x)
+	  ~\outprint{((4 3) (2 1))}~
+	\end{scheme}
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 2.28}
+	Write a procedure \code{fringe} that takes as argument a tree (represented as a list) and returns a list whose elements are all the leaves of the tree arranged in left-to-right order.
+	For example,
+	\begin{scheme}
+	  (define x (list (list 1 2) (list 3 4)))
+
+	  (fringe x)
+	  ~\outprint{(1 2 3 4)}~
+
+	  (fringe (list x x))
+	  ~\outprint{(1 2 3 4 1 2 3 4)}~
+	\end{scheme}
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 2.29}
+	A binary mobile consists of two branches, a left branch and a right branch.
+	Each branch is a rod of a certain length, from which hangs either a weight or another binary mobile.
+	We can represent a binary mobile using compound data by constructing it from two branches (for example, using \code{list}):
+	\begin{scheme}
+	  (define (make-mobile left right)
+	    (list left right))
+	\end{scheme}
+	A branch is constructed from a \code{length} (which must be a number) together with a \code{structure}, which may be either a number (representing a simple weight) or another mobile:
+	\begin{scheme}
+	  (define (make-branch length structure)
+	    (list length structure))
+	\end{scheme}
+	\begin{enumerate}[label = \alph*., leftmargin = *]
+
+		\item
+			Write the corresponding selectors \code{left-branch} and \code{right-branch}, which return the branches of a mobile, and \code{branch-length} and \code{branch-structure}, which return the components of a branch.
+
+		\item
+			Using your selectors, define a procedure \code{total-weight} that returns the total weight of a mobile.
+
+		\item
+			A mobile is said to be \newterm{balanced} if the torque applied by its top-left branch is equal to that applied by its top-right branch (that is, if the length of the left rod multiplied by the weight hanging from that rod is equal to the corresponding product for the right side) and if each of the submobiles hanging off its branches is balanced.
+			Design a predicate that tests whether a binary mobile is balanced.
+
+		\item
+			Suppose we change the representation of mobiles so that the constructors are
+			\begin{scheme}
+			  (define (make-mobile left right) (cons left right))
+
+			  (define (make-branch length structure)
+			    (cons length structure))
+			\end{scheme}
+			How much do you need to change your programs to convert to the new representation?
+
+	\end{enumerate}
+\end{exercise}
+
+
+
+\subsubsection*{Mapping over trees}
+
+Just as \code{map} is a powerful abstraction for dealing with sequences, \code{map} together with recursion is a powerful abstraction for dealing with trees.
+For instance, the \code{scale-tree} procedure, analogous to \code{scale-list} of \link{Section 2.2.1}, takes as arguments a numeric factor and a tree whose leaves are numbers.
+It returns a tree of the same shape, where each number is multiplied by the factor.
+The recursive plan for \code{scale-tree} is similar to the one for \code{count-leaves}:
+\begin{scheme}
+  (define (scale-tree tree factor)
+    (cond ((null? tree) nil)
+          ((not (pair? tree)) (* tree factor))
+          (else (cons (scale-tree (car tree) factor)
+                      (scale-tree (cdr tree) factor)))))
+
+  (scale-tree (list 1 (list 2 (list 3 4) 5) (list 6 7)) 10)
+  ~\outprint{(10 (20 (30 40) 50) (60 70))}~
+\end{scheme}
+
+Another way to implement \code{scale-tree} is to regard the tree as a sequence of sub-trees and use \code{map}.
+We map over the sequence, scaling each sub-tree in turn, and return the list of results.
+In the base case, where the tree is a leaf, we simply multiply by the factor:
+\begin{scheme}
+  (define (scale-tree tree factor)
+    (map (lambda (sub-tree)
+           (if (pair? sub-tree)
+               (scale-tree sub-tree factor)
+               (* sub-tree factor)))
+         tree))
+\end{scheme}
+Many tree operations can be implemented by similar combinations of sequence
+operations and recursion.
+
+
+
+\begin{exercise}
+	\label{Exercise 2.30}
+	Define a procedure \code{square-tree} analogous to the \code{square-list} procedure of \link{Exercise 2.21}.
+	That is, \code{square-tree} should behave as follows:
+	\begin{scheme}
+	  (square-tree
+	   (list 1
+	         (list 2 (list 3 4) 5)
+	         (list 6 7)))
+	  ~\outprint{(1 (4 (9 16) 25) (36 49))}~
+	\end{scheme}
+	Define \code{square-tree} both directly (i.e., without using any higher-order procedures) and also by using \code{map} and recursion.
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 2.31}
+	Abstract your answer to \link{Exercise 2.30} to produce a procedure \code{tree-map} with the property that \code{square-tree} could be defined as
+	\begin{scheme}
+	  (define (square-tree tree) (tree-map square tree))
+	\end{scheme}
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 2.32}
+	We can represent a set as a list of distinct elements, and we can represent the set of all subsets of the set as a list of lists.
+	For example, if the set is \code{(1 2 3)}, then the set of all subsets is \code{(() (3) (2) (2 3) (1) (1 3) (1 2) (1 2 3))}.
+	Complete the following definition of a procedure that generates the set of subsets of a set and give a clear explanation of why it works:
+	\begin{scheme}
+	  (define (subsets s)
+	    (if (null? s)
+	        (list nil)
+	        (let ((rest (subsets (cdr s))))
+	          (append rest (map ⟨??⟩ rest)))))
+	\end{scheme}
+\end{exercise}

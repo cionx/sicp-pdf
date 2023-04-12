@@ -1,0 +1,499 @@
+\subsection{An Example of Compiled Code}
+\label{Section 5.5.5}
+
+Now that we have seen all the elements of the compiler, let us examine an example of compiled code to see how things fit together.
+We will compile the definition of a recursive \code{factorial} procedure by calling \code{compile}:
+\begin{scheme}
+  (compile
+   '(define (factorial n)
+      (if (= n 1)
+          1
+          (* (factorial (- n 1)) n)))
+   'val
+   'next)
+\end{scheme}
+We have specified that the value of the \code{define} expression should be placed in the \code{val} register.
+We don’t care what the compiled code does after executing the \code{define}, so our choice of \code{next} as the linkage descriptor is arbitrary.
+
+\code{compile} determines that the expression is a definition, so it calls \code{compile-definition} to compile code to compute the value to be assigned (targeted to \code{val}), followed by code to install the definition, followed by code to put the value of the \code{define} (which is the symbol \code{ok}) into the target register, followed finally by the linkage code.
+\code{env} is preserved around the computation of the value, because it is needed in order to install the definition.
+Because the linkage is \code{next}, there is no linkage code in this case.
+The skeleton of the compiled code is thus
+\begin{scheme}
+  ⟨~\emph{save \code{env} if modified by code to compute value}~⟩
+  ⟨~\emph{compilation of definition value, target \code{val}, linkage \code{next}}~⟩
+  ⟨~\emph{restore \code{env} if saved above}~⟩
+  (perform (op define-variable!)
+           (const factorial)
+           (reg val)
+           (reg env))
+  (assign val (const ok))
+\end{scheme}
+
+The expression that is to be compiled to produce the value for the variable \code{factorial} is a \code{lambda} expression whose value is the procedure that computes factorials.
+\code{compile} handles this by calling \code{compile-lambda}, which compiles the procedure body, labels it as a new entry point, and generates the instruction that will combine the procedure body at the new entry point with the run-time environment and assign the result to \code{val}.
+The sequence then skips around the compiled procedure code, which is inserted at this point.
+The procedure code itself begins by extending the procedure’s definition environment by a frame that binds the formal parameter \code{n} to the procedure argument.
+Then comes the actual procedure body.
+Since this code for the value of the variable doesn’t modify the \code{env} register, the optional \code{save} and \code{restore} shown above aren’t generated.
+(The procedure code at \code{entry2} isn’t executed at this point, so its use of \code{env} is irrelevant.)
+Therefore, the skeleton for the compiled code becomes
+\begin{scheme}
+    (assign val
+            (op make-compiled-procedure)
+            (label entry2)
+            (reg env))
+    (goto (label after-lambda1))
+  entry2
+    (assign env (op compiled-procedure-env) (reg proc))
+    (assign env
+            (op extend-environment)
+            (const (n))
+            (reg argl)
+            (reg env))
+    ⟨~\emph{compilation of procedure body}~⟩
+  after-lambda1
+    (perform (op define-variable!)
+             (const factorial)
+             (reg val)
+             (reg env))
+    (assign val (const ok))
+\end{scheme}
+
+A procedure body is always compiled (by \code{compile-lambda-body}) as a sequence with target \code{val} and linkage \code{return}.
+The sequence in this case consists of a single \code{if} expression:
+\begin{scheme}
+  (if (= n 1)
+      1
+      (* (factorial (- n 1)) n))
+\end{scheme}
+\code{compile-if} generates code that first computes the predicate (targeted to \code{val}), then checks the result and branches around the true branch if the predicate is false.
+\code{env} and \code{continue} are preserved around the predicate code, since they may be needed for the rest of the \code{if} expression.
+Since the \code{if} expression is the final expression (and only expression) in the sequence making up the procedure body, its target is \code{val} and its linkage is \code{return}, so the true and false branches are both compiled with target \code{val} and linkage \code{return}.
+(That is, the value of the conditional, which is the value computed by either of its branches, is the value of the procedure.)
+\begin{scheme}
+  ⟨~\emph{save \code{continue}, \code{env} if modified by predicate and needed by branches}~⟩
+    ⟨~\emph{compilation of predicate, target \code{val}, linkage \code{next}}~⟩
+    ⟨~\emph{restore \code{continue}, \code{env} if saved above}~⟩
+    (test (op false?) (reg val))
+    (branch (label false-branch4))
+  true-branch5
+    ⟨~\emph{compilation of true branch, target \code{val}, linkage \code{return}}~⟩
+  false-branch4
+    ⟨~\emph{compilation of false branch, target \code{val}, linkage \code{return}}~⟩
+  after-if3
+\end{scheme}
+
+The predicate \code{(= n 1)} is a procedure call.
+This looks up the operator (the symbol \code{=}) and places this value in \code{proc}.
+It then assembles the arguments \code{1} and the value of \code{n} into \code{argl}.
+Then it tests whether \code{proc} contains a primitive or a compound procedure, and dispatches to a primitive branch or a compound branch accordingly.
+Both branches resume at the \code{after-call} label.
+The requirements to preserve registers around the evaluation of the operator and operands don’t result in any saving of registers, because in this case those evaluations don’t modify the registers in question.
+
+\begin{scheme}
+    (assign proc
+            (op lookup-variable-value) (const =) (reg env))
+    (assign val (const 1))
+    (assign argl (op list) (reg val))
+    (assign val
+            (op lookup-variable-value) (const n) (reg env))
+    (assign argl (op cons) (reg val) (reg argl))
+    (test (op primitive-procedure?) (reg proc))
+    (branch (label primitive-branch17))
+  compiled-branch16
+    (assign continue (label after-call15))
+    (assign val (op compiled-procedure-entry) (reg proc))
+    (goto (reg val))
+  primitive-branch17
+    (assign val
+            (op apply-primitive-procedure)
+            (reg proc)
+            (reg argl))
+  after-call15
+\end{scheme}
+
+The true branch, which is the constant \( 1 \), compiles (with target \code{val} and linkage \code{return}) to
+\begin{scheme}
+  (assign val (const 1))
+  (goto (reg continue))
+\end{scheme}
+The code for the false branch is another procedure call, where the procedure is the value of the symbol \code{*}, and the arguments are \code{n} and the result of another procedure call (a call to \code{factorial}).
+Each of these calls sets up \code{proc} and \code{argl} and its own primitive and compound branches.
+\link{Figure 5.17} shows the complete compilation of the definition of the \code{factorial} procedure.
+Notice that the possible \code{save} and \code{restore} of \code{continue} and \code{env} around the predicate, shown above, are in fact generated, because these registers are modified by the procedure call in the predicate and needed for the procedure call and the \code{return} linkage in the branches.
+
+
+
+\begin{exercise}
+	\label{Exercise 5.33}
+	Consider the following definition of a factorial procedure, which is slightly different from the one given above:
+	\begin{scheme}
+	  (define (factorial-alt n)
+	    (if (= n 1)
+	        1
+	        (* n (factorial-alt (- n 1)))))
+	\end{scheme}
+	Compile this procedure and compare the resulting code with that produced for \code{factorial}.
+	Explain any differences you find.
+	Does either program execute more efficiently than the other?
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 5.34}
+	Compile the iterative factorial procedure
+	\begin{scheme}
+	  (define (factorial n)
+	    (define (iter product counter)
+	      (if (> counter n)
+	          product
+	          (iter (* counter product)
+	                (+ counter 1))))
+	    (iter 1 1))
+	\end{scheme}
+	Annotate the resulting code, showing the essential difference between the code for iterative and recursive versions of \code{factorial} that makes one process build up stack space and the other run in constant stack space.
+\end{exercise}
+
+
+
+\begin{figure}
+	\centering
+	\begin{smallscheme}
+	  ~\textrm{;; construct the procedure and skip over code for the procedure body}~
+	    (assign val
+	            (op make-compiled-procedure)
+	            (label entry2)
+	            (reg env))
+	    (goto (label after-lambda1))
+
+	  entry2     ~\textrm{; calls to \code{factorial} will enter here}~
+	    (assign env (op compiled-procedure-env) (reg proc))
+	    (assign env
+	            (op extend-environment)
+	            (const (n))
+	            (reg argl)
+	            (reg env))
+	  ~\textrm{;; begin actual procedure body}~
+	    (save continue)
+	    (save env)
+
+	  ~\textrm{;; compute \code{(= n 1)}}~
+	    (assign proc
+	            (op lookup-variable-value)
+	            (const =)
+	            (reg env))
+	    (assign val (const 1))
+	    (assign argl (op list) (reg val))
+	    (assign val
+	            (op lookup-variable-value)
+	            (const n)
+	            (reg env))
+	    (assign argl (op cons) (reg val) (reg argl))
+	    (test (op primitive-procedure?) (reg proc))
+	    (branch (label primitive-branch17))
+	  compiled-branch16
+	    (assign continue (label after-call15))
+	    (assign val (op compiled-procedure-entry) (reg proc))
+	    (goto (reg val))
+	  primitive-branch17
+	    (assign val
+	            (op apply-primitive-procedure)
+	            (reg proc)
+	            (reg argl))
+
+	  after-call15   ~\textrm{; \code{val} now contains result of \code{(= n 1)}}~
+	    (restore env)
+	    (restore continue)
+	    (test (op false?) (reg val))
+	    (branch (label false-branch4))
+	  true-branch5  ~\textrm{; return 1}~
+	    (assign val (const 1))
+	    (goto (reg continue))
+
+	  false-branch4
+	  ~\textrm{;; compute and return \code{(* (factorial (- n 1)) n)}}~
+	    (assign proc
+	            (op lookup-variable-value)
+	            (const *)
+	            (reg env))
+	    (save continue)
+	    (save proc)   ~\textrm{; save \code{*}}~ procedure
+	    (assign val
+	            (op lookup-variable-value)
+	            (const n)
+	            (reg env))
+	    (assign argl (op list) (reg val))
+	    (save argl)   ~\textrm{; save partial argument list for \code{*}}~
+
+	  ~\textrm{;; compute \code{(factorial (- n 1))}, which is the other argument for \code{*}}~
+	    (assign proc
+	            (op lookup-variable-value)
+	            (const factorial)
+	            (reg env))
+	    (save proc)  ~\textrm{; save \code{factorial} procedure}~
+
+	  ~\textrm{;; compute \code{(- n 1)}, which is the argument for \code{factorial}}~
+	    (assign proc
+	            (op lookup-variable-value)
+	            (const -)
+	            (reg env))
+	    (assign val (const 1))
+	    (assign argl (op list) (reg val))
+	    (assign val
+	            (op lookup-variable-value)
+	            (const n)
+	            (reg env))
+	    (assign argl (op cons) (reg val) (reg argl))
+	    (test (op primitive-procedure?) (reg proc))
+	    (branch (label primitive-branch8))
+	  compiled-branch7
+	    (assign continue (label after-call6))
+	    (assign val (op compiled-procedure-entry) (reg proc))
+	    (goto (reg val))
+	  primitive-branch8
+	    (assign val
+	            (op apply-primitive-procedure)
+	            (reg proc)
+	            (reg argl))
+
+	  after-call6   ~\textrm{; \code{val} now contains result of \code{(- n 1)}}~
+	    (assign argl (op list) (reg val))
+	    (restore proc) ~\textrm{; restore \code{factorial}}~
+	  ~\textrm{;; apply \code{factorial}}~
+	    (test (op primitive-procedure?) (reg proc))
+	    (branch (label primitive-branch11))
+	  compiled-branch10
+	    (assign continue (label after-call9))
+	    (assign val (op compiled-procedure-entry) (reg proc))
+	    (goto (reg val))
+	  primitive-branch11
+	    (assign val
+	            (op apply-primitive-procedure)
+	            (reg proc)
+	            (reg argl))
+
+	  after-call9      ~\textrm{; \code{val} now contains result of \code{(factorial (- n 1))}}~
+	    (restore argl) ~\textrm{; restore partial argument list for \code{*}}~
+	    (assign argl (op cons) (reg val) (reg argl))
+	    (restore proc) ~\textrm{; restore \code{*}}~
+	    (restore continue)
+	  ~\textrm{;; apply \code{*} and return its value}~
+	    (test (op primitive-procedure?) (reg proc))
+	    (branch (label primitive-branch14))
+	  compiled-branch13
+	  ~\textrm{;; note that a compound procedure here is called tail-recursively}~
+	    (assign val (op compiled-procedure-entry) (reg proc))
+	    (goto (reg val))
+	  primitive-branch14
+	    (assign val
+	            (op apply-primitive-procedure)
+	            (reg proc)
+	            (reg argl))
+	    (goto (reg continue))
+	  after-call12
+	  after-if3
+	  after-lambda1
+	  ~\textrm{;; assign the procedure to the variable \code{factorial}}~
+	    (perform (op define-variable!)
+	             (const factorial)
+	             (reg val)
+	             (reg env))
+	    (assign val (const ok))
+	\end{smallscheme}
+	\caption{
+		Compilation of the definition of the \code{factorial} procedure.
+	}
+	\label{Figure 5.17}
+\end{figure}
+
+
+
+\begin{exercise}
+	\label{Exercise 5.35}
+	What expression was compiled to produce the code shown in \link{Figure 5.18}?
+\end{exercise}
+
+
+
+\begin{figure}
+	\begin{smallscheme}
+	  (assign val
+	          (op make-compiled-procedure)
+	          (label entry16)
+	          (reg env))
+	    (goto (label after-lambda15))
+	  entry16
+	    (assign env (op compiled-procedure-env) (reg proc))
+	    (assign env
+	            (op extend-environment)
+	            (const (x))
+	            (reg argl)
+	            (reg env))
+	    (assign proc
+	            (op lookup-variable-value)
+	            (const +)
+	            (reg env))
+	    (save continue)
+	    (save proc)
+	    (save env)
+	    (assign proc
+	            (op lookup-variable-value)
+	            (const g)
+	            (reg env))
+	    (save proc)
+	    (assign proc
+	            (op lookup-variable-value)
+	            (const +)
+	            (reg env))
+	    (assign val (const 2))
+	    (assign argl (op list) (reg val))
+	    (assign val
+	            (op lookup-variable-value)
+	            (const x)
+	            (reg env))
+	    (assign argl (op cons) (reg val) (reg argl))
+	    (test (op primitive-procedure?) (reg proc))
+	    (branch (label primitive-branch19))
+	  compiled-branch18
+	    (assign continue (label after-call17))
+	    (assign val (op compiled-procedure-entry) (reg proc))
+	    (goto (reg val))
+	  primitive-branch19
+	    (assign val
+	            (op apply-primitive-procedure)
+	            (reg proc)
+	            (reg argl))
+	  after-call17
+	    (assign argl (op list) (reg val))
+	    (restore proc)
+	    (test (op primitive-procedure?) (reg proc))
+	    (branch (label primitive-branch22))
+	  compiled-branch21
+	    (assign continue (label after-call20))
+	    (assign val (op compiled-procedure-entry) (reg proc))
+	    (goto (reg val))
+	  primitive-branch22
+	    (assign val
+	            (op apply-primitive-procedure)
+	            (reg proc)
+	            (reg argl))
+	  after-call20
+	    (assign argl (op list) (reg val))
+	    (restore env)
+	    (assign val
+	            (op lookup-variable-value)
+	            (const x)
+	            (reg env))
+	    (assign argl (op cons) (reg val) (reg argl))
+	    (restore proc)
+	    (restore continue)
+	    (test (op primitive-procedure?) (reg proc))
+	    (branch (label primitive-branch25))
+	  compiled-branch24
+	    (assign val
+	            (op compiled-procedure-entry)
+	            (reg proc))
+	    (goto (reg val))
+	  primitive-branch25
+	    (assign val
+	            (op apply-primitive-procedure)
+	            (reg proc)
+	            (reg argl))
+	    (goto (reg continue))
+	  after-call23
+	  after-lambda15
+	    (perform (op define-variable!)
+	             (const f)
+	             (reg val)
+	             (reg env))
+	    (assign val (const ok))
+	\end{smallscheme}
+	\caption{
+		An example of compiler output.
+		See \link{Exercise 5.35}.
+	}
+	\label{Figure 5.18}
+\end{figure}
+
+
+
+\begin{exercise}
+	\label{Exercise 5.36}
+	What order of evaluation does our compiler produce for operands of a combination?
+	Is it left-to-right, right-to-left, or some other order?
+	Where in the compiler is this order determined?
+	Modify the compiler so that it produces some other order of evaluation.
+	(See the discussion of order of evaluation for the explicit-control evaluator in \link{Section 5.4.1}.)
+	How does changing the order of operand evaluation affect the efficiency of the code that constructs the argument list?
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 5.37}
+	One way to understand the compiler’s \code{preserving} mechanism for optimizing stack usage is to see what extra operations would be generated if we did not use this idea.
+	Modify \code{preserving} so that it always generates the \code{save} and \code{restore} operations.
+	Compile some simple expressions and identify the unnecessary stack operations that are generated.
+	Compare the code to that generated with the \code{preserving} mechanism intact.
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 5.38}
+	Our compiler is clever about avoiding unnecessary stack operations, but it is not clever at all when it comes to compiling calls to the primitive procedures of the language in terms of the primitive operations supplied by the machine.
+	For example, consider how much code is compiled to compute \code{(+ a 1)}:
+	The code sets up an argument list in \code{argl}, puts the primitive addition procedure (which it finds by looking up the symbol \code{+} in the environment) into \code{proc}, and tests whether the procedure is primitive or compound.
+	The compiler always generates code to perform the test, as well as code for primitive and compound branches (only one of which will be executed).
+	We have not shown the part of the controller that implements primitives, but we presume that these instructions make use of primitive arithmetic operations in the machine’s data paths.
+	Consider how much less code would be generated if the compiler could \newterm{open-code} primitives---that is, if it could generate code to directly use these primitive machine operations.
+	The expression \code{(+ a 1)} might be compiled into something as simple as%
+	\footnote{
+		We have used the same symbol \code{+} here to denote both the source-language procedure and the machine operation.
+		In general there will not be a one-to-one correspondence between primitives of the source language and primitives of the machine.
+	}
+	\begin{scheme}
+	  (assign
+	   val (op lookup-variable-value) (const a) (reg env))
+	  (assign val (op +) (reg val) (const 1))
+	\end{scheme}
+	In this exercise we will extend our compiler to support open coding of selected primitives.
+	Special-purpose code will be generated for calls to these primitive procedures instead of the general procedure-application code.
+	In order to support this, we will augment our machine with special argument registers \code{arg1} and \code{arg2}.
+	The primitive arithmetic operations of the machine will take their inputs from \code{arg1} and \code{arg2}.
+	The results may be put into \code{val}, \code{arg1}, or \code{arg2}.
+
+	The compiler must be able to recognize the application of an open-coded primitive in the source program.
+	We will augment the dispatch in the \code{compile} procedure to recognize the names of these primitives in addition to the reserved words (the special forms) it currently recognizes.%
+	\footnote{
+		Making the primitives into reserved words is in general a bad idea, since a user cannot then rebind these names to different procedures.
+		Moreover, if we add reserved words to a compiler that is in use, existing programs that define procedures with these names will stop working.
+		See \link{Exercise 5.44} for ideas on how to avoid this problem.
+	}
+	For each special form our compiler has a code generator.
+	In this exercise we will construct a family of code generators for the open-coded primitives.
+	\begin{enumerate}[label = \alph*., leftmargin = *]
+
+		\item
+			The open-coded primitives, unlike the special forms, all need their operands evaluated.
+			Write a code generator \code{spread-arguments} for use by all the open-coding code generators.
+			\code{spread-arguments} should take an operand list and compile the given operands targeted to successive argument registers.
+			Note that an operand may contain a call to an open-coded primitive, so argument registers will have to be preserved during operand evaluation.
+
+		\item
+			For each of the primitive procedures \code{=}, \code{*}, \code{-}, and \code{+}, write a code generator that takes a combination with that operator, together with a target and a linkage descriptor, and produces code to spread the arguments into the registers and then perform the operation targeted to the given target with the given linkage.
+			You need only handle expressions with two operands.
+			Make \code{compile} dispatch to these code generators.
+
+		\item
+			Try your new compiler on the \code{factorial} example.
+			Compare the resulting code with the result produced without open coding.
+
+		\item
+			Extend your code generators for \code{+} and \code{*} so that they can handle expressions with arbitrary numbers of operands.
+			An expression with more than two operands will have to be compiled into a sequence of operations, each with only two inputs.
+
+	\end{enumerate}
+\end{exercise}

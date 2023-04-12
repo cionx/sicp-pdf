@@ -1,0 +1,210 @@
+\subsection{Separating Syntactic Analysis from Execution}
+\label{Section 4.1.7}
+
+The evaluator implemented above is simple, but it is very inefficient, because the syntactic analysis of expressions is interleaved with their execution.
+Thus if a program is executed many times, its syntax is analyzed many times.
+Consider, for example, evaluating \code{(factorial 4)} using the following definition of \code{factorial}:
+\begin{scheme}
+  (define (factorial n)
+    (if (= n 1) 1 (* (factorial (- n 1)) n)))
+\end{scheme}
+
+Each time \code{factorial} is called, the evaluator must determine that the body is an \code{if} expression and extract the predicate.
+Only then can it evaluate the predicate and dispatch on its value.
+Each time it evaluates the expression \code{(* (factorial (- n 1)) n)}, or the subexpressions \code{(factorial (- n 1))} and \code{(- n 1)}, the evaluator must perform the case analysis in \code{eval} to determine that the expression is an application, and must extract its operator and operands.
+This analysis is expensive.
+Performing it repeatedly is wasteful.
+
+We can transform the evaluator to be significantly more efficient by arranging things so that syntactic analysis is performed only once.%
+\footnote{
+	This technique is an integral part of the compilation process, which we shall discuss in \link{Chapter 5}.
+	Jonathan Rees wrote a Scheme interpreter like this in about 1982 for the T project (\link{Rees and Adams 1982}).
+	Marc \link{Feeley (1986)} (see also \link{Feeley and Lapalme 1987}) independently invented this technique in his master’s thesis.
+}
+We split \code{eval}, which takes an expression and an environment, into two parts.
+The procedure \code{analyze} takes only the expression.
+It performs the syntactic analysis and returns a new procedure, the \newterm{execution procedure}, that encapsulates the work to be done in executing the analyzed expression.
+The execution procedure takes an environment as its argument and completes the evaluation.
+This saves work because \code{analyze} will be called only once on an expression, while the execution procedure may be called many times.
+
+With the separation into analysis and execution, \code{eval} now becomes
+\begin{scheme}
+  (define (eval exp env) ((analyze exp) env))
+\end{scheme}
+The result of calling \code{analyze} is the execution procedure to be applied to the environment.
+The \code{analyze} procedure is the same case analysis as performed by the original \code{eval} of \link{Section 4.1.1}, except that the procedures to which we dispatch perform only analysis, not full evaluation:
+\begin{scheme}
+  (define (analyze exp)
+    (cond ((self-evaluating? exp) (analyze-self-evaluating exp))
+          ((quoted? exp) (analyze-quoted exp))
+          ((variable? exp) (analyze-variable exp))
+          ((assignment? exp) (analyze-assignment exp))
+          ((definition? exp) (analyze-definition exp))
+          ((if? exp) (analyze-if exp))
+          ((lambda? exp) (analyze-lambda exp))
+          ((begin? exp) (analyze-sequence (begin-actions exp)))
+          ((cond? exp) (analyze (cond->if exp)))
+          ((application? exp) (analyze-application exp))
+          (else (error "Unknown expression type: ANALYZE" exp))))
+\end{scheme}
+
+Here is the simplest syntactic analysis procedure, which handles self-evaluating expressions.
+It returns an execution procedure that ignores its environment argument and just returns the expression:
+\begin{scheme}
+  (define (analyze-self-evaluating exp)
+    (lambda (env) exp))
+\end{scheme}
+
+For a quoted expression, we can gain a little efficiency by extracting the text of the quotation only once, in the analysis phase, rather than in the execution phase.
+\begin{scheme}
+  (define (analyze-quoted exp)
+    (let ((qval (text-of-quotation exp)))
+      (lambda (env) qval)))
+\end{scheme}
+
+Looking up a variable value must still be done in the execution phase, since this depends upon knowing the environment.%
+\footnote{
+	There is, however, an important part of the variable search that \emph{can} be done as part of the syntactic analysis.
+	As we will show in \link{Section 5.5.6}, one can determine the position in the environment structure where the value of the variable will be found, thus obviating the need to scan the environment for the entry that matches the variable.
+}
+\begin{scheme}
+  (define (analyze-variable exp)
+    (lambda (env) (lookup-variable-value exp env)))
+\end{scheme}
+
+\code{analyze-assignment} also must defer actually setting the variable until the execution, when the environment has been supplied.
+However, the fact that the \code{assignment-value} expression can be analyzed (recursively) during analysis is a major gain in efficiency, because the \code{assignment-value} expression will now be analyzed only once.
+The same holds true for definitions.
+\begin{scheme}
+  (define (analyze-assignment exp)
+    (let ((var (assignment-variable exp))
+          (vproc (analyze (assignment-value exp))))
+      (lambda (env)
+        (set-variable-value! var (vproc env) env)
+        'ok)))
+
+  (define (analyze-definition exp)
+    (let ((var (definition-variable exp))
+          (vproc (analyze (definition-value exp))))
+      (lambda (env)
+        (define-variable! var (vproc env) env)
+        'ok)))
+\end{scheme}
+
+For \code{if} expressions, we extract and analyze the predicate, consequent, and alternative at analysis time.
+\begin{scheme}
+  (define (analyze-if exp)
+    (let ((pproc (analyze (if-predicate exp)))
+          (cproc (analyze (if-consequent exp)))
+          (aproc (analyze (if-alternative exp))))
+      (lambda (env) (if (true? (pproc env))
+                        (cproc env)
+                        (aproc env)))))
+\end{scheme}
+
+Analyzing a \code{lambda} expression also achieves a major gain in efficiency:
+We analyze the \code{lambda} body only once, even though procedures resulting from evaluation of the \code{lambda} may be applied many times.
+\begin{scheme}
+  (define (analyze-lambda exp)
+    (let ((vars (lambda-parameters exp))
+          (bproc (analyze-sequence (lambda-body exp))))
+      (lambda (env) (make-procedure vars bproc env))))
+\end{scheme}
+
+Analysis of a sequence of expressions (as in a \code{begin} or the body of a \code{lambda} expression) is more involved.%
+\footnote{
+	See \link{Exercise 4.23} for some insight into the processing of sequences.
+}
+Each expression in the sequence is analyzed, yielding an execution procedure.
+These execution procedures are combined to produce an execution procedure that takes an environment as argument and sequentially calls each individual execution procedure with the environment as argument.
+\begin{scheme}
+  (define (analyze-sequence exps)
+    (define (sequentially proc1 proc2)
+      (lambda (env) (proc1 env) (proc2 env)))
+    (define (loop first-proc rest-procs)
+      (if (null? rest-procs)
+          first-proc
+          (loop (sequentially first-proc (car rest-procs))
+                (cdr rest-procs))))
+    (let ((procs (map analyze exps)))
+      (if (null? procs) (error "Empty sequence: ANALYZE"))
+      (loop (car procs) (cdr procs))))
+\end{scheme}
+
+To analyze an application, we analyze the operator and operands and construct an execution procedure that calls the operator execution procedure (to obtain the actual procedure to be applied) and the operand execution procedures (to obtain the actual arguments).
+We then pass these to \code{execute-application}, which is the analog of \code{apply} in \link{Section 4.1.1}.
+\code{execute-application} differs from \code{apply} in that the procedure body for a compound procedure has already been analyzed, so there is no need to do further analysis.
+Instead, we just call the execution procedure for the body on the extended environment.
+\begin{scheme}
+  (define (analyze-application exp)
+    (let ((fproc (analyze (operator exp)))
+          (aprocs (map analyze (operands exp))))
+      (lambda (env)
+        (execute-application
+         (fproc env)
+         (map (lambda (aproc) (aproc env))
+              aprocs)))))
+
+  (define (execute-application proc args)
+    (cond ((primitive-procedure? proc)
+           (apply-primitive-procedure proc args))
+          ((compound-procedure? proc)
+           ((procedure-body proc)
+            (extend-environment
+             (procedure-parameters proc)
+             args
+             (procedure-environment proc))))
+          (else
+           (error "Unknown procedure type: EXECUTE-APPLICATION"
+                  proc))))
+\end{scheme}
+
+Our new evaluator uses the same data structures, syntax procedures, and run-time support procedures as in sections \link{Section 4.1.2}, \link{Section 4.1.3}, and \link{Section 4.1.4}.
+
+
+
+\begin{exercise}
+	\label{Exercise 4.22}
+	Extend the evaluator in this section to support the special form \code{let}.
+	(See \link{Exercise 4.6}.)
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 4.23}
+	Alyssa~P.~Hacker doesn’t understand why \code{analyze-sequence} needs to be so complicated.
+	All the other analysis procedures are straightforward transformations of the corresponding evaluation procedures (or \code{eval} clauses) in \link{Section 4.1.1}.
+	She expected \code{analyze-sequence} to look like this:
+	\begin{scheme}
+	  (define (analyze-sequence exps)
+	    (define (execute-sequence procs env)
+	      (cond ((null? (cdr procs))
+	             ((car procs) env))
+	            (else
+	             ((car procs) env)
+	             (execute-sequence (cdr procs) env))))
+	    (let ((procs (map analyze exps)))
+	      (if (null? procs)
+	          (error "Empty sequence: ANALYZE"))
+	      (lambda (env)
+	        (execute-sequence procs env))))
+	\end{scheme}
+	Eva Lu Ator explains to Alyssa that the version in the text does more of the work of evaluating a sequence at analysis time.
+	Alyssa’s sequence-execution procedure, rather than having the calls to the individual execution procedures built in, loops through the procedures in order to call them:
+	In effect, although the individual expressions in the sequence have been analyzed, the sequence itself has not been.
+
+	Compare the two versions of \code{analyze-sequence}.
+	For example, consider the common case (typical of procedure bodies) where the sequence has just one expression.
+	What work will the execution procedure produced by Alyssa’s program do?
+	What about the execution procedure produced by the program in the text above?
+	How do the two versions compare for a sequence with two expressions?
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 4.24}
+	Design and carry out some  experiments to compare the speed of the original metacircular evaluator with the version in this section.
+	Use your results to estimate the fraction of time that is spent in analysis versus execution for various procedures.
+\end{exercise}

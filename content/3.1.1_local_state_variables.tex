@@ -1,0 +1,269 @@
+\subsection{Local State Variables}
+\label{Section 3.1.1}
+
+To illustrate what we mean by having a computational object with time-varying state, let us model the situation of withdrawing money from a bank account.
+We will do this using a procedure \code{withdraw}, which takes as argument an \code{amount} to be withdrawn.
+If there is enough money in the account to accommodate the withdrawal, then \code{withdraw} should return the balance remaining after the withdrawal.
+Otherwise, \code{withdraw} should return the message \emph{Insufficient funds}.
+For example, if we begin with \dollar{100} in the account, we should obtain the following sequence of responses using \code{withdraw}:
+\begin{scheme}
+  (withdraw 25)
+  ~\outprint{75}~
+
+  (withdraw 25)
+  ~\outprint{50}~
+
+  (withdraw 60)
+  ~\outprint{"Insufficient funds"}~
+
+  (withdraw 15)
+  ~\outprint{35}~
+\end{scheme}
+Observe that the expression \code{(withdraw 25)}, evaluated twice, yields different values.
+This is a new kind of behavior for a procedure.
+Until now, all our procedures could be viewed as specifications for computing mathematical functions.
+A call to a procedure computed the value of the function applied to the given arguments, and two calls to the same procedure with the same arguments always produced the same result.%
+\footnote{
+	Actually, this is not quite true.
+	One exception was the random-number generator in \link{Section 1.2.6}.
+	Another exception involved the operation/type tables we introduced in \link{Section 2.4.3}, where the values of two calls to \code{get} with the same arguments depended on intervening calls to \code{put}.
+	On the other hand, until we introduce assignment, we have no way to create such procedures ourselves.
+}
+
+To implement \code{withdraw}, we can use a variable \code{balance} to indicate the balance of money in the account and define \code{withdraw} as a procedure that accesses \code{balance}.
+The \code{withdraw} procedure checks to see if \code{balance} is at least as large as the requested \code{amount}.
+If so, \code{withdraw} decrements \code{balance} by \code{amount} and returns the new value of \code{balance}.
+Otherwise, \code{withdraw} returns the \emph{Insufficient funds} message.
+Here are the definitions of \code{balance} and \code{withdraw}:
+\begin{scheme}
+  (define balance 100)
+
+  (define (withdraw amount)
+    (if (>= balance amount)
+        (begin (set! balance (- balance amount))
+               balance)
+        "Insufficient funds"))
+\end{scheme}
+Decrementing \code{balance} is accomplished by the expression
+\begin{scheme}
+  (set! balance (- balance amount))
+\end{scheme}
+This uses the \code{set!} special form, whose syntax is
+\begin{scheme}
+  (set! ⟨~\var{name}~⟩ ⟨~\var{\dark new-value}~⟩)
+\end{scheme}
+Here \code{⟨\var{name}⟩} is a symbol and \code{⟨\var{new-value}⟩} is any expression.
+\code{set!} changes \code{⟨\var{name}⟩} so that its value is the result obtained by evaluating \code{⟨\var{new-value}⟩}.
+In the case at hand, we are changing \code{balance} so that its new value will be the result of subtracting \code{amount} from the previous value of \code{balance}.%
+\footnote{
+	The value of a \code{set!} expression is implementation-dependent.
+	\code{set!} should be used only for its effect, not for its value.
+
+	The name \code{set!} reflects a naming convention used in Scheme:
+	Operations that change the values of variables (or that change data structures, as we will see in \link{Section 3.3}) are given names that end with an exclamation point.
+	This is similar to the convention of designating predicates by names that end with a question mark.
+}
+
+\code{withdraw} also uses the \code{begin} special form to cause two expressions to be evaluated in the case where the \code{if} test is true:
+first decrementing \code{balance} and then returning the value of \code{balance}.
+In general, evaluating the expression
+\begin{scheme}
+  (begin ⟨~\var{exp}\ind{1}~⟩ ⟨~\var{exp}\ind{2}~⟩ … ⟨~\var{exp}\ind{k}~⟩)
+\end{scheme}
+causes the expressions \code{⟨\var{exp}\ind{1}⟩} through \code{⟨\var{exp}\ind{k}⟩} to be evaluated
+in sequence and the value of the final expression \code{⟨\var{exp}\ind{k}⟩} to be
+returned as the value of the entire \code{begin} form.%
+\footnote{
+	We have already used \code{begin} implicitly in our programs, because in Scheme the body of a procedure can be a sequence of expressions.
+	Also, the \code{⟨\var{consequent}⟩} part of each clause in a \code{cond} expression can be a sequence of expressions rather than a single expression.
+}
+
+Although \code{withdraw} works as desired, the variable \code{balance} presents a problem.
+As specified above, \code{balance} is a name defined in the global environment and is freely accessible to be examined or modified by any procedure.
+It would be much better if we could somehow make \code{balance} internal to \code{withdraw}, so that \code{withdraw} would be the only procedure that could access \code{balance} directly and any other procedure could access \code{balance} only indirectly (through calls to \code{withdraw}).
+This would more accurately model the notion that \code{balance} is a local state variable used by \code{withdraw} to keep track of the state of the account.
+
+We can make \code{balance} internal to \code{withdraw} by rewriting the definition as follows:
+\begin{scheme}
+  (define new-withdraw
+    (let ((balance 100))
+      (lambda (amount)
+        (if (>= balance amount)
+            (begin (set! balance (- balance amount))
+                   balance)
+            "Insufficient funds"))))
+\end{scheme}
+What we have done here is use \code{let} to establish an environment with a local variable \code{balance}, bound to the initial value \( 100 \).
+Within this local environment, we use \code{lambda} to create a procedure that takes \code{amount} as an argument and behaves like our previous \code{withdraw} procedure.
+This procedure---returned as the result of evaluating the \code{let} expression---is \code{new-withdraw}, which behaves in precisely the same way as \code{withdraw} but whose variable \code{balance} is not accessible by any other procedure.%
+\footnote{
+	In programming-language jargon, the variable \code{balance} is said to be \newterm{encapsulated} within the \code{new-withdraw} procedure.
+	Encapsulation reflects the general system-design principle known as the \newterm{hiding principle}:
+	One can make a system more modular and robust by protecting parts of the system from each other;
+	that is, by providing information access only to those parts of the system that have a “need to know.”
+}
+
+Combining \code{set!} with local variables is the general programming technique we will use for constructing computational objects with local state.
+Unfortunately, using this technique raises a serious problem:
+When we first introduced procedures, we also introduced the substitution model of evaluation (\link{Section 1.1.5}) to provide an interpretation of what procedure application means.
+We said that applying a procedure should be interpreted as evaluating the body of the procedure with the formal parameters replaced by their values.
+The trouble is that, as soon as we introduce assignment into our language, substitution is no longer an adequate model of procedure application.
+(We will see why this is so in \link{Section 3.1.3}.)
+As a consequence, we technically have at this point no way to understand why the \code{new-withdraw} procedure behaves as claimed above.
+In order to really understand a procedure such as \code{new-withdraw}, we will need to develop a new model of procedure application.
+In \link{Section 3.2} we will introduce such a model, together with an explanation of \code{set!} and local variables.
+First, however, we examine some variations on the theme established by \code{new-withdraw}.
+
+The following procedure, \code{make-withdraw}, creates “withdrawal processors.”
+The formal parameter \code{balance} in \code{make-withdraw} specifies the initial amount of money in the account.%
+\footnote{
+	In contrast with \code{new-withdraw} above, we do not have to use \code{let} to make \code{balance} a local variable, since formal parameters are already local.
+	This will be clearer after the discussion of the environment model of evaluation in \link{Section 3.2}.
+	(See also \link{Exercise 3.10}.)
+}
+\begin{scheme}
+  (define (make-withdraw balance)
+    (lambda (amount)
+      (if (>= balance amount)
+          (begin (set! balance (- balance amount))
+                 balance)
+          "Insufficient funds")))
+\end{scheme}
+
+\code{make-withdraw} can be used as follows to create two objects \code{W1} and \code{W2}:
+\begin{scheme}
+  (define W1 (make-withdraw 100))
+  (define W2 (make-withdraw 100))
+
+  (W1 50)
+  ~\outprint{50}~
+
+  (W2 70)
+  ~\outprint{30}~
+
+  (W2 40)
+  ~\outprint{"Insufficient funds"}~
+
+  (W1 40)
+  ~\outprint{10}~
+\end{scheme}
+
+\noindent
+Observe that \code{W1} and \code{W2} are completely independent objects, each
+with its own local state variable \code{balance}.
+Withdrawals from one do not affect the other.
+
+We can also create objects that handle deposits as well as withdrawals, and thus we can represent simple bank accounts.
+Here is a procedure that returns a “bank-account object” with a specified initial balance:
+\begin{scheme}
+  (define (make-account balance)
+    (define (withdraw amount)
+      (if (>= balance amount)
+          (begin (set! balance (- balance amount))
+                 balance)
+          "Insufficient funds"))
+    (define (deposit amount)
+      (set! balance (+ balance amount))
+      balance)
+    (define (dispatch m)
+      (cond ((eq? m 'withdraw) withdraw)
+            ((eq? m 'deposit) deposit)
+            (else (error "Unknown request: MAKE-ACCOUNT"
+                         m))))
+    dispatch)
+\end{scheme}
+Each call to \code{make-account} sets up an environment with a local state variable \code{balance}.
+Within this environment, \code{make-account} defines procedures \code{deposit} and \code{withdraw} that access \code{balance} and an additional procedure \code{dispatch} that takes a “message” as input and returns one of the two local procedures.
+The \code{dispatch} procedure itself is returned as the value that represents the bank-account object.
+This is precisely the \newterm{message-passing} style of programming that we saw in \link{Section 2.4.3}, although here we are using it in conjunction with the ability to modify local variables.
+
+\code{make-account} can be used as follows:
+\begin{scheme}
+  (define acc (make-account 100))
+
+  ((acc 'withdraw) 50)
+  ~\outprint{50}~
+
+  ((acc 'withdraw) 60)
+  ~\outprint{"Insufficient funds"}~
+
+  ((acc 'deposit) 40)
+  ~\outprint{90}~
+
+  ((acc 'withdraw) 60)
+  ~\outprint{30}~
+\end{scheme}
+Each call to \code{acc} returns the locally defined \code{deposit} or \code{withdraw} procedure, which is then applied to the specified \code{amount}.
+As was the case with \code{make-withdraw}, another call to \code{make-account}
+\begin{scheme}
+  (define acc2 (make-account 100))
+\end{scheme}
+will produce a completely separate account object, which maintains its own local \code{balance}.
+
+
+
+\begin{exercise}
+	\label{Exercise 3.1}
+	An \newterm{accumulator} is a procedure that is called repeatedly with a single numeric argument and accumulates its arguments into a sum.
+	Each time it is called, it returns the currently accumulated sum.
+	Write a procedure \code{make-accumulator} that generates accumulators, each maintaining an independent sum.
+	The input to \code{make-accumulator} should specify the initial value of the sum;
+	for example
+	\begin{scheme}
+	  (define A (make-accumulator 5))
+
+	  (A 10)
+	  ~\outprint{15}~
+
+	  (A 10)
+	  ~\outprint{25}~
+	\end{scheme}
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 3.2}
+	In software-testing applications, it is useful to be able to count the number of times a given procedure is called during the course of a computation.
+	Write a procedure \code{make-monitored} that takes as input a procedure, \code{f}, that itself takes one input.
+	The result returned by \code{make-monitored} is a third procedure, say \code{mf}, that keeps track of the number of times it has been called by maintaining an internal counter.
+	If the input to \code{mf} is the special symbol \code{how-many-calls?}, then \code{mf} returns the value of the counter.
+	If the input is the special symbol \code{reset-count}, then \code{mf} resets the counter to zero.
+	For any other input, \code{mf} returns the result of calling \code{f} on that input and increments the counter.
+	For instance, we could make a monitored version of the \code{sqrt} procedure:
+	\begin{scheme}
+	  (define s (make-monitored sqrt))
+
+	  (s 100)
+	  ~\outprint{10}~
+
+	  (s 'how-many-calls?)
+	  ~\outprint{1}~
+	\end{scheme}
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 3.3}
+	Modify the \code{make-account} procedure so that it creates password-protected accounts.
+	That is, \code{make-account} should take a symbol as an additional argument, as in
+	\begin{scheme}
+	  (define acc (make-account 100 'secret-password))
+	\end{scheme}
+	The resulting account object should process a request only if it is accompanied by the password with which the account was created, and should otherwise return a complaint:
+	\begin{scheme}
+	  ((acc 'secret-password 'withdraw) 40)
+	  ~\outprint{60}~
+
+	  ((acc 'some-other-password 'deposit) 50)
+	  ~\outprint{"Incorrect password"}~
+	\end{scheme}
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 3.4}
+	Modify the \code{make-account} procedure of \link{Exercise 3.3} by adding another local state variable so that, if an account is accessed more than seven consecutive times with an incorrect password, it invokes the procedure \code{call-the-cops}.
+\end{exercise}

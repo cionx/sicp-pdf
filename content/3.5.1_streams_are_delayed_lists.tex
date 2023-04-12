@@ -1,0 +1,354 @@
+\subsection{Streams Are Delayed Lists}
+\label{Section 3.5.1}
+
+As we saw in \link{Section 2.2.3}, sequences can serve as standard interfaces for combining program modules.
+We formulated powerful abstractions for manipulating sequences, such as \code{map}, \code{filter}, and \code{accumulate}, that capture a wide variety of operations in a manner that is both succinct and elegant.
+
+Unfortunately, if we represent sequences as lists, this elegance is bought at the price of severe inefficiency with respect to both the time and space required by our computations.
+When we represent manipulations on sequences as transformations of lists, our programs must construct and copy data structures (which may be huge) at every step of a process.
+
+To see why this is true, let us compare two programs for computing the sum of all the prime numbers in an interval.
+The first program is written in standard iterative style:%
+\footnote{
+	Assume that we have a predicate \code{prime?} (e.g., as in \link{Section 1.2.6}) that tests for primality.
+}
+\begin{scheme}
+  (define (sum-primes a b)
+    (define (iter count accum)
+      (cond ((> count b) accum)
+            ((prime? count)
+               (iter (+ count 1) (+ count accum)))
+            (else (iter (+ count 1) accum))))
+    (iter a 0))
+\end{scheme}
+The second program performs the same computation using the sequence operations
+of \link{Section 2.2.3}:
+\begin{scheme}
+  (define (sum-primes a b)
+    (accumulate +
+                0
+                (filter prime?
+                        (enumerate-interval a b))))
+\end{scheme}
+
+In carrying out the computation, the first program needs to store only the sum being accumulated.
+In contrast, the filter in the second program cannot do any testing until \code{enumerate-interval} has constructed a complete list of the numbers in the interval.
+The filter generates another list, which in turn is passed to \code{accumulate} before being collapsed to form a sum.
+Such large intermediate storage is not needed by the first program, which we can think of as enumerating the interval incrementally, adding each prime to the sum as it is generated.
+
+The inefficiency in using lists becomes painfully apparent if we use the sequence paradigm to compute the second prime in the interval from \( 10,000 \) to \( 1,000,000 \) by evaluating the expression
+\begin{scheme}
+  (car (cdr (filter prime?
+                    (enumerate-interval 10000 1000000))))
+\end{scheme}
+
+\noindent
+This expression does find the second prime, but the computational overhead is outrageous.
+We construct a list of almost a million integers, filter this list by testing each element for primality, and then ignore almost all of the result.
+In a more traditional programming style, we would interleave the enumeration and the filtering, and stop when we reached the second prime.
+
+Streams are a clever idea that allows one to use sequence manipulations without incurring the costs of manipulating sequences as lists.
+With streams we can achieve the best of both worlds:
+We can formulate programs elegantly as sequence manipulations, while attaining the efficiency of incremental computation.
+The basic idea is to arrange to construct a stream only partially, and to pass the partial construction to the program that consumes the stream.
+If the consumer attempts to access a part of the stream that has not yet been constructed, the stream will automatically construct just enough more of itself to produce the required part, thus preserving the illusion that the entire stream exists.
+In other words, although we will write programs as if we were processing complete sequences, we design our stream implementation to automatically and transparently interleave the construction of the stream with its use.
+
+On the surface, streams are just lists with different names for the procedures that manipulate them.
+There is a constructor, \code{cons-stream}, and two selectors, \code{stream-car} and \code{stream-cdr}, which satisfy the constraints
+\begin{scheme}
+  (stream-car (cons-stream x y)) = x
+  (stream-cdr (cons-stream x y)) = y
+\end{scheme}
+There is a distinguishable object, \code{the-empty-stream}, which cannot be the result of any \code{cons-stream} operation, and which can be identified with the predicate \code{stream-null?}.%
+\footnote{
+	In the \acronym{MIT} implementation, \code{the-empty-stream} is the same as the empty list \code{'()}, and \code{stream-null?} is the same as \code{null?}.
+}
+Thus we can make and use streams, in just the same way as we can make and use lists, to represent aggregate data arranged in a sequence.
+In particular, we can build stream analogs of the list operations from \link{Chapter 2}, such as \code{list-ref}, \code{map}, and \code{for-each}:%
+\footnote{
+	This should bother you.
+	The fact that we are defining such similar procedures for streams and lists indicates that we are missing some underlying abstraction.
+	Unfortunately, in order to exploit this abstraction, we will need to exert finer control over the process of evaluation than we can at present.
+	We will discuss this point further at the end of \link{Section 3.5.4}.
+	In \link{Section 4.2}, we’ll develop a framework that unifies lists and streams.
+}
+\begin{scheme}
+  (define (stream-ref s n)
+    (if (= n 0)
+        (stream-car s)
+        (stream-ref (stream-cdr s) (- n 1))))
+
+  (define (stream-map proc s)
+    (if (stream-null? s)
+        the-empty-stream
+        (cons-stream (proc (stream-car s))
+                     (stream-map proc (stream-cdr s)))))
+
+  (define (stream-for-each proc s)
+    (if (stream-null? s)
+        'done
+        (begin (proc (stream-car s))
+               (stream-for-each proc (stream-cdr s)))))
+\end{scheme}
+\code{stream-for-each} is useful for viewing streams:
+\begin{scheme}
+  (define (display-stream s)
+    (stream-for-each display-line s))
+
+  (define (display-line x) (newline) (display x))
+\end{scheme}
+
+To make the stream implementation automatically and transparently interleave the construction of a stream with its use, we will arrange for the \code{cdr} of a stream to be evaluated when it is accessed by the \code{stream-cdr} procedure rather than when the stream is constructed by \code{cons-stream}.
+This implementation choice is reminiscent of our discussion of rational numbers in \link{Section 2.1.2}, where we saw that we can choose to implement rational numbers so that the reduction of numerator and denominator to lowest terms is performed either at construction time or at selection time.
+The two rational-number implementations produce the same data abstraction, but the choice has an effect on efficiency.
+There is a similar relationship between streams and ordinary lists.
+As a data abstraction, streams are the same as lists.
+The difference is the time at which the elements are evaluated.
+With ordinary lists, both the \code{car} and the \code{cdr} are evaluated at construction time.
+With streams, the \code{cdr} is evaluated at selection time.
+
+Our implementation of streams will be based on a special form called \code{delay}.
+Evaluating \code{(delay ⟨\var{expr}⟩)} does not evaluate the expression \code{⟨\var{exp}⟩}, but rather returns a so-called \newterm{delayed object}, which we can think of as a “promise” to evaluate \code{⟨\var{exp}⟩} at some future time.
+As a companion to \code{delay}, there is a procedure called \code{force} that takes a delayed object as argument and performs the evaluation---in effect, forcing the \code{delay} to fulfill its promise.
+We will see below how \code{delay} and \code{force} can be implemented, but first let us use these to construct streams.
+
+\code{cons-stream} is a special form defined so that
+\begin{scheme}
+  (cons-stream ⟨~\var{a}~⟩ ⟨~\var{b}~⟩)
+\end{scheme}
+is equivalent to
+\begin{scheme}
+  (cons ⟨~\var{a}~⟩ (delay ⟨~\var{b}~⟩))
+\end{scheme}
+What this means is that we will construct streams using pairs.
+However, rather than placing the value of the rest of the stream into the \code{cdr} of the pair we will put there a promise to compute the rest if it is ever requested.
+\code{stream-car} and \code{stream-cdr} can now be defined as procedures:
+\begin{scheme}
+  (define (stream-car stream) (car stream))
+
+  (define (stream-cdr stream) (force (cdr stream)))
+\end{scheme}
+\code{stream-car} selects the \code{car} of the pair;
+\code{stream-cdr} selects the \code{cdr} of the pair and evaluates the delayed expression found there to obtain the rest of the stream.%
+\footnote{
+	Although \code{stream-car} and \code{stream-cdr} can be defined as procedures, \code{cons-stream} must be a special form.
+	If \code{cons-stream} were a procedure, then, according to our model of evaluation, evaluating \code{(cons-stream ⟨\var{a}⟩ ⟨\var{b}⟩)} would automatically cause \code{⟨\var{b}⟩} to be evaluated, which is precisely what we do not want to happen.
+	For the same reason, \code{delay} must be a special form, though \code{force} can be an ordinary procedure.
+}
+
+
+
+\subsubsection*{The stream implementation in action}
+
+To see how this implementation behaves, let us analyze the “outrageous” prime computation we saw above, reformulated in terms of streams:
+\begin{scheme}
+  (stream-car
+   (stream-cdr
+    (stream-filter prime?
+                   (stream-enumerate-interval
+                    10000 1000000))))
+\end{scheme}
+We will see that it does indeed work efficiently.
+
+We begin by calling \code{stream-enumerate-interval} with the arguments \( 10,000 \) and \( 1,000,000 \).
+\code{stream-enumerate-interval} is the stream analog of \code{enumerate-interval} (\link{Section 2.2.3}):
+\begin{scheme}
+  (define (stream-enumerate-interval low high)
+    (if (> low high)
+        the-empty-stream
+        (cons-stream
+         low
+         (stream-enumerate-interval (+ low 1) high))))
+\end{scheme}
+and thus the result returned by \code{stream-enumerate-interval}, formed by the \code{cons-stream}, is%
+\footnote{
+	The numbers shown here do not really appear in the delayed expression.
+	What actually appears is the original expression, in an environment in which the variables are bound to the appropriate numbers.
+	For example, \code{(+ low 1)} with \code{low} bound to \( 10,000 \) actually appears where \code{10001} is shown.
+}
+\begin{scheme}
+  (cons 10000
+        (delay (stream-enumerate-interval 10001 1000000)))
+\end{scheme}
+That is, \code{stream-enumerate-interval} returns a stream represented as a pair whose \code{car} is \( 10,000 \) and whose \code{cdr} is a promise to enumerate more of the interval if so requested.
+This stream is now filtered for primes, using the stream analog of the \code{filter} procedure (\link{Section 2.2.3}):
+\begin{scheme}
+  (define (stream-filter pred stream)
+    (cond ((stream-null? stream) the-empty-stream)
+          ((pred (stream-car stream))
+           (cons-stream (stream-car stream)
+                        (stream-filter
+                         pred
+                         (stream-cdr stream))))
+          (else (stream-filter pred (stream-cdr stream)))))
+\end{scheme}
+\code{stream-filter} tests the \code{stream-car} of the stream (the \code{car} of the pair, which is \( 10,000 \)).
+Since this is not prime, \code{stream-filter} examines the \code{stream-cdr} of its input stream.
+The call to \code{stream-cdr} forces evaluation of the delayed \code{stream-enumerate-interval}, which now returns
+\begin{scheme}
+  (cons 10001
+        (delay (stream-enumerate-interval 10002 1000000)))
+\end{scheme}
+\code{stream-filter} now looks at the \code{stream-car} of this stream, 10,001, sees that this is not prime either, forces another \code{stream-cdr}, and so on, until \code{stream-enumerate-interval} yields the prime 10,007, whereupon \code{stream-filter}, according to its definition, returns
+\begin{scheme}
+  (cons-stream (stream-car stream)
+               (stream-filter pred (stream-cdr stream)))
+\end{scheme}
+which in this case is
+\begin{scheme}
+  (cons 10007
+        (delay (stream-filter
+                prime?
+                (cons 10008
+                      (delay (stream-enumerate-interval
+                              10009
+                              1000000))))))
+\end{scheme}
+
+This result is now passed to \code{stream-cdr} in our original expression.
+This forces the delayed \code{stream-filter}, which in turn keeps forcing the delayed \code{stream-enumerate-interval} until it finds the next prime, which is \( 10,009 \).
+Finally, the result passed to \code{stream-car} in our original expression is
+\begin{scheme}
+  (cons 10009
+        (delay (stream-filter
+                prime?
+                (cons 10010
+                      (delay (stream-enumerate-interval
+                              10011
+                              1000000))))))
+\end{scheme}
+\code{stream-car} returns \( 10,009 \), and the computation is complete.
+Only as many integers were tested for primality as were necessary to find the second prime, and the interval was enumerated only as far as was necessary to feed the prime filter.
+
+In general, we can think of delayed evaluation as “demand-driven” programming, whereby each stage in the stream process is activated only enough to satisfy the next stage.
+What we have done is to decouple the actual order of events in the computation from the apparent structure of our procedures.
+We write procedures as if the streams existed “all at once” when, in reality, the computation is performed incrementally, as in traditional programming styles.
+
+
+
+\subsubsection*{Implementing \code{delay} and \code{force}}
+
+Although \code{delay} and \code{force} may seem like mysterious operations, their implementation is really quite straightforward.
+\code{delay} must package an expression so that it can be evaluated later on demand, and we can accomplish this simply by treating the expression as the body of a procedure.
+\code{delay} can be a special form such that
+\begin{scheme}
+  (delay ⟨~\var{exp}~⟩)
+\end{scheme}
+is syntactic sugar for
+\begin{scheme}
+  (lambda () ⟨~\var{exp}~⟩)
+\end{scheme}
+\code{force} simply calls the procedure (of no arguments) produced by \code{delay}, so we can implement \code{force} as a procedure:
+\begin{scheme}
+  (define (force delayed-object) (delayed-object))
+\end{scheme}
+
+This implementation suffices for \code{delay} and \code{force} to work as advertised, but there is an important optimization that we can include.
+In many applications, we end up forcing the same delayed object many times.
+This can lead to serious inefficiency in recursive programs involving streams.
+(See \link{Exercise 3.57}.)
+The solution is to build delayed objects so that the first time they are forced, they store the value that is computed.
+Subsequent forcings will simply return the stored value without repeating the computation.
+In other words, we implement \code{delay} as a special-purpose memoized procedure similar to the one described in \link{Exercise 3.27}.
+One way to accomplish this is to use the following procedure, which takes as argument a procedure (of no arguments) and returns a memoized version of the procedure.
+The first time the memoized procedure is run, it saves the computed result.
+On subsequent evaluations, it simply returns the result.
+\begin{scheme}
+  (define (memo-proc proc)
+    (let ((already-run? false) (result false))
+      (lambda ()
+        (if (not already-run?)
+            (begin (set! result (proc))
+                   (set! already-run? true)
+                   result)
+            result))))
+\end{scheme}
+\code{delay} is then defined so that \code{(delay ⟨\var{exp}⟩)} is equivalent to
+\begin{scheme}
+  (memo-proc (lambda () ⟨~\var{exp}~⟩))
+\end{scheme}
+and \code{force} is as defined previously.%
+\footnote{
+	There are many possible implementations of streams other than the one described in this section.
+	Delayed evaluation, which is the key to making streams practical, was inherent in Algol~60’s \newterm{call-by-name} parameter-passing method.
+	The use of this mechanism to implement streams was first described by \link{Landin (1965)}.
+	Delayed evaluation for streams was introduced into Lisp by \link{Friedman and Wise (1976)}.
+	In their implementation, \code{cons} always delays evaluating its arguments, so that lists automatically behave as streams.
+	The memoizing optimization is also known as \newterm{call-by-need}.
+	The Algol community would refer to our original delayed objects as \newterm{call-by-name thunks} and to the optimized versions as \newterm{call-by-need thunks}.
+}
+
+
+
+\begin{exercise}
+	\label{Exercise 3.50}
+	Complete the following definition, which generalizes \code{stream-map} to allow procedures that take multiple arguments, analogous to \code{map} in \link{Section 2.2.1}, \link{Footnote 12}.
+	\begin{scheme}
+	  (define (stream-map proc . argstreams)
+	    (if (⟨??⟩ (car argstreams))
+	        the-empty-stream
+	        (⟨??⟩
+	         (apply proc (map ⟨??⟩ argstreams))
+	         (apply stream-map
+	                (cons proc (map ⟨??⟩ argstreams))))))
+	\end{scheme}
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 3.51}
+	In order to take a closer look at delayed evaluation, we will use the following procedure, which simply returns its argument after printing it:
+	\begin{scheme}
+	  (define (show x)
+	    (display-line x)
+	    x)
+	\end{scheme}
+	What does the interpreter print in response to evaluating each expression in the following sequence?%
+	\footnote{
+		Exercises such as \link{Exercise 3.51} and \link{Exercise 3.52} are valuable for testing our understanding of how \code{delay} works.
+		On the other hand, intermixing delayed evaluation with printing---and, even worse, with assignment---is extremely confusing, and instructors of courses on computer languages have traditionally tormented their students with examination questions such as the ones in this section.
+		Needless to say, writing programs that depend on such subtleties is odious programming style.
+		Part of the power of stream processing is that it lets us ignore the order in which events actually happen in our programs.
+		Unfortunately, this is precisely what we cannot afford to do in the presence of assignment, which forces us to be concerned with time and change.
+	}
+	\begin{scheme}
+	  (define x
+	    (stream-map show
+	                (stream-enumerate-interval 0 10)))
+
+	  (stream-ref x 5)
+
+	  (stream-ref x 7)
+	\end{scheme}
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 3.52}
+	Consider the sequence of expressions
+	\begin{scheme}
+	  (define sum 0)
+
+	  (define (accum x) (set! sum (+ x sum)) sum)
+
+	  (define seq
+	    (stream-map accum
+	                (stream-enumerate-interval 1 20)))
+	  (define y (stream-filter even? seq))
+	  (define z
+	    (stream-filter (lambda (x) (= (remainder x 5) 0))
+	                   seq))
+
+	  (stream-ref y 7)
+
+	  (display-stream z)
+	\end{scheme}
+
+	What is the value of \code{sum} after each of the above expressions is evaluated?
+	What is the printed response to evaluating the \code{stream-ref} and \code{display-stream} expressions?
+	Would these responses differ if we had implemented \code{(delay ⟨\var{exp}⟩)} simply as \code{(lambda () ⟨\var{exp}⟩)} without using the optimization provided by \code{memo-proc}?
+	Explain.
+\end{exercise}

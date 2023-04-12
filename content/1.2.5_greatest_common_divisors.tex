@@ -1,0 +1,85 @@
+\subsection{Greatest Common Divisors}
+\label{Section 1.2.5}
+
+The greatest common divisor (\acronym{GCD}) of two integers \( a \) and \( b \) is defined to be the largest integer that divides both \( a \) and \( b \) with no remainder.
+For example, the \acronym{GCD} of \( 16 \) and \( 28 \) is \( 4 \).
+In \link{Chapter 2}, when we investigate how to implement rational-number arithmetic, we will need to be able to compute \acronym{GCD}s in order to reduce rational numbers to lowest terms.
+(To reduce a rational number to lowest terms, we must divide both the numerator and the denominator by their \acronym{GCD}.
+For example, \( 16/28 \) reduces to \( 4/7 \).)
+One way to find the \acronym{GCD} of two integers is to factor them and search for common factors, but there is a famous algorithm that is much more efficient.
+
+The idea of the algorithm is based on the observation that, if \( r \) is the remainder when \( a \) is divided by \( b \), then the common divisors of \( a \) and \( b \) are precisely the same as the common divisors of \( b \) and \( r \).
+Thus, we can use the equation
+\[
+	\gcd(a, b) = \gcd(b, r)
+\]
+to successively reduce the problem of computing a \acronym{GCD} to the problem
+of computing the \acronym{GCD} of smaller and smaller pairs of integers.  For
+example,
+\begin{align*}
+	\gcd(206,40)
+	&= \gcd(40,6)
+	&= \gcd(6,4)
+	&= \gcd(4,2)
+	&= \gcd(2,0)
+	&= 2
+\end{align*}
+reduces \( \gcd(206, 40) \) to \( \gcd(2, 0) \), which is \( 2 \).
+It is possible to show that starting with any two positive integers and performing repeated reductions will always eventually produce a pair where the second number is \( 0 \).
+Then the \acronym{GCD} is the other number in the pair.
+This method for computing the \acronym{GCD} is known as \newterm{Euclid’s Algorithm}.%
+\footnote{
+	Euclid’s Algorithm is so called because it appears in Euclid’s \textit{Elements} (Book 7, ca. 300 \acronym{B.C.}).
+	According to \link{Knuth (1973)}, it can be considered the oldest known nontrivial algorithm.
+	The ancient Egyptian method of multiplication (\link{Exercise 1.18}) is surely older, but, as Knuth explains, Euclid’s algorithm is the oldest known to have been presented as a general algorithm, rather than as a set of illustrative examples.
+}
+
+It is easy to express Euclid’s Algorithm as a procedure:
+\begin{scheme}
+  (define (gcd a b)
+    (if (= b 0)
+        a
+        (gcd b (remainder a b))))
+\end{scheme}
+This generates an iterative process, whose number of steps grows as the logarithm of the numbers involved.
+
+The fact that the number of steps required by Euclid’s Algorithm has logarithmic growth bears an interesting relation to the Fibonacci numbers:
+
+\begin{quote}
+\heading{Lamé’s Theorem:}
+	If Euclid’s Algorithm requires \( k \) steps to compute the \acronym{GCD} of some pair, then the smaller number in the pair must be greater than or equal to the \( k \)\nth{th} Fibonacci number.%
+\footnote{
+	This theorem was proved in 1845 by Gabriel Lamé, a French mathematician and engineer known chiefly for his contributions to mathematical physics.
+	To prove the theorem, we consider pairs (\( a_k, b_k \)), where \( a_k ≥ b_k \), for which Euclid’s Algorithm terminates in \( k \) steps.
+	The proof is based on the claim that, if \( (a_{k + 1}, b_{k + 1}) \to (a_k, b_k) \to (a_{k - 1}, b_{k - 1}) \) are three successive pairs in the reduction process, then we must have \( b_{k + 1} ≥ b_k + b_{k - 1} \).
+	To verify the claim, consider that a reduction step is defined by applying the transformation \( a_{k - 1} = b_k, b_{k - 1} = \) remainder of \( a_k \) divided by \( b_k \).
+	The second equation means that \( a_k = q b_k + b_{k - 1} \) for some positive integer \( q \).
+	And since \( q \) must be at least 1 we have \( a_k = q b_k + b_{k - 1} ≥ b_k + b_{k - 1} \).
+	But in the previous reduction step we have \( b_{k + 1} = a_k \).
+	Therefore, \( b_{k + 1} = a_k ≥ b_k + b_{k - 1} \).
+	This verifies the claim.
+	Now we can prove the theorem by induction on \( k \), the number of steps that the algorithm requires to terminate.
+	The result is true for \( k = 1 \), since this merely requires that \( b \) be at least as large as \( Fib(1) = 1 \).
+	Now, assume that the result is true for all integers less than or equal to \( k \) and establish the result for \( k + 1 \).
+	Let \( (a_{k + 1}, b_{k + 1}) \to (a_k, b_k) \to (a_{k - 1}, b_{k - 1}) \) be successive pairs in the reduction process.
+	By our induction hypotheses, we have \( b_{k - 1} ≥ \Fib(k - 1) \) and \( b_k ≥ \Fib(k) \).
+	Thus, applying the claim we just proved together with the definition of the Fibonacci numbers gives \( b_{k + 1} ≥ b_k + b_{k - 1} ≥ \Fib(k) + \Fib(k - 1) = \Fib(k + 1) \), which completes the proof of Lamé’s Theorem.}
+\end{quote}
+We can use this theorem to get an order-of-growth estimate for Euclid’s Algorithm.
+Let \( n \) be the smaller of the two inputs to the procedure.
+If the process takes \( k \) steps, then we must have \( n ≥ \Fib(k) \approx ϕ^k / \sqrt{5} \).
+Therefore the number of steps \( k \) grows as the logarithm (to the base \( ϕ \)) of \( n \).
+Hence, the order of growth is \( Θ(\log n) \).
+
+
+
+\begin{exercise}
+	\label{Exercise 1.20}
+	The process that a procedure generates is of course dependent on the rules used by the interpreter.
+	As an example, consider the iterative \code{gcd} procedure given above.
+	Suppose we were to interpret this procedure using normal-order evaluation, as discussed in \link{Section 1.1.5}.
+	(The normal-order-evaluation rule for \code{if} is described in \link{Exercise 1.5}.)
+	Using the substitution method (for normal order), illustrate the process generated in evaluating \code{(gcd 206 40)} and indicate the \code{remainder} operations that are actually performed.
+	How many \code{remainder} operations are actually performed in the normal-order evaluation of \code{(gcd 206 40)}?
+	In the applicative-order evaluation?
+\end{exercise}

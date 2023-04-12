@@ -1,0 +1,113 @@
+\subsection{What Is Meant by Data?}
+\label{Section 2.1.3}
+
+We began the rational-number implementation in \link{Section 2.1.1} by implementing the rational-number operations \code{add-rat}, \code{sub-rat}, and so on in terms of three unspecified procedures:
+\code{make-rat}, \code{numer}, and \code{denom}.
+At that point, we could think of the operations as being defined in terms of data objects---numerators, denominators, and rational numbers---whose behavior was specified by the latter three procedures.
+
+But exactly what is meant by \newterm{data}?
+It is not enough to say “whatever is implemented by the given selectors and constructors.”
+Clearly, not every arbitrary set of three procedures can serve as an appropriate basis for the rational-number implementation.
+We need to guarantee that, if we construct a rational number \code{x} from a pair of integers \code{n} and \code{d}, then extracting the \code{numer} and the \code{denom} of \code{x} and dividing them should yield the same result as dividing \code{n} by \code{d}.
+In other words, \code{make-rat}, \code{numer}, and \code{denom} must satisfy the condition that, for any integer \code{n} and any non-zero integer \code{d}, if \code{x} is \code{(make-rat n d)}, then
+\[
+	\frac{\code{numer x}}{\code{denom x}}
+	=
+	\frac{\code{n}}{\code{d}}
+\]
+In fact, this is the only condition \code{make-rat}, \code{numer}, and \code{denom} must fulfill in order to form a suitable basis for a rational-number representation.
+In general, we can think of data as defined by some collection of selectors and constructors, together with specified conditions that these procedures must fulfill in order to be a valid representation.%
+\footnote{
+	Surprisingly, this idea is very difficult to formulate rigorously.
+	There are two approaches to giving such a formulation.
+	One, pioneered by C.~A.~R.
+	\link{Hoare (1972)}, is known as the method of \newterm{abstract models}.
+	It formalizes the “procedures plus conditions” specification as outlined in the rational-number example above.
+	Note that the condition on the rational-number representation was stated in terms of facts about integers (equality and division).
+	In general, abstract models define new kinds of data objects in terms of previously defined types of data objects.
+	Assertions about data objects can therefore be checked by reducing them to assertions about previously defined data objects.
+	Another approach, introduced by Zilles at \acronym{MIT}, by Goguen, Thatcher, Wagner, and Wright at \acronym{IBM} (see \link{Thatcher et al. 1978}), and by Guttag at Toronto (see \link{Guttag 1977}), is called \newterm{algebraic specification}.
+	It regards the “procedures” as elements of an abstract algebraic system whose behavior is specified by axioms that correspond to our “conditions,” and uses the techniques of abstract algebra to check assertions about data objects.
+	Both methods are surveyed in the paper by \link{Liskov and Zilles (1975)}.
+}
+
+This point of view can serve to define not only “high-level” data objects, such as rational numbers, but lower-level objects as well.
+Consider the notion of a pair, which we used in order to define our rational numbers.
+We never actually said what a pair was, only that the language supplied procedures \code{cons}, \code{car}, and \code{cdr} for operating on pairs.
+But the only thing we need to know about these three operations is that if we glue two objects together using \code{cons} we can retrieve the objects using \code{car} and \code{cdr}.
+That is, the operations satisfy the condition that, for any objects \code{x} and \code{y}, if \code{z} is \code{(cons x y)} then \code{(car z)} is \code{x} and \code{(cdr z)} is \code{y}.
+Indeed, we mentioned that these three procedures are included as primitives in our language.
+However, any triple of procedures that satisfies the above condition can be used as the basis for implementing pairs.
+This point is illustrated strikingly by the fact that we could implement \code{cons}, \code{car}, and \code{cdr} without using any data structures at all but only using procedures.
+Here are the definitions:
+\begin{scheme}
+  (define (cons x y)
+    (define (dispatch m)
+      (cond ((= m 0) x)
+            ((= m 1) y)
+            (else (error "Argument not 0 or 1: CONS" m))))
+    dispatch)
+
+  (define (car z) (z 0))
+
+  (define (cdr z) (z 1))
+\end{scheme}
+This use of procedures corresponds to nothing like our intuitive notion of what data should be.
+Nevertheless, all we need to do to show that this is a valid way to represent pairs is to verify that these procedures satisfy the condition given above.
+
+The subtle point to notice is that the value returned by \code{(cons x y)} is a procedure---namely the internally defined procedure \code{dispatch}, which takes one argument and returns either \code{x} or \code{y} depending on whether the argument is 0 or 1.
+Correspondingly, \code{(car z)} is defined to apply \code{z} to 0.
+Hence, if \code{z} is the procedure formed by \code{(cons x y)}, then \code{z} applied to 0 will yield \code{x}.
+Thus, we have shown that \code{(car (cons x y))} yields \code{x}, as desired.
+Similarly, \code{(cdr (cons x y))} applies the procedure returned by \code{(cons x y)} to 1, which returns \code{y}.
+Therefore, this procedural implementation of pairs is a valid implementation, and if we access pairs using only \code{cons}, \code{car}, and \code{cdr} we cannot distinguish this implementation from one that uses “real” data structures.
+
+The point of exhibiting the procedural representation of pairs is not that our language works this way (Scheme, and Lisp systems in general, implement pairs directly, for efficiency reasons) but that it could work this way.
+The procedural representation, although obscure, is a perfectly adequate way to represent pairs, since it fulfills the only conditions that pairs need to fulfill.
+This example also demonstrates that the ability to manipulate procedures as objects automatically provides the ability to represent compound data.
+This may seem a curiosity now, but procedural representations of data will play a central role in our programming repertoire.
+This style of programming is often called \newterm{message passing}, and we will be using it as a basic tool in \link{Chapter 3} when we address the issues of modeling and simulation.
+
+
+
+\begin{exercise}
+	\label{Exercise 2.4}
+	Here is an alternative procedural representation of pairs.
+	For this representation, verify that \code{(car (cons x y))} yields \code{x} for any objects \code{x} and \code{y}.
+	\begin{scheme}
+	  (define (cons x y)
+	    (lambda (m) (m x y)))
+	  (define (car z)
+	    (z (lambda (p q) p)))
+	\end{scheme}
+	What is the corresponding definition of \code{cdr}?
+	(Hint:
+	To verify that this works, make use of the substitution model of \link{Section 1.1.5}.)
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 2.5}
+	Show that we can represent pairs of nonnegative integers using only numbers and arithmetic operations if we represent the pair \( a \) and \( b \) as the integer that is the product \( 2^a 3^b \).
+	Give the corresponding definitions of the procedures \code{cons}, \code{car}, and \code{cdr}.
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 2.6}
+	In case representing pairs as procedures wasn’t mind-boggling enough, consider that, in a language that can manipulate procedures, we can get by without numbers (at least insofar as nonnegative integers are concerned) by implementing 0 and the operation of adding \( 1 \) as
+	\begin{scheme}
+	  (define zero (lambda (f) (lambda (x) x)))
+
+	  (define (add-1 n)
+	    (lambda (f) (lambda (x) (f ((n f) x)))))
+	\end{scheme}
+	This representation is known as \newterm{Church numerals}, after its inventor, Alonzo Church, the logician who invented the λ-calculus.
+
+	Define \code{one} and \code{two} directly (not in terms of \code{zero} and \code{add-1}).
+	(Hint:
+	Use substitution to evaluate \code{(add-1 zero)}).
+	Give a direct definition of the addition procedure \code{+} (not in terms of repeated application of \code{add-1}).
+\end{exercise}

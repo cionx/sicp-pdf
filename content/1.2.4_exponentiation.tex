@@ -1,0 +1,165 @@
+\subsection{Exponentiation}
+\label{Section 1.2.4}
+
+Consider the problem of computing the exponential of a given number.
+We would like a procedure that takes as arguments a base \( b \) and a positive integer exponent \( n \) and computes \( b^n \).
+One way to do this is via the recursive definition
+\begin{align*}
+	b^n &= b ⋅ b^{n-1} \,, \\
+	b^0 &= 1 \,,
+\end{align*}
+which translates readily into the procedure
+\begin{scheme}
+  (define (expt b n)
+    (if (= n 0)
+        1
+        (* b (expt b (- n 1)))))
+\end{scheme}
+This is a linear recursive process, which requires \( Θ(n) \) steps and \( Θ(n) \) space.
+Just as with factorial, we can readily formulate an equivalent linear iteration:
+\begin{scheme}
+  (define (expt b n)
+    (expt-iter b n 1))
+
+  (define (expt-iter b counter product)
+    (if (= counter 0)
+        product
+        (expt-iter b
+                   (- counter 1)
+                   (* b product))))
+\end{scheme}
+This version requires \( Θ(n) \) steps and \( Θ(1) \) space.
+
+We can compute exponentials in fewer steps by using successive squaring.
+For instance, rather than computing \( b^8 \) as
+\[
+   b ⋅ (b ⋅ (b ⋅ (b ⋅ (b ⋅ (b ⋅ (b ⋅ b)))))) \,,
+\]
+we can compute it using three multiplications:
+\begin{align*}
+	b^2 &= b ⋅ b, \\
+	b^4 &= b^2 ⋅ b^2, \\
+	b^8 &= b^4 ⋅ b^4.
+\end{align*}
+
+This method works fine for exponents that are powers of \( 2 \).
+We can also take advantage of successive squaring in computing exponentials in general if we use the rule
+\[
+	b^n
+	=
+	\begin{cases*}
+		(b^{n / 2})^2 & if \( n \) is even, \\
+		b ⋅ b^{n - 1} & if \( n \) is odd.
+	\end{cases*}
+\]
+We can express this method as a procedure:
+\begin{scheme}
+  (define (fast-expt b n)
+    (cond ((= n 0) 1)
+          ((even? n) (square (fast-expt b (/ n 2))))
+          (else (* b (fast-expt b (- n 1))))))
+\end{scheme}
+where the predicate to test whether an integer is even is defined in terms of the primitive procedure \code{remainder} by
+\begin{scheme}
+  (define (even? n)
+    (= (remainder n 2) 0))
+\end{scheme}
+The process evolved by \code{fast-expt} grows logarithmically with \( n \) in both space and number of steps.
+To see this, observe that computing \( b^{2 n} \) using \code{fast-expt} requires only one more multiplication than computing \( b^n \).
+The size of the exponent we can compute therefore doubles (approximately) with every new multiplication we are allowed.
+Thus, the number of multiplications required for an exponent of \( n \) grows about as fast as the logarithm of \( n \) to the base \( 2 \).
+The process has \( Θ(\log n) \) growth.%
+\footnote{
+	More precisely, the number of multiplications required is equal to \( 1 \) less than \( \log_2 n \) plus the number of ones in the binary representation of \( n \).
+	This total is always less than \( 2 \log_2 n \).
+	The arbitrary constants \( k_1 \) and \( k_2 \) in the definition of order notation imply that, for a logarithmic process, the base to which logarithms are taken does not matter, so all such processes are described as \( Θ(\log n) \).
+}
+
+The difference between \( Θ(\log n) \) growth and \( Θ(n) \) growth becomes striking as \( n \) becomes large.
+For example, \code{fast-expt} for \( n = 1000 \) requires only 14 multiplications.%
+\footnote{
+	You may wonder why anyone would care about raising numbers to the 1000th power.
+	See \link{Section 1.2.6}.
+}
+It is also possible to use the idea of successive squaring to devise an iterative algorithm that computes exponentials with a logarithmic number of steps (see \link{Exercise 1.16}), although, as is often the case with iterative algorithms, this is not written down so straightforwardly as the recursive algorithm.%
+\footnote{
+	This iterative algorithm is ancient.
+	It appears in the \textit{Chandah-sutra} by Áchárya Pingala, written before 200~\acronym{B.C.}
+	See \link{Knuth 1981}, section 4.6.3, for a full discussion and analysis of this and other methods of exponentiation.
+}
+
+
+
+\begin{exercise}
+	\label{Exercise 1.16}
+	Design a procedure that evolves an iterative exponentiation process that uses successive squaring and uses a logarithmic number of steps, as does \code{fast-expt}.
+	(Hint:
+	Using the observation that \( (b^{n / 2})^2 = (b^2)^{n / 2} \), keep, along with the exponent \( n \) and the base \( b \), an additional state variable \( a \), and define the state transformation in such a way that the product \( a b^n \) is unchanged from state to state.
+	At the beginning of the process \( a \) is taken to be \( 1 \), and the answer is given by the value of \( a \) at the end of the process.
+	In general, the technique of defining an \newterm{invariant quantity} that remains unchanged from state to state is a powerful way to think about the design of iterative algorithms.)
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 1.17}
+	The exponentiation algorithms in this section are based on performing exponentiation by means of repeated multiplication.
+	In a similar way, one can perform integer multiplication by means of repeated addition.
+	The following multiplication procedure (in which it is assumed that our language can only add, not multiply) is analogous to the \code{expt} procedure:
+	\begin{scheme}
+	  (define (* a b)
+	    (if (= b 0)
+	        0
+	        (+ a (* a (- b 1)))))
+	\end{scheme}
+	This algorithm takes a number of steps that is linear in \code{b}.
+	Now suppose we include, together with addition, operations \code{double}, which doubles an integer, and \code{halve}, which divides an (even) integer by 2.
+	Using these, design a multiplication procedure analogous to \code{fast-expt} that uses a logarithmic number of steps.
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 1.18}
+	Using the results of \link{Exercise 1.16} and \link{Exercise 1.17}, devise a procedure that generates an iterative process for multiplying two integers in terms of adding, doubling, and halving and uses a logarithmic number of steps.%
+	\footnote{
+		This algorithm, which is sometimes known as the “Russian peasant method” of multiplication, is ancient.
+		Examples of its use are found in the Rhind Papyrus, one of the two oldest mathematical documents in existence, written about 1700~\acronym{B.C.} (and copied from an even older document) by an Egyptian scribe named A’h-mose.
+	}
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 1.19}
+	There is a clever algorithm for computing the Fibonacci numbers in a logarithmic number of steps.
+	Recall the transformation of the state variables \( a \) and \( b \) in the \code{fib-iter} process of \link{Section 1.2.2}:
+	\( a \gets a + b \) and \( b \gets a \).
+	Call this transformation \( T \), and observe that applying \( T \) over and over again \( n \) times, starting with \( 1 \) and \( 0 \), produces the pair \( \Fib (n + 1) \) and \( \Fib(n) \).
+	In other words, the Fibonacci numbers are produced by applying \( T^n \), the \( n \)\nth{th} power of the transformation \( T \), starting with the pair \( (1, 0) \).
+	Now consider \( T \) to be the special case of \( p = 0 \) and \( q = 1 \) in a family of transformations \( T_{pq} \), where \( T_{pq} \) transforms the pair \( (a, b) \) according to \( a \gets bq + aq + ap \) and \( b \gets bp + aq \).
+	Show that if we apply such a transformation \( T_{pq} \) twice, the effect is the same as using a single transformation \( T_{p' q'} \) of the same form, and compute \( p'\) and \( q' \) in terms of \( p \) and \( q \).
+	This gives us an explicit way to square these transformations, and thus we can compute \( T^n \) using successive squaring, as in the \code{fast-expt} procedure.
+	Put this all together to complete the following procedure, which runs in a logarithmic number of steps:%
+	\footnote{
+		This exercise was suggested to us by Joe Stoy, based on an example in \link{Kaldewaij 1990}.
+	}
+	\begin{scheme}
+	  (define (fib n)
+	    (fib-iter 1 0 0 1 n))
+
+	  (define (fib-iter a b p q count)
+	    (cond ((= count 0) b)
+	          ((even? count)
+	           (fib-iter a
+	                     b
+	                     ⟨??⟩   ~\textrm{; compute \( p' \)}~
+	                     ⟨??⟩   ~\textrm{; compute \( q' \)}~
+	                     (/ count 2)))
+	          (else (fib-iter (+ (* b q) (* a q) (* a p))
+	                          (+ (* b p) (* a q))
+	                          p
+	                          q
+	                          (- count 1)))))
+	\end{scheme}
+\end{exercise}

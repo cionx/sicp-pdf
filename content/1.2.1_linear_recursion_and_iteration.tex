@@ -1,0 +1,183 @@
+\subsection{Linear Recursion and Iteration}
+\label{Section 1.2.1}
+
+We begin by considering the factorial function, defined by
+\[
+  n! = n ⋅ (n - 1) ⋅ (n - 2) \dotsm 3 ⋅ 2 ⋅ 1 \,.
+\]
+There are many ways to compute factorials.
+One way is to make use of the observation that \( n! \) is equal to \( n \) times \( (n - 1)! \) for any positive integer \( n \):
+\[
+  n!
+  = n ⋅ [(n - 1) ⋅ (n - 2) \dotsm 3 ⋅ 2 ⋅ 1]
+  = n ⋅ (n - 1)! \,.
+\]
+Thus, we can compute \( n! \) by computing \( (n - 1)! \) and multiplying the result by \( n \).
+If we add the stipulation that \( 1! \) is equal to \( 1 \), this observation translates directly into a procedure:
+\begin{scheme}
+  (define (factorial n)
+    (if (= n 1)
+        1
+        (* n (factorial (- n 1)))))
+\end{scheme}
+We can use the substitution model of \link{Section 1.1.5} to watch this procedure in action computing \( 6! \), as shown in \link{Figure 1.3}.
+
+\begin{figure}[tb]
+	\centering
+	\includesvg[width=82mm]{fig/chap1/Fig1.3c.svg}
+	\caption{
+		A linear recursive process for computing \( 6! \).
+	}
+	\label{Figure 1.3}
+\end{figure}
+
+Now let’s take a different perspective on computing factorials.
+We could describe a rule for computing \( n! \) by specifying that we first multiply \( 1 \) by \( 2 \), then multiply the result by \( 3 \), then by \( 4 \), and so on until we reach \( n \).
+More formally, we maintain a running product, together with a counter that counts from \( 1 \) up to \( n \).
+We can describe the computation by saying that the counter and the product simultaneously change from one step to the next according to the rule
+\begin{scheme}
+  product ~\( \dark \gets \)~ counter * product
+  counter ~\( \dark \gets \)~ counter + 1
+\end{scheme}
+and stipulating that \( n! \) is the value of the product when the counter exceeds \( n \).
+
+\begin{figure}[tb]
+	\centering
+	\includesvg[width=36mm]{fig/chap1/Fig1.4c.svg}
+	\caption{
+		A linear iterative process for computing \( 6! \).
+	}
+	\label{Figure 1.4}
+\end{figure}
+
+Once again, we can recast our description as a procedure for computing factorials:%
+\footnote{
+	In a real program we would probably use the block structure introduced in the last section to hide the definition of \code{fact-iter}:
+	\begin{smallscheme}
+	  (define (factorial n)
+	    (define (iter product counter)
+	      (if (> counter n)
+	          product
+	          (iter (* counter product)
+	                (+ counter 1))))
+	    (iter 1 1))
+	\end{smallscheme}
+	We avoided doing this here so as to minimize the number of things to think
+	about at once.
+}
+\begin{scheme}
+  (define (factorial n)
+    (fact-iter 1 1 n))
+
+  (define (fact-iter product counter max-count)
+    (if (> counter max-count)
+        product
+        (fact-iter (* counter product)
+                   (+ counter 1)
+                   max-count)))
+\end{scheme}
+As before, we can use the substitution model to visualize the process of computing \( 6! \), as shown in \link{Figure 1.4}.
+
+Compare the two processes.
+From one point of view, they seem hardly different at all.
+Both compute the same mathematical function on the same domain, and each requires a number of steps proportional to \( n \) to compute \( n! \).
+Indeed, both processes even carry out the same sequence of multiplications, obtaining the same sequence of partial products.
+On the other hand, when we consider the “shapes” of the two processes, we find that they evolve quite differently.
+
+Consider the first process.
+The substitution model reveals a shape of expansion followed by contraction, indicated by the arrow in \link{Figure 1.3}.
+The expansion occurs as the process builds up a chain of \newterm{deferred operations} (in this case, a chain of multiplications).
+The contraction occurs as the operations are actually performed.
+This type of process, characterized by a chain of deferred operations, is called a \newterm{recursive process}.
+Carrying out this process requires that the interpreter keep track of the operations to be performed later on.
+In the computation of \( n! \), the length of the chain of deferred multiplications, and hence the amount of information needed to keep track of it, grows linearly with \( n \) (is proportional to \( n \)), just like the number of steps.
+Such a process is called a \newterm{linear recursive process}.
+
+By contrast, the second process does not grow and shrink.
+At each step, all we need to keep track of, for any \( n \), are the current values of the variables \code{product}, \code{counter}, and \code{max-count}.
+We call this an \newterm{iterative process}.
+In general, an iterative process is one whose state can be summarized by a fixed number of \newterm{state variables}, together with a fixed rule that describes how the state variables should be updated as the process moves from state to state and an (optional) end test that specifies conditions under which the process should terminate.
+In computing \( n! \), the number of steps required grows linearly with \( n \).
+Such a process is called a \newterm{linear iterative process}.
+
+The contrast between the two processes can be seen in another way.
+In the iterative case, the program variables provide a complete description of the state of the process at any point.
+If we stopped the computation between steps, all we would need to do to resume the computation is to supply the interpreter with the values of the three program variables.
+Not so with the recursive process.
+In this case there is some additional “hidden” information, maintained by the interpreter and not contained in the program variables, which indicates “where the process is” in negotiating the chain of deferred operations.
+The longer the chain, the more information must be maintained.%
+\footnote{
+	When we discuss the implementation of procedures on register machines in \link{Chapter 5}, we will see that any iterative process can be realized “in hardware” as a machine that has a fixed set of registers and no auxiliary memory.
+	In contrast, realizing a recursive process requires a machine that uses an auxiliary data structure known as a \newterm{stack}.
+}
+
+In contrasting iteration and recursion, we must be careful not to confuse the notion of a recursive \newterm{process} with the notion of a recursive \newterm{procedure}.
+When we describe a procedure as recursive, we are referring to the syntactic fact that the procedure definition refers (either directly or indirectly) to the procedure itself.
+But when we describe a process as following a pattern that is, say, linearly recursive, we are speaking about how the process evolves, not about the syntax of how a procedure is written.
+It may seem disturbing that we refer to a recursive procedure such as \code{fact-iter} as generating an iterative process.
+However, the process really is iterative:
+Its state is captured completely by its three state variables, and an interpreter need keep track of only three variables in order to execute the process.
+
+One reason that the distinction between process and procedure may be confusing is that most implementations of common languages (including Ada, Pascal, and C) are designed in such a way that the interpretation of any recursive procedure consumes an amount of memory that grows with the number of procedure calls, even when the process described is, in principle, iterative.
+As a consequence, these languages can describe iterative processes only by resorting to special-purpose “looping constructs” such as \code{do}, \code{repeat}, \code{until}, \code{for}, and \code{while}.
+The implementation of Scheme we shall consider in \link{Chapter 5} does not share this defect.
+It will execute an iterative process in constant space, even if the iterative process is described by a recursive procedure.
+An implementation with this property is called \newterm{tail-recursive}.
+With a tail-recursive implementation, iteration can be expressed using the ordinary procedure call mechanism, so that special iteration constructs are useful only as syntactic sugar.%
+\footnote{
+	Tail recursion has long been known as a compiler optimization trick.
+	A coherent semantic basis for tail recursion was provided by Carl \link{Hewitt (1977)}, who explained it in terms of the “message-passing” model of computation that we shall discuss in \link{Chapter 3}.
+	Inspired by this, Gerald Jay Sussman and Guy Lewis Steele Jr. (see \link{Steele and Sussman 1975}) constructed a tail-recursive interpreter for Scheme.
+	Steele later showed how tail recursion is a consequence of the natural way to compile procedure calls (\link{Steele 1977}).
+  The \acronym{IEEE} standard for Scheme requires that Scheme implementations be tail-recursive.
+}
+
+
+
+\begin{exercise}
+	\label{Exercise 1.9}
+	Each of the following two procedures defines a method for adding two positive integers in terms of the procedures \code{inc}, which increments its argument by \( 1 \), and \code{dec}, which decrements its argument by \( 1 \).
+	\begin{scheme}
+	  (define (+ a b)
+	    (if (= a 0) b (inc (+ (dec a) b))))
+
+	  (define (+ a b)
+	    (if (= a 0) b (+ (dec a) (inc b))))
+	\end{scheme}
+	Using the substitution model, illustrate the process generated by each procedure in evaluating \code{(+ 4 5)}.
+	Are these processes iterative or recursive?
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 1.10}
+	The following procedure computes a mathematical function called Ackermann’s function.
+	\begin{scheme}
+	  (define (A x y)
+	    (cond ((= y 0) 0)
+	          ((= x 0) (* 2 y))
+	          ((= y 1) 2)
+	          (else (A (- x 1) (A x (- y 1))))))
+	\end{scheme}
+	What are the values of the following expressions?
+	\begin{scheme}
+	  (A 1 10)
+
+	  (A 2 4)
+
+	  (A 3 3)
+	\end{scheme}
+	Consider the following procedures, where \code{A} is the procedure defined above:
+	\begin{scheme}
+	  (define (f n) (A 0 n)
+
+	  (define (g n) (A 1 n))
+
+	  (define (h n) (A 2 n))
+
+	  (define (k n) (* 5 n n))
+	\end{scheme}
+	Give concise mathematical definitions for the functions computed by the procedures \code{f}, \code{g}, and \code{h} for positive integer values of \( n \).
+	For example, \code{(k n)} computes \( 5 n^2 \).
+\end{exercise}

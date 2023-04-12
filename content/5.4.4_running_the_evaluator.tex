@@ -1,0 +1,260 @@
+\subsection{Running the Evaluator}
+\label{Section 5.4.4}
+
+With the implementation of the explicit-control evaluator we come to the end of a development, begun in \link{Chapter 1}, in which we have explored successively more precise models of the evaluation process.
+We started with the relatively informal substitution model, then extended this in \link{Chapter 3} to the environment model, which enabled us to deal with state and change.
+In the metacircular evaluator of \link{Chapter 4}, we used Scheme itself as a language for making more explicit the environment structure constructed during evaluation of an expression.
+Now, with register machines, we have taken a close look at the evaluator’s mechanisms for storage management, argument passing, and control.
+At each new level of description, we have had to raise issues and resolve ambiguities that were not apparent at the previous, less precise treatment of evaluation.
+To understand the behavior of the explicit-control evaluator, we can simulate it and monitor its performance.
+
+We will install a driver loop in our evaluator machine.
+This plays the role of the \code{driver-loop} procedure of \link{Section 4.1.4}.
+The evaluator will repeatedly print a prompt, read an expression, evaluate the expression by going to \code{eval-dispatch}, and print the result.
+The following instructions form the beginning of the explicit-control evaluator’s controller sequence:%
+\footnote{
+	We assume here that \code{read} and the various printing operations are available as primitive machine operations, which is useful for our simulation, but completely unrealistic in practice.
+	These are actually extremely complex operations.
+	In practice, they would be implemented using low-level input-output operations such as transferring single characters to and from a device.
+
+	To support the \code{get-global-environment} operation we define
+
+	\begin{smallscheme}
+	  (define the-global-environment (setup-environment))
+	  (define (get-global-environment) the-global-environment)
+	\end{smallscheme}
+}
+\begin{scheme}
+  read-eval-print-loop
+    (perform (op initialize-stack))
+    (perform
+     (op prompt-for-input) (const ";;EC-Eval input:"))
+    (assign exp (op read))
+    (assign env (op get-global-environment))
+    (assign continue (label print-result))
+    (goto (label eval-dispatch))
+  print-result
+    (perform (op announce-output) (const ";;EC-Eval value:"))
+    (perform (op user-print) (reg val))
+    (goto (label read-eval-print-loop))
+\end{scheme}
+
+When we encounter an error in a procedure (such as the “unknown procedure type error” indicated at \code{apply-dispatch}), we print an error message and return to the driver loop.%
+\footnote{
+	There are other errors that we would like the interpreter to handle, but these are not so simple.
+	See \link{Exercise 5.30}.
+}
+
+\begin{scheme}
+  unknown-expression-type
+    (assign val (const unknown-expression-type-error))
+    (goto (label signal-error))
+  unknown-procedure-type
+    (restore continue)    ~\textrm{; clean up stack (from \code{apply-dispatch})}~
+    (assign val (const unknown-procedure-type-error))
+    (goto (label signal-error))
+  signal-error
+    (perform (op user-print) (reg val))
+    (goto (label read-eval-print-loop))
+\end{scheme}
+
+For the purposes of the simulation, we initialize the stack each time through the driver loop, since it might not be empty after an error (such as an undefined variable) interrupts an evaluation.%
+\footnote{
+	We could perform the stack initialization only after errors, but doing it in the driver loop will be convenient for monitoring the evaluator’s performance, as described below.
+}
+
+If we combine all the code fragments presented in \link{Section 5.4.1}--\link{Section 5.4.4}, we can create an evaluator machine model that we can run using the register-machine simulator of \link{Section 5.2}.
+\begin{scheme}
+  (define eceval
+    (make-machine
+     '(exp env val proc argl continue unev)
+     eceval-operations
+     '(read-eval-print-loop
+       ⟨~\emph{entire machine controller as given above}~⟩ )))
+\end{scheme}
+We must define Scheme procedures to simulate the operations used as primitives by the evaluator.
+These are the same procedures we used for the metacircular evaluator in \link{Section 4.1}, together with the few additional ones defined in footnotes throughout \link{Section 5.4}.
+
+\begin{scheme}
+  (define eceval-operations
+    (list (list 'self-evaluating? self-evaluating)
+          ⟨~\emph{complete list of operations for eceval machine}~⟩))
+\end{scheme}
+
+Finally, we can initialize the global environment and run the evaluator:
+\begin{scheme}
+  (define the-global-environment (setup-environment))
+  (start eceval)
+  ~\outprint{;;; EC-Eval input:}~
+  (define (append x y)
+    (if (null? x) y (cons (car x) (append (cdr x) y))))
+  ~\outprint{;;; EC-Eval value:}~
+  ~\outprint{ok}~
+
+  ~\outprint{;;; EC-Eval input:}~
+  (append '(a b c) '(d e f))
+  ~\outprint{;;; EC-Eval value:}~
+  ~\outprint{(a b c d e f)}~
+\end{scheme}
+
+Of course, evaluating expressions in this way will take much longer than if we had directly typed them into Scheme, because of the multiple levels of simulation involved.
+Our expressions are evaluated by the explicit-control-evaluator machine, which is being simulated by a Scheme program, which is itself being evaluated by the Scheme interpreter.
+
+
+
+\subsubsection*{Monitoring the performance of the evaluator}
+
+Simulation can be a powerful tool to guide the implementation of evaluators.
+Simulations make it easy not only to explore variations of the register-machine design but also to monitor the performance of the simulated evaluator.
+For example, one important factor in performance is how efficiently the evaluator uses the stack.
+We can observe the number of stack operations required to evaluate various expressions by defining the evaluator register machine with the version of the simulator that collects statistics on stack use (\link{Section 5.2.4}), and adding an instruction at the evaluator’s \code{print-result} entry point to print the statistics:
+\begin{scheme}
+  print-result
+    (perform (op print-stack-statistics))   ~\textrm{; added instruction}~
+    (perform
+     (op announce-output) (const ";;; EC-Eval value:"))
+    … ~\textrm{; same as before}~
+\end{scheme}
+Interactions with the evaluator now look like this:
+\begin{scheme}
+  ~\outprint{;;; EC-Eval input:}~
+  (define (factorial n)
+    (if (= n 1) 1 (* (factorial (- n 1)) n)))
+  ~\outprint{(total-pushes = 3 maximum-depth = 3)}~
+  ~\outprint{;;; EC-Eval value:}~
+  ~\outprint{ok}~
+
+  ~\outprint{;;; EC-Eval input:}~
+  (factorial 5)
+  ~\outprint{(total-pushes = 144 maximum-depth = 28)}~
+  ~\outprint{;;; EC-Eval value:}~
+  ~\outprint{120}~
+\end{scheme}
+Note that the driver loop of the evaluator reinitializes the stack at the start of each interaction, so that the statistics printed will refer only to stack operations used to evaluate the previous expression.
+
+
+
+\begin{exercise}
+	\label{Exercise 5.26}
+	Use the monitored stack to explore the tail-recursive property of the evaluator (\link{Section 5.4.2}).
+	Start the evaluator and define the iterative \code{factorial} procedure from \link{Section 1.2.1}:
+	\begin{scheme}
+	  (define (factorial n)
+	    (define (iter product counter)
+	      (if (> counter n)
+	          product
+	          (iter (* counter product) (+ counter 1))))
+	    (iter 1 1))
+	\end{scheme}
+
+	Run the procedure with some small values of \( n \).
+	Record the maximum stack depth and the number of pushes required to compute \( n! \) for each of these values.
+	\begin{enumerate}[label = \alph*., leftmargin = *]
+
+		\item
+			You will find that the maximum depth required to evaluate \( n! \) is independent of \( n \).
+			What is that depth?
+
+		\item
+			Determine from your data a formula in terms of \( n \) for the total number of push operations used in evaluating \( n! \) for any \( n ≥ 1 \).
+			Note that the number of operations used is a linear function of \( n \) and is thus determined by two constants.
+
+	\end{enumerate}
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 5.27}
+	For comparison with \link{Exercise 5.26}, explore the behavior of the following procedure for computing factorials recursively:
+	\begin{scheme}
+	  (define (factorial n)
+	    (if (= n 1) 1 (* (factorial (- n 1)) n)))
+	\end{scheme}
+	By running this procedure with the monitored stack, determine, as a function of \( n \), the maximum depth of the stack and the total number of pushes used in evaluating \( n! \) for \( n ≥ 1 \).
+	(Again, these functions will be linear.)
+	Summarize your experiments by filling in the following table with the appropriate expressions in terms of \( n \):
+	\begin{center}
+		\begin{tabular}{lll}
+			{}        & Maximum depth & Number of pushes  \\
+			\midrule
+			Recursive & {}            & {}                \\
+			factorial & {}            & {}                \\
+			\midrule
+			Iterative & {}            & {}                \\
+			factorial & {}            & {}                \\
+			\midrule
+		\end{tabular}
+	\end{center}
+	The maximum depth is a measure of the amount of space used by the evaluator in carrying out the computation, and the number of pushes correlates well with the time required.
+\end{exercise}
+
+\begin{exercise}
+	\label{Exercise 5.28}
+	Modify the definition of the evaluator by changing \code{eval-sequence} as described in \link{Section 5.4.2} so that the evaluator is no longer tail-recursive.
+	Rerun your experiments from \link{Exercise 5.26} and \link{Exercise 5.27} to demonstrate that both versions of the \code{factorial} procedure now require space that grows linearly with their input.
+\end{exercise}
+
+\begin{exercise}
+	\label{Exercise 5.29}
+	Monitor the stack operations in
+	the tree-recursive Fibonacci computation:
+	\begin{scheme}
+	  (define (fib n)
+	    (if (< n 2)
+	        n
+	        (+ (fib (- n 1)) (fib (- n 2)))))
+	\end{scheme}
+	\begin{enumerate}[label = \alph*., leftmargin = *]
+
+		\item
+			Give a formula in terms of \( n \) for the maximum depth of the stack required to compute \( \Fib(n) \) for \( n ≥ 2 \).
+			Hint:
+			In \link{Section 1.2.2} we argued that the space used by this process grows linearly with \( n \).
+
+		\item
+			Give a formula for the total number of pushes used to compute \( \Fib(n) \) for \( n ≥ 2 \).
+			You should find that the number of pushes (which correlates well with the time used) grows exponentially with \( n \).
+			Hint:
+			Let \( S(n) \) be the number of pushes used in computing \( \Fib(n) \).
+			You should be able to argue that there is a formula that expresses \( S(n) \) in terms of \( S(n - 1) \), \( S(n - 2) \), and some fixed “overhead” constant \( k \) that is independent of \( n \).
+			Give the formula, and say what \( k \) is.
+			Then show that \( S(n) \) can be expressed as \( a⋅\Fib(n + 1) + b \) and give the values of \( a \) and \( b \).
+
+	\end{enumerate}
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 5.30}
+	Our evaluator currently catches and signals only two kinds of errors---unknown expression types and unknown procedure types.
+	Other errors will take us out of the evaluator read-eval-print loop.
+	When we run the evaluator using the register-machine simulator, these errors are caught by the underlying Scheme system.
+	This is analogous to the computer crashing when a user program makes an error.%
+	\footnote{
+		Regrettably, this is the normal state of affairs in conventional compiler-based language systems such as C.
+		In \acronym{UNIX}(tm) the system “dumps core,” and in \acronym{DOS}/Windows(tm) it becomes catatonic.
+		The Macintosh(tm) displays a picture of an exploding bomb and offers you the opportunity to reboot the computer---if you’re lucky.
+	}
+	It is a large project to make a real error system work, but it is well worth the effort to understand what is involved here.
+	\begin{enumerate}[label = \alph*., leftmargin = *]
+
+		\item
+			Errors that occur in the evaluation process, such as an attempt to access an unbound variable, could be caught by changing the lookup operation to make it return a distinguished condition code, which cannot be a possible value of any user variable.
+			The evaluator can test for this condition code and then do what is necessary to go to \code{signal-error}.
+			Find all of the places in the evaluator where such a change is necessary and fix them.
+			This is lots of work.
+
+		\item
+			Much worse is the problem of handling errors that are signaled by applying primitive procedures, such as an attempt to divide by zero or an attempt to extract the \code{car} of a symbol.
+			In a professionally written high-quality system, each primitive application is checked for safety as part of the primitive.
+			For example, every call to \code{car} could first check that the argument is a pair.
+			If the argument is not a pair, the application would return a distinguished condition code to the evaluator, which would then report the failure.
+			We could arrange for this in our register-machine simulator by making each primitive procedure check for applicability and returning an appropriate distinguished condition code on failure.
+			Then the \code{primitive-apply} code in the evaluator can check for the condition code and go to \code{signal-error} if necessary.
+			Build this structure and make it work.
+			This is a major project.
+
+	\end{enumerate}
+\end{exercise}

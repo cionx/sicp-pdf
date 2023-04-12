@@ -1,0 +1,117 @@
+\subsection{Data as Programs}
+\label{Section 4.1.5}
+
+In thinking about a Lisp program that evaluates Lisp expressions, an analogy might be helpful.
+One operational view of the meaning of a program is that a program is a description of an abstract (perhaps infinitely large) machine.
+For example, consider the familiar program to compute factorials:
+\begin{scheme}
+  (define (factorial n)
+    (if (= n 1) 1 (* (factorial (- n 1)) n)))
+\end{scheme}
+We may regard this program as the description of a machine containing parts that decrement, multiply, and test for equality, together with a two-position switch and another factorial machine.
+(The factorial machine is infinite because it contains another factorial machine within it.)
+\link{Figure 4.2} is a flow diagram for the factorial machine, showing how the parts are wired together.
+
+In a similar way, we can regard the evaluator as a very special machine that takes as input a description of a machine.
+Given this input, the evaluator configures itself to emulate the machine described.
+For example, if we feed our evaluator the definition of \code{factorial}, as shown in \link{Figure 4.3}, the evaluator will be able to compute factorials.
+
+\begin{figure}[tb]
+	\centering
+	\includesvg[width=84mm]{fig/chap4/Fig4.2.svg}
+	\caption{
+		The factorial program, viewed as an abstract machine.
+	}
+	\label{Figure 4.2}
+\end{figure}
+
+From this perspective, our evaluator is seen to be a \newterm{universal machine}.
+It mimics other machines when these are described as Lisp programs.%
+\footnote{
+	The fact that the machines are described in Lisp is inessential.
+	If we give our evaluator a Lisp program that behaves as an evaluator for some other language, say C, the Lisp evaluator will emulate the C evaluator, which in turn can emulate any machine described as a C program.
+	Similarly, writing a Lisp evaluator in C produces a C program that can execute any Lisp program.
+	The deep idea here is that any evaluator can emulate any other.
+	Thus, the notion of “what can in principle be computed” (ignoring practicalities of time and memory required) is independent of the language or the computer, and instead reflects an underlying notion of \newterm{computability}.
+	This was first demonstrated in a clear way by Alan M.
+	Turing (1912--1954), whose 1936 paper laid the foundations for theoretical computer science.
+	In the paper, Turing presented a simple computational model---now known as a \newterm{Turing machine}---and argued that any “effective process” can be formulated as a program for such a machine.
+	(This argument is known as the \newterm{Church-Turing thesis}.)
+	Turing then implemented a universal machine, i.e., a Turing machine that behaves as an evaluator for Turing-machine programs.
+	He used this framework to demonstrate that there are well-posed problems that cannot be computed by Turing machines (see \link{Exercise 4.15}), and so by implication cannot be formulated as “effective processes.”
+	Turing went on to make fundamental contributions to practical computer science as well.
+	For example, he invented the idea of structuring programs using general-purpose subroutines.
+	See \link{Hodges 1983} for a biography of Turing.
+}
+This is striking.
+Try to imagine an analogous evaluator for electrical circuits.
+This would be a circuit that takes as input a signal encoding the plans for some other circuit, such as a filter.
+Given this input, the circuit evaluator would then behave like a filter with the same description.
+Such a universal electrical circuit is almost unimaginably complex.
+It is remarkable that the program evaluator is a rather simple program.%
+\footnote{
+	Some people find it counterintuitive that an evaluator, which is implemented by a relatively simple procedure, can emulate programs that are more complex than the evaluator itself.
+	The existence of a universal evaluator machine is a deep and wonderful property of computation.
+	\newterm{Recursion theory}, a branch of mathematical logic, is concerned with logical limits of computation.
+	Douglas Hofstadter’s beautiful book \textit{Gödel, Escher, Bach} explores some of these ideas (\link{Hofstadter 1979}).
+}
+
+\begin{figure}[tb]
+	\centering
+	\includesvg[width=69mm]{fig/chap4/Fig4.3.svg}
+	\caption{
+		The evaluator emulating a factorial machine.
+	}
+	\label{Figure 4.3}
+\end{figure}
+
+Another striking aspect of the evaluator is that it acts as a bridge between the data objects that are manipulated by our programming language and the programming language itself.
+Imagine that the evaluator program (implemented in Lisp) is running, and that a user is typing expressions to the evaluator and observing the results.
+From the perspective of the user, an input expression such as \code{(* x x)} is an expression in the programming language, which the evaluator should execute.
+From the perspective of the evaluator, however, the expression is simply a list (in this case, a list of three symbols:
+\code{*}, \code{x}, and \code{x}) that is to be manipulated according to a well-defined set of rules.
+
+That the user’s programs are the evaluator’s data need not be a source of confusion.
+In fact, it is sometimes convenient to ignore this distinction, and to give the user the ability to explicitly evaluate a data object as a Lisp expression, by making \code{eval} available for use in programs.
+Many Lisp dialects provide a primitive \code{eval} procedure that takes as arguments an expression and an environment and evaluates the expression relative to the environment.%
+\footnote{
+	Warning:
+	This \code{eval} primitive is not identical to the \code{eval} procedure we implemented in \link{Section 4.1.1}, because it uses \emph{actual} Scheme environments rather than the sample environment structures we built in \link{Section 4.1.3}.
+	These actual environments cannot be manipulated by the user as ordinary lists;
+	they must be accessed via \code{eval} or other special operations.
+	Similarly, the \code{apply} primitive we saw earlier is not identical to the metacircular \code{apply}, because it uses actual Scheme procedures rather than the procedure objects we constructed in \link{Section 4.1.3} and \link{Section 4.1.4}.
+}
+Thus,
+\begin{scheme}
+  (eval '(* 5 5) user-initial-environment)
+\end{scheme}
+and
+\begin{scheme}
+  (eval (cons '* (list 5 5)) user-initial-environment)
+\end{scheme}
+will both return \( 25 \).%
+\footnote{
+	The \acronym{MIT} implementation of Scheme includes \code{eval}, as well as a symbol \code{user-initial-environment} that is bound to the initial environment in which the user’s input expressions are evaluated.
+}
+
+
+
+\begin{exercise}
+	\label{Exercise 4.15}
+	Given a one-argument procedure \code{p} and an object \code{a}, \code{p} is said to “halt” on \code{a} if evaluating the expression \code{(p a)} returns a value (as opposed to terminating with an error message or running forever).
+	Show that it is impossible to write a procedure \code{halts?} that correctly determines whether \code{p} halts on \code{a} for any procedure \code{p} and object \code{a}.
+	Use the following reasoning:
+	If you had such a procedure \code{halts?}, you could implement the following program:
+	\begin{scheme}
+	  (define (run-forever) (run-forever))
+
+	  (define (try p)
+	    (if (halts? p p) (run-forever) 'halted))
+	\end{scheme}
+
+	Now consider evaluating the expression \code{(try try)} and show that any possible outcome (either halting or running forever) violates the intended behavior of \code{halts?}.%
+	\footnote{
+		Although we stipulated that \code{halts?} is given a procedure object, notice that this reasoning still applies even if \code{halts?} can gain access to the procedure’s text and its environment.
+		This is Turing’s celebrated \newterm{Halting Theorem}, which gave the first clear example of a \newterm{non-computable} problem, i.e., a well-posed task that cannot be carried out as a computational procedure.
+	}
+\end{exercise}

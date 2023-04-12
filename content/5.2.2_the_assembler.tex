@@ -1,0 +1,151 @@
+\subsection{The Assembler}
+\label{Section 5.2.2}
+
+The assembler transforms the sequence of controller expressions for a machine into a corresponding list of machine instructions, each with its execution procedure.
+Overall, the assembler is much like the evaluators we studied in \link{Chapter 4}---there is an input language (in this case, the register-machine language) and we must perform an appropriate action for each type of expression in the language.
+
+The technique of producing an execution procedure for each instruction is just what we used in \link{Section 4.1.7} to speed up the evaluator by separating analysis from runtime execution.
+As we saw in \link{Chapter 4}, much useful analysis of Scheme expressions could be performed without knowing the actual values of variables.
+Here, analogously, much useful analysis of register-machine-language expressions can be performed without knowing the actual contents of machine registers.
+For example, we can replace references to registers by pointers to the register objects, and we can replace references to labels by pointers to the place in the instruction sequence that the label designates.
+
+Before it can generate the instruction execution procedures, the assembler must know what all the labels refer to, so it begins by scanning the controller text to separate the labels from the instructions.
+As it scans the text, it constructs both a list of instructions and a table that associates each label with a pointer into that list.
+Then the assembler augments the instruction list by inserting the execution procedure for each instruction.
+
+The \code{assemble} procedure is the main entry to the assembler.
+It takes the controller text and the machine model as arguments and returns the instruction sequence to be stored in the model.
+\code{assemble} calls \code{extract-labels} to build the initial instruction list and label table from the supplied controller text.
+The second argument to \code{extract-labels} is a procedure to be called to process these results:
+This procedure uses \code{update-insts!} to generate the instruction execution procedures and insert them into the instruction list, and returns the modified list.
+
+\begin{scheme}
+  (define (assemble controller-text machine)
+    (extract-labels
+     controller-text
+     (lambda (insts labels)
+       (update-insts! insts labels machine)
+       insts)))
+\end{scheme}
+
+\code{extract-labels} takes as arguments a list \code{text} (the sequence of controller instruction expressions) and a \code{receive} procedure.
+\code{receive} will be called with two values:
+(1) a list \code{insts} of instruction data structures, each containing an instruction from \code{text};
+and (2) a table called \code{labels}, which associates each label from \code{text} with the position in the list \code{insts} that the label designates.
+
+\begin{scheme}
+  (define (extract-labels text receive)
+    (if (null? text)
+        (receive '() '())
+        (extract-labels
+         (cdr text)
+         (lambda (insts labels)
+           (let ((next-inst (car text)))
+             (if (symbol? next-inst)
+                 (receive insts
+                          (cons (make-label-entry next-inst
+                                                  insts)
+                                labels))
+                 (receive (cons (make-instruction next-inst)
+                                insts)
+                          labels)))))))
+\end{scheme}
+\code{extract-labels} works by sequentially scanning the elements of the \code{text} and accumulating the \code{insts} and the \code{labels}.
+If an element is a symbol (and thus a label) an appropriate entry is added to the \code{labels} table.
+Otherwise the element is accumulated onto the \code{insts} list.%
+\footnote{
+	Using the \code{receive} procedure here is a way to get \code{extract-labels} to effectively return two values---\code{labels} and \code{insts}---without explicitly making a compound data structure to hold them.
+	An alternative implementation, which returns an explicit pair of values, is
+	\begin{smallscheme}
+	  (define (extract-labels text)
+	    (if (null? text)
+	        (cons '() '())
+	        (let ((result (extract-labels (cdr text))))
+	          (let ((insts (car result)) (labels (cdr result)))
+	            (let ((next-inst (car text)))
+	              (if (symbol? next-inst)
+	                  (cons insts
+	                        (cons (make-label-entry next-inst insts)
+	                              labels))
+	                  (cons (cons (make-instruction next-inst) insts)
+	                        labels)))))))
+	\end{smallscheme}
+	which would be called by \code{assemble} as follows:
+	\begin{smallscheme}
+	  (define (assemble controller-text machine)
+	    (let ((result (extract-labels controller-text)))
+	      (let ((insts (car result)) (labels (cdr result)))
+	        (update-insts! insts labels machine)
+	        insts)))
+	\end{smallscheme}
+	You can consider our use of \code{receive} as demonstrating an elegant way to return multiple values, or simply an excuse to show off a programming trick.
+	An argument like \code{receive} that is the next procedure to be invoked is called a “continuation.”
+	Recall that we also used continuations to implement the backtracking control structure in the \code{amb} evaluator in \link{Section 4.3.3}.
+}
+
+\code{update-insts!} modifies the instruction list, which initially contains only the text of the instructions, to include the corresponding execution procedures:
+\begin{scheme}
+  (define (update-insts! insts labels machine)
+    (let ((pc (get-register machine 'pc))
+          (flag (get-register machine 'flag))
+          (stack (machine 'stack))
+          (ops (machine 'operations)))
+      (for-each
+       (lambda (inst)
+         (set-instruction-execution-proc!
+          inst
+          (make-execution-procedure
+           (instruction-text inst)
+           labels machine pc flag stack ops)))
+       insts)))
+\end{scheme}
+
+The machine instruction data structure simply pairs the instruction text with the corresponding execution procedure.
+The execution procedure is not yet available when \code{extract-labels} constructs the instruction, and is inserted later by \code{update-insts!}.
+\begin{scheme}
+  (define (make-instruction text) (cons text '()))
+
+  (define (instruction-text inst) (car inst))
+
+  (define (instruction-execution-proc inst) (cdr inst))
+
+  (define (set-instruction-execution-proc! inst proc)
+    (set-cdr! inst proc))
+\end{scheme}
+The instruction text is not used by our simulator, but it is handy to keep around for debugging (see \link{Exercise 5.16}).
+
+Elements of the label table are pairs:
+\begin{scheme}
+  (define (make-label-entry label-name insts)
+    (cons label-name insts))
+\end{scheme}
+Entries will be looked up in the table with
+\begin{scheme}
+  (define (lookup-label labels label-name)
+    (let ((val (assoc label-name labels)))
+      (if val
+          (cdr val)
+          (error "Undefined label: ASSEMBLE"
+                 label-name))))
+\end{scheme}
+
+
+
+\begin{exercise}
+	\label{Exercise 5.8}
+	The following register-machine code
+	is ambiguous, because the label \code{here} is defined more than once:
+	\begin{scheme}
+	  start
+	    (goto (label here))
+	  here
+	    (assign a (const 3))
+	    (goto (label there))
+	  here
+	    (assign a (const 4))
+	    (goto (label there))
+	  there
+	\end{scheme}
+	With the simulator as written, what will the contents of register \code{a} be when control reaches \code{there}?
+	Modify the \code{extract-labels} procedure so that the assembler will signal an error if the same label name is used to indicate two different locations.
+\end{exercise}

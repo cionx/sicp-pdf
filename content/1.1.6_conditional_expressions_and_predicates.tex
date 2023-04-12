@@ -1,0 +1,229 @@
+\subsection{Conditional Expressions and Predicates}
+\label{Section 1.1.6}
+
+The expressive power of the class of procedures that we can define at this point is very limited, because we have no way to make tests and to perform different operations depending on the result of a test.
+For instance, we cannot define a procedure that computes the absolute value of a number by testing whether the number is positive, negative, or zero and taking different actions in the different cases according to the rule
+\[
+	\abs{x}
+	=
+	\begin{cases*}
+		\phantom{-}x & if~\( x > 0 \), \\
+		\phantom{-}0 & if~\( x = 0 \), \\
+		-x           & if~\( x < 0 \).
+	\end{cases*}
+\]
+
+This construct is called a \newterm{case analysis}, and there is a special form in Lisp for notating such a case analysis.
+It is called \code{cond} (which stands for “conditional”), and it is used as follows:
+\begin{scheme}
+  (define (abs x)
+    (cond ((> x 0) x)
+          ((= x 0) 0)
+          ((< x 0) (- x))))
+\end{scheme}
+The general form of a conditional expression is
+\begin{scheme}
+  (cond (⟨~\var{p}\ind{1}~⟩ ⟨~\var{e}\ind{1}~⟩)
+        (⟨~\var{p}\ind{2}~⟩ ⟨~\var{e}\ind{2}~⟩)
+        ⋮
+        (⟨~\var{p}\ind{n}~⟩ ⟨~\var{e}\ind{n}~⟩))
+\end{scheme}
+consisting of the symbol \code{cond} followed by parenthesized pairs of expressions \code{(⟨\var{p}⟩ ⟨\var{e}⟩)} called \newterm{clauses}.
+The first expression in each pair is a \newterm{predicate}---that is, an expression whose value is interpreted as either true or false.%
+\footnote{
+	“Interpreted as either true or false” means this:
+	In Scheme, there are two distinguished values that are denoted by the constants \code{\#t} and \code{\#f}.
+	When the interpreter checks a predicate’s value, it interprets \code{\#f} as false.
+	Any other value is treated as true.
+	(Thus, providing \code{\#t} is logically unnecessary, but it is convenient.)
+	In this book we will use names \code{true} and \code{false}, which are associated with the values \code{\#t} and \code{\#f} respectively.
+}
+
+Conditional expressions are evaluated as follows.
+The predicate \code{⟨\var{p}\textsubscript{1}⟩} is evaluated first.
+If its value is false, then \code{⟨\var{p}\textsubscript{2}⟩} is evaluated.
+If \code{⟨\var{p}\textsubscript{2}⟩}’s value is also false, then \code{⟨\var{p}\textsubscript{3}⟩} is evaluated.
+This process continues until a predicate is found whose value is true, in which case the interpreter returns the value of the corresponding \newterm{consequent expression} \code{⟨\var{e}⟩} of the clause as the value of the conditional expression.
+If none of the \code{⟨\var{p}⟩}’s is found to be true, the value of the \code{cond} is undefined.
+
+The word \newterm{predicate} is used for procedures that return true or false, as well as for expressions that evaluate to true or false.
+The absolute-value procedure \code{abs} makes use of the primitive predicates \code{>}, \code{<}, and \code{=}.%
+\footnote{
+	\code{abs} also uses the “minus” operator \code{-}, which, when used with a single operand, as in \code{(- x)}, indicates negation.
+}
+These take two numbers as arguments and test whether the first number is, respectively, greater than, less than, or equal to the second number, returning true or false accordingly.
+
+Another way to write the absolute-value procedure is
+\begin{scheme}
+  (define (abs x)
+    (cond ((< x 0) (- x))
+          (else x)))
+\end{scheme}
+which could be expressed in English as “If \( x \) is less than zero return \( -x \); otherwise return \( x \).”
+\code{Else} is a special symbol that can be used in place of the \code{⟨\var{p}⟩} in the final clause of a \code{cond}.
+This causes the \code{cond} to return as its value the value of the corresponding \code{⟨\var{e}⟩} whenever all previous clauses have been bypassed.
+In fact, any expression that always evaluates to a true value could be used as the \code{⟨\var{p}⟩} here.
+
+Here is yet another way to write the absolute-value procedure:
+\begin{scheme}
+  (define (abs x)
+    (if (< x 0)
+        (- x)
+        x))
+\end{scheme}
+This uses the special form \code{if}, a restricted type of conditional that can be used when there are precisely two cases in the case analysis.
+The general form of an \code{if} expression is
+\begin{scheme}
+  (if ⟨~\var{predicate}~⟩ ⟨~\var{consequent}~⟩ ⟨~\var{alternative}~⟩)
+\end{scheme}
+To evaluate an \code{if} expression, the interpreter starts by evaluating the \code{⟨\var{predicate}⟩} part of the expression.
+If the \code{⟨\var{predicate}⟩} evaluates to a true value, the interpreter then evaluates the \code{⟨\var{consequent}⟩} and returns its value.
+Otherwise it evaluates the \code{⟨\var{alternative}⟩} and returns its value.%
+\footnote{
+	A minor difference between \code{if} and \code{cond} is that the \code{⟨\var{e}⟩} part of each \code{cond} clause may be a sequence of expressions.
+	If the corresponding \code{⟨\var{p}⟩} is found to be true, the expressions \code{⟨\var{e}⟩} are evaluated in sequence and the value of the final expression in the sequence is returned as the value of the \code{cond}.
+	In an \code{if} expression, however, the \code{⟨\var{consequent}⟩} and \code{⟨\var{alternative}⟩} must be single expressions.
+}
+
+In addition to primitive predicates such as \code{<}, \code{=}, and \code{>}, there are logical composition operations, which enable us to construct compound predicates.
+The three most frequently used are these:
+
+\begin{itemize}
+
+	\item
+	\code{(and ⟨\var{e}\textsubscript{1}⟩ … ⟨\var{e\textsubscript{\(n\)}}⟩)}
+
+	The interpreter evaluates the expressions \code{⟨\var{e}⟩} one at a time, in left-to-right order.
+	If any \code{⟨\var{e}⟩} evaluates to false, the value of the \code{and} expression is false, and the rest of the \code{⟨\var{e}⟩}’s are not evaluated.
+	If all \code{⟨\var{e}⟩}’s evaluate to true values, the value of the \code{and} expression is the value of the last one.
+
+	\item
+		\code{(or ⟨\var{e}\textsubscript{1}⟩ … ⟨\var{e\textsubscript{\(n\)}}⟩)}
+
+	The interpreter evaluates the expressions \code{⟨\var{e}⟩} one at a time, in left-to-right order.
+	If any \code{⟨\var{e}⟩} evaluates to a true value, that value is returned as the value of the \code{or} expression, and the rest of the \code{⟨\var{e}⟩}’s are not evaluated.
+	If all \code{⟨\var{e}⟩}’s evaluate to false, the value of the \code{or} expression is false.
+
+	\item
+	\code{(not ⟨\var{e}⟩)}
+
+	The value of a \code{not} expression is true when the expression \code{⟨\var{e}⟩} evaluates to false, and false otherwise.
+
+\end{itemize}
+Notice that \code{and} and \code{or} are special forms, not procedures, because the subexpressions are not necessarily all evaluated.
+\code{Not} is an ordinary procedure.
+
+As an example of how these are used, the condition that a number \( x \) be in the range \( 5 < x < 10 \) may be expressed as
+\begin{scheme}
+  (and (> x 5) (< x 10))
+\end{scheme}
+As another example, we can define a predicate to test whether one number is
+greater than or equal to another as
+\begin{scheme}
+  (define (>= x y) (or (> x y) (= x y)))
+\end{scheme}
+or alternatively as
+\begin{scheme}
+  (define (>= x y) (not (< x y)))
+\end{scheme}
+
+
+
+\begin{exercise}
+	\label{Exercise 1.1}
+	Below is a sequence of expressions.
+	What is the result printed by the interpreter in response to each expression?
+	Assume that the sequence is to be evaluated in the order in which it is presented.
+	\begin{scheme}
+	  10
+
+	  (+ 5 3 4)
+
+	  (- 9 1)
+
+	  (/ 6 2)
+
+	  (+ (* 2 4) (- 4 6))
+
+	  (define a 3)
+
+	  (define b (+ a 1))
+
+	  (+ a b (* a b))
+
+	  (= a b)
+
+	  (if (and (> b a) (< b (* a b)))
+	      b
+	      a)
+
+	  (cond ((= a 4) 6)
+	        ((= b 4) (+ 6 7 a))
+	        (else 25))
+
+	  (+ 2 (if (> b a) b a))
+
+	  (* (cond ((> a b) a)
+	          ((< a b) b)
+	          (else -1))
+	    (+ a 1))
+	\end{scheme}
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 1.2}
+	Translate the following expression into prefix form:
+	\[
+		\frac{
+			5
+			+ 4
+			+ \Bigl(2 - \Bigl(3 - \Bigl(6 + \frac{4}{5}\Bigr)\Bigr)\Bigr)
+		}{
+			3 (6 - 2) (2 - 7)
+		} \,.
+	\]
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 1.3}
+	Define a procedure that takes three numbers as arguments and returns the sum of the squares of the two larger numbers.
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 1.4}
+	Observe that our model of evaluation allows for combinations whose operators are compound expressions.
+	Use this observation to describe the behavior of the following procedure:
+	\begin{scheme}
+	  (define (a-plus-abs-b a b)
+	    ((if (> b 0) + -) a b))
+	\end{scheme}
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 1.5}
+	Ben Bitdiddle has invented a test to determine whether the interpreter he is faced with is using applicative-order evaluation or normal-order evaluation.
+	He defines the following two procedures:
+	\begin{scheme}
+	  (define (p) (p))
+
+	  (define (test x y)
+	    (if (= x 0) 0 y))
+	\end{scheme}
+	Then he evaluates the expression
+	\begin{scheme}
+	  (test 0 (p))
+	\end{scheme}
+	What behavior will Ben observe with an interpreter that uses applicative-order evaluation?
+	What behavior will he observe with an interpreter that uses normal-order evaluation?
+	Explain your answer.
+	(Assume that the evaluation rule for the special form \code{if} is the same whether the interpreter is using normal or applicative order:
+	The predicate expression is evaluated first, and the result determines whether to evaluate the consequent or the alternative expression.)
+\end{exercise}

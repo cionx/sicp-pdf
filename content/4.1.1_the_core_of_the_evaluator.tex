@@ -1,0 +1,220 @@
+\subsection{The Core of the Evaluator}
+\label{Section 4.1.1}
+
+The evaluation process can be described as the interplay between two procedures:
+\code{eval} and \code{apply}.
+
+
+
+\subsubsection*{Eval}
+
+\code{eval} takes as arguments an expression and an environment.
+It classifies the expression and directs its evaluation.
+\code{eval} is structured as a case analysis of the syntactic type of the expression to be evaluated.
+In order to keep the procedure general, we express the determination of the type of an expression abstractly, making no commitment to any particular representation for the various types of expressions.
+Each type of expression has a predicate that tests for it and an abstract means for selecting its parts.
+This \newterm{abstract syntax} makes it easy to see how we can change the syntax of the language by using the same evaluator, but with a different collection of syntax procedures.
+
+\begin{itemize}[leftmargin=*]
+	\item
+		\textit{Primitive expressions}
+		\begin{itemize}
+
+			\item
+				For self-evaluating expressions, such as numbers, \code{eval} returns the expression itself.
+
+			\item
+				\code{eval} must look up variables in the environment to find their values.
+
+		\end{itemize}
+
+	\item
+		\textit{Special forms}
+		\begin{itemize}
+
+			\item
+				For quoted expressions, \code{eval} returns the expression that was quoted.
+
+			\item
+				An assignment to (or a definition of) a variable must recursively call \code{eval} to compute the new value to be associated with the variable.
+				The environment must be modified to change (or create) the binding of the variable.
+
+			\item
+				An \code{if} expression requires special processing of its parts, so as to evaluate the consequent if the predicate is true, and otherwise to evaluate the alternative.
+
+			\item
+				A \code{lambda} expression must be transformed into an applicable procedure by packaging together the parameters and body specified by the \code{lambda} expression with the environment of the evaluation.
+
+			\item
+				A \code{begin} expression requires evaluating its sequence of expressions in the order in which they appear.
+
+			\item
+				A case analysis (\code{cond}) is transformed into a nest of \code{if} expressions and then evaluated.
+
+		\end{itemize}
+
+	\item
+		\textit{Combinations}
+		\begin{itemize}
+
+			\item
+				For a procedure application, \code{eval} must recursively evaluate the operator part and the operands of the combination.
+				The resulting procedure and arguments are passed to \code{apply}, which handles the actual procedure application.
+
+		\end{itemize}
+\end{itemize}
+%
+Here is the definition of \code{eval}:
+\begin{scheme}
+  (define (eval exp env)
+    (cond ((self-evaluating? exp) exp)
+          ((variable? exp) (lookup-variable-value exp env))
+          ((quoted? exp) (text-of-quotation exp))
+          ((assignment? exp) (eval-assignment exp env))
+          ((definition? exp) (eval-definition exp env))
+          ((if? exp) (eval-if exp env))
+          ((lambda? exp) (make-procedure (lambda-parameters exp)
+                                         (lambda-body exp)
+                                         env))
+          ((begin? exp)
+           (eval-sequence (begin-actions exp) env))
+          ((cond? exp) (eval (cond->if exp) env))
+          ((application? exp)
+           (apply (eval (operator exp) env)
+                  (list-of-values (operands exp) env)))
+          (else
+           (error "Unknown expression type: EVAL" exp))))
+\end{scheme}
+
+For clarity, \code{eval} has been implemented as a case analysis using \code{cond}.
+The disadvantage of this is that our procedure handles only a few distinguishable types of expressions, and no new ones can be defined without editing the definition of \code{eval}.
+In most Lisp implementations, dispatching on the type of an expression is done in a data-directed style.
+This allows a user to add new types of expressions that \code{eval} can distinguish, without modifying the definition of \code{eval} itself.
+(See \link{Exercise 4.3}.)
+
+
+
+\subsubsection*{Apply}
+
+\code{apply} takes two arguments, a procedure and a list of arguments to which the procedure should be applied.
+\code{apply} classifies procedures into two kinds:
+It calls \code{apply-primitive-procedure} to apply primitives;
+it applies compound procedures by sequentially evaluating the expressions that make up the body of the procedure.
+The environment for the evaluation of the body of a compound procedure is constructed by extending the base environment carried by the procedure to include a frame that binds the parameters of the procedure to the arguments to which the procedure is to be applied.
+Here is the definition of \code{apply}:
+\begin{scheme}
+  (define (apply procedure arguments)
+    (cond ((primitive-procedure? procedure)
+           (apply-primitive-procedure procedure arguments))
+          ((compound-procedure? procedure)
+           (eval-sequence
+             (procedure-body procedure)
+             (extend-environment
+               (procedure-parameters procedure)
+               arguments
+               (procedure-environment procedure))))
+          (else
+           (error
+            "Unknown procedure type: APPLY" procedure))))
+\end{scheme}
+
+
+
+\subsubsection*{Procedure arguments}
+
+When \code{eval} processes a procedure application, it uses \code{list-of-values} to produce the list of arguments to which the procedure is to be applied.
+\code{list-of-values} takes as an argument the operands of the combination.
+It evaluates each operand and returns a list of the corresponding values:%
+\footnote{
+	We could have simplified the \code{application?} clause in \code{eval} by using \code{map} (and stipulating that \code{operands} returns a list) rather than writing an explicit \code{list-of-values} procedure.
+	We chose not to use \code{map} here to emphasize the fact that the evaluator can be implemented without any use of higher-order procedures (and thus could be written in a language that doesn’t have higher-order procedures), even though the language that it supports will include higher-order procedures.
+}
+\begin{scheme}
+  (define (list-of-values exps env)
+    (if (no-operands? exps)
+        '()
+        (cons (eval (first-operand exps) env)
+              (list-of-values (rest-operands exps) env))))
+\end{scheme}
+
+
+
+\subsubsection*{Conditionals}
+
+\code{eval-if} evaluates the predicate part of an \code{if} expression in the given environment.
+If the result is true, \code{eval-if} evaluates the consequent, otherwise it evaluates the alternative:
+\begin{scheme}
+  (define (eval-if exp env)
+    (if (true? (eval (if-predicate exp) env))
+        (eval (if-consequent exp) env)
+        (eval (if-alternative exp) env)))
+\end{scheme}
+
+The use of \code{true?} in \code{eval-if} highlights the issue of the connection between an implemented language and an implementation language.
+The \code{if-predicate} is evaluated in the language being implemented and thus yields a value in that language.
+The interpreter predicate \code{true?} translates that value into a value that can be tested by the \code{if} in the implementation language:
+The metacircular representation of truth might not be the same as that of the underlying Scheme.%
+\footnote{
+	In this case, the language being implemented and the implementation language are the same.
+	Contemplation of the meaning of \code{true?} here yields expansion of consciousness without the abuse of substance.
+}
+
+
+
+\subsubsection*{Sequences}
+
+\code{eval-sequence} is used by \code{apply} to evaluate the sequence of expressions in a procedure body and by \code{eval} to evaluate the sequence of expressions in a \code{begin} expression.
+It takes as arguments a sequence of expressions and an environment, and evaluates the expressions in the order in which they occur.
+The value returned is the value of the final expression.
+\begin{scheme}
+  (define (eval-sequence exps env)
+    (cond ((last-exp? exps)
+           (eval (first-exp exps) env))
+          (else
+           (eval (first-exp exps) env)
+           (eval-sequence (rest-exps exps) env))))
+\end{scheme}
+
+
+
+\subsubsection*{Assignments and definitions}
+
+The following procedure handles assignments to variables.
+It calls \code{eval} to find the value to be assigned and transmits the variable and the resulting value to \code{set-variable-value!} to be installed in the designated environment.
+\begin{scheme}
+  (define (eval-assignment exp env)
+    (set-variable-value! (assignment-variable exp)
+                         (eval (assignment-value exp) env)
+                         env)
+    'ok)
+\end{scheme}
+Definitions of variables are handled in a similar manner.%
+\footnote{
+	This implementation of \code{define} ignores a subtle issue in the handling of internal definitions, although it works correctly in most cases.
+	We will see what the problem is and how to solve it in \link{Section 4.1.6}.
+}
+\begin{scheme}
+  (define (eval-definition exp env)
+    (define-variable! (definition-variable exp)
+                      (eval (definition-value exp) env)
+                      env)
+    'ok)
+\end{scheme}
+We have chosen here to return the symbol \code{ok} as the value of an
+assignment or a definition.%
+\footnote{
+	As we said when we introduced \code{define} and \code{set!}, these values are implementation-dependent in Scheme---that is, the implementor can choose what value to return.
+}
+
+
+
+\begin{exercise}
+\label{Exercise 4.1}
+	Notice that we cannot tell whether the metacircular evaluator evaluates operands from left to right or from right to left.
+	Its evaluation order is inherited from the underlying Lisp:
+	If the arguments to \code{cons} in \code{list-of-values} are evaluated from left to right, then \code{list-of-values} will evaluate operands from left to right;
+	and if the arguments to \code{cons} are evaluated from right to left, then \code{list-of-values} will evaluate operands from right to left.
+
+	Write a version of \code{list-of-values} that evaluates operands from left to right regardless of the order of evaluation in the underlying Lisp.
+	Also write a version of \code{list-of-values} that evaluates operands from right to left.
+\end{exercise}

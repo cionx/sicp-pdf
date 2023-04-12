@@ -1,0 +1,262 @@
+\subsection{Example: Symbolic Differentiation}
+\label{Section 2.3.2}
+
+As an illustration of symbol manipulation and a further illustration of data abstraction, consider the design of a procedure that performs symbolic differentiation of algebraic expressions.
+We would like the procedure to take as arguments an algebraic expression and a variable and to return the derivative of the expression with respect to the variable.
+For example, if the arguments to the procedure are \( a x^2 + b x + c \) and \( x \), the procedure should return \( 2a x + b \).
+Symbolic differentiation is of special historical significance in Lisp.
+It was one of the motivating examples behind the development of a computer language for symbol manipulation.
+Furthermore, it marked the beginning of the line of research that led to the development of powerful systems for symbolic mathematical work, which are currently being used by a growing number of applied mathematicians and physicists.
+
+In developing the symbolic-differentiation program, we will follow the same strategy of data abstraction that we followed in developing the rational-number system of \link{Section 2.1.1}.
+That is, we will first define a differentiation algorithm that operates on abstract objects such as “sums,” “products,” and “variables” without worrying about how these are to be represented.
+Only afterward will we address the representation problem.
+
+
+
+\subsubsection*{The differentiation program with abstract data}
+
+In order to keep things simple, we will consider a very simple symbolic-differentiation program that handles expressions that are built up using only the operations of addition and multiplication with two arguments.
+Differentiation of any such expression can be carried out by applying the following reduction rules:
+\begin{itemize}
+
+	\item
+		\( \frac{dc}{dx} = 0 \) for \( c \) a constant or a variable different from \( x \),
+
+	\item
+		\( \frac{dx}{dx} = 1 \),
+
+	\item
+		\( \frac{d(u + v)}{dx} = \frac{du}{dx} + \frac{dv}{dx} \),
+
+	\item
+		\( \frac{d(uv)}{dx} = u \Bigl( \frac{dv}{dx} \Bigr) + v \Bigl( \frac{du}{dx} \Bigr) \).
+\end{itemize}
+
+Observe that the latter two rules are recursive in nature.
+That is, to obtain the derivative of a sum we first find the derivatives of the terms and add them.
+Each of the terms may in turn be an expression that needs to be decomposed.
+Decomposing into smaller and smaller pieces will eventually produce pieces that are either constants or variables, whose derivatives will be either \( 0 \) or \( 1 \).
+
+To embody these rules in a procedure we indulge in a little wishful thinking, as we did in designing the rational-number implementation.
+If we had a means for representing algebraic expressions, we should be able to tell whether an expression is a sum, a product, a constant, or a variable.
+We should be able to extract the parts of an expression.
+For a sum, for example we want to be able to extract the addend (first term) and the augend (second term).
+We should also be able to construct expressions from parts.
+Let us assume that we already have procedures to implement the following selectors, constructors, and predicates:
+
+\begin{scheme}
+  (variable? e)            ~\textrm{Is \code{e} a variable?}~
+  (same-variable? v1 v2)   ~\textrm{Are \code{v1} and \code{v2} the same variable?}~
+
+  (sum? e)                 ~\textrm{Is \code{e} a sum?}~
+  (addend e)               ~\textrm{Addend of the sum \code{e}.}~
+  (augend e)               ~\textrm{Augend of the sum \code{e}.}~
+  (make-sum a1 a2)         ~\textrm{Construct the sum of \code{a1} and \code{a2}.}~
+
+  (product? e)             ~\textrm{Is \code{e} a product?}~
+  (multiplier e)           ~\textrm{Multiplier of the product \code{e}.}~
+  (multiplicand e)         ~\textrm{Multiplicand of the product \code{e}.}~
+  (make-product m1 m2)     ~\textrm{Construct the product of \code{m1} and \code{m2}.}~
+\end{scheme}
+Using these, and the primitive predicate \code{number?}, which identifies numbers, we can express the differentiation rules as the following procedure:
+\begin{scheme}
+  (define (deriv exp var)
+    (cond ((number? exp) 0)
+          ((variable? exp) (if (same-variable? exp var) 1 0))
+          ((sum? exp) (make-sum (deriv (addend exp) var)
+                                (deriv (augend exp) var)))
+          ((product? exp)
+           (make-sum
+             (make-product (multiplier exp)
+                           (deriv (multiplicand exp) var))
+             (make-product (deriv (multiplier exp) var)
+                           (multiplicand exp))))
+          (else
+           (error "unknown expression type: DERIV" exp))))
+\end{scheme}
+This \code{deriv} procedure incorporates the complete differentiation algorithm.
+Since it is expressed in terms of abstract data, it will work no matter how we choose to represent algebraic expressions, as long as we design a proper set of selectors and constructors.
+This is the issue we must address next.
+
+
+
+\subsubsection*{Representing algebraic expressions}
+
+We can imagine many ways to use list structure to represent algebraic expressions.
+For example, we could use lists of symbols that mirror the usual algebraic notation, representing \( a x + b \) as the list \code{(a * x + b)}.
+However, one especially straightforward choice is to use the same parenthesized prefix notation that Lisp uses for combinations;
+that is, to represent \( a x + b \) as \code{(+ (* a x) b)}.
+Then our data representation for the differentiation problem is as follows:
+
+\begin{itemize}
+
+	\item
+		The variables are symbols.
+		They are identified by the primitive predicate \code{symbol?}:
+		\begin{scheme}
+		  (define (variable? x) (symbol? x))
+		\end{scheme}
+
+	\item
+		Two variables are the same if the symbols representing them are \code{eq?}:
+		\begin{scheme}
+		  (define (same-variable? v1 v2)
+		    (and (variable? v1) (variable? v2) (eq? v1 v2)))
+		\end{scheme}
+
+	\item
+		Sums and products are constructed as lists:
+		\begin{scheme}
+		  (define (make-sum a1 a2) (list '+ a1 a2))
+		  (define (make-product m1 m2) (list '* m1 m2))
+		\end{scheme}
+
+	\item
+		A sum is a list whose first element is the symbol \code{+}:
+		\begin{scheme}
+		  (define (sum? x) (and (pair? x) (eq? (car x) '+)))
+		\end{scheme}
+
+	\item
+		The addend is the second item of the sum list:
+		\begin{scheme}
+		  (define (addend s) (cadr s))
+		\end{scheme}
+
+	\item
+		The augend is the third item of the sum list:
+		\begin{scheme}
+		  (define (augend s) (caddr s))
+		\end{scheme}
+
+	\item
+		A product is a list whose first element is the symbol \code{*}:
+		\begin{scheme}
+		  (define (product? x) (and (pair? x) (eq? (car x) '*)))
+		\end{scheme}
+
+	\item
+		The multiplier is the second item of the product list:
+		\begin{scheme}
+		  (define (multiplier p) (cadr p))
+		\end{scheme}
+
+	\item
+		The multiplicand is the third item of the product list:
+		\begin{scheme}
+		  (define (multiplicand p) (caddr p))
+		\end{scheme}
+
+\end{itemize}
+Thus, we need only combine these with the algorithm as embodied by \code{deriv} in order to have a working symbolic-differentiation program.
+Let us look at some examples of its behavior:
+\begin{scheme}
+  (deriv '(+ x 3) 'x)
+  ~\outprint{(+ 1 0)}~
+
+  (deriv '(* x y) 'x)
+  ~\outprint{(+ (* x 0) (* 1 y))}~
+
+  (deriv '(* (* x y) (+ x 3)) 'x)
+  ~\outprint{(+ (* (* x y) (+ 1 0))}~
+     ~\outprint{(* (+ (* x 0) (* 1 y))}~
+        ~\outprint{(+  x 3)))}~
+\end{scheme}
+The program produces answers that are correct;
+however, they are unsimplified.
+It is true that
+\[
+	\frac{d(xy)}{x} = x ⋅ 0 + 1 ⋅ y
+\]
+but we would like the program to know that \( x ⋅ 0 = 0 \), \( 1 ⋅ y = y \), and \( 0 + y = y \).
+The answer for the second example should have been simply \code{y}.
+As the third example shows, this becomes a serious issue when the expressions are complex.
+
+Our difficulty is much like the one we encountered with the rational-number implementation:
+we haven’t reduced answers to simplest form.
+To accomplish the rational-number reduction, we needed to change only the constructors and the selectors of the implementation.
+We can adopt a similar strategy here.
+We won’t change \code{deriv} at all.
+Instead, we will change \code{make-sum} so that if both summands are numbers, \code{make-sum} will add them and return their sum.
+Also, if one of the summands is 0, then \code{make-sum} will return the other summand.
+\begin{scheme}
+  (define (make-sum a1 a2)
+    (cond ((=number? a1 0) a2)
+          ((=number? a2 0) a1)
+          ((and (number? a1) (number? a2))
+           (+ a1 a2))
+          (else (list '+ a1 a2))))
+\end{scheme}
+This uses the procedure \code{=number?}, which checks whether an expression is equal to a given number:
+\begin{scheme}
+  (define (=number? exp num) (and (number? exp) (= exp num)))
+\end{scheme}
+Similarly, we will change \code{make-product} to build in the rules that \( 0 \) times anything is \( 0 \) and \( 1 \) times anything is the thing itself:
+\begin{scheme}
+  (define (make-product m1 m2)
+    (cond ((or (=number? m1 0) (=number? m2 0)) 0)
+          ((=number? m1 1) m2)
+          ((=number? m2 1) m1)
+          ((and (number? m1) (number? m2)) (* m1 m2))
+          (else (list '* m1 m2))))
+\end{scheme}
+Here is how this version works on our three examples:
+\begin{scheme}
+  (deriv '(+ x 3) 'x)
+  ~\outprint{1}~
+
+  (deriv '(* x y) 'x)
+  ~\outprint{y}~
+
+  (deriv '(* (* x y) (+ x 3)) 'x)
+  ~\outprint{(+ (* x y) (* y (+ x 3)))}~
+\end{scheme}
+Although this is quite an improvement, the third example shows that there is still a long way to go before we get a program that puts expressions into a form that we might agree is “simplest.”
+The problem of algebraic simplification is complex because, among other reasons, a form that may be simplest for one purpose may not be for another.
+
+
+
+\begin{exercise}
+	\label{Exercise 2.56}
+	Show how to extend the basic differentiator to handle more kinds of expressions.
+	For instance, implement the differentiation rule
+	\[
+		\frac{d(u^n)}{dx} = n u^{n-1} \Bigl( \frac{du}{dx} \Bigr)
+	\]
+	by adding a new clause to the \code{deriv} program and defining appropriate procedures \code{exponentiation?}, \code{base}, \code{exponent}, and \code{make-exponentiation}.
+	(You may use the symbol \code{**} to denote exponentiation.)
+	Build in the rules that anything raised to the power \( 0 \) is \( 1 \) and anything raised to the power \( 1 \) is the thing itself.
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 2.57}
+	Extend the differentiation program to handle sums and products of arbitrary numbers of (two or more) terms.
+	Then the last example above could be expressed as
+	\begin{scheme}
+	  (deriv '(* x y (+ x 3)) 'x)
+	\end{scheme}
+	Try to do this by changing only the representation for sums and products, without changing the \code{deriv} procedure at all.
+	For example, the \code{addend} of a sum would be the first term, and the \code{augend} would be the sum of the rest of the terms.
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 2.58}
+	Suppose we want to modify the differentiation program so that it works with ordinary mathematical notation, in which \code{+} and \code{*} are infix rather than prefix operators.
+	Since the differentiation program is defined in terms of abstract data, we can modify it to work with different representations of expressions solely by changing the predicates, selectors, and constructors that define the representation of the algebraic expressions on which the differentiator is to operate.
+	\begin{enumerate}[label = \alph*., leftmargin = *]
+
+		\item
+			Show how to do this in order to differentiate algebraic expressions presented  in infix form, such as \code{(x + (3 * (x + (y + 2))))}.
+			To simplify the task, assume that \code{+} and \code{*} always take two arguments and that expressions are fully parenthesized.
+
+		\item
+			The problem becomes substantially harder if we allow standard algebraic notation, such as \code{(x + 3 * (x + y + 2))}, which drops unnecessary parentheses and assumes that multiplication is done before addition.
+			Can you design appropriate predicates, selectors, and constructors for this notation such that our derivative program still works?
+
+	\end{enumerate}
+\end{exercise}

@@ -1,0 +1,521 @@
+\subsection{Implementing the \code{amb} Evaluator}
+\label{Section 4.3.3}
+
+The evaluation of an ordinary Scheme expression may return a value, may never terminate, or may signal an error.
+In nondeterministic Scheme the evaluation of an expression may in addition result in the discovery of a dead end, in which case evaluation must backtrack to a previous choice point.
+The interpretation of nondeterministic Scheme is complicated by this extra case.
+
+We will construct the \code{amb} evaluator for nondeterministic Scheme by modifying the analyzing evaluator of \link{Section 4.1.7}.%
+\footnote{
+	We chose to implement the lazy evaluator in \link{Section 4.2} as a modification of the ordinary metacircular evaluator of \link{Section 4.1.1}.
+	In contrast, we will base the \code{amb} evaluator on the analyzing evaluator of \link{Section 4.1.7}, because the execution procedures in that evaluator provide a convenient framework for implementing backtracking.
+}
+	As in the analyzing evaluator, evaluation of an expression is accomplished by calling an execution procedure produced by analysis of that expression.
+	The difference between the interpretation of ordinary Scheme and the interpretation of nondeterministic Scheme will be entirely in the execution procedures.
+
+
+
+\subsubsection*{Execution procedures and continuations}
+
+Recall that the execution procedures for the ordinary evaluator take one argument:
+the environment of execution.
+In contrast, the execution procedures in the \code{amb} evaluator take three arguments:
+the environment, and two procedures called \newterm{continuation procedures}.
+The evaluation of an expression will finish by calling one of these two continuations:
+If the evaluation results in a value, the \newterm{success continuation} is called with that value;
+if the evaluation results in the discovery of a dead end, the \newterm{failure continuation} is called.
+Constructing and calling appropriate continuations is the mechanism by which the nondeterministic evaluator implements backtracking.
+
+It is the job of the success continuation to receive a value and proceed with the computation.
+Along with that value, the success continuation is passed another failure continuation, which is to be called subsequently if the use of that value leads to a dead end.
+
+It is the job of the failure continuation to try another branch of the nondeterministic process.
+The essence of the nondeterministic language is in the fact that expressions may represent choices among alternatives.
+The evaluation of such an expression must proceed with one of the indicated alternative choices, even though it is not known in advance which choices will lead to acceptable results.
+To deal with this, the evaluator picks one of the alternatives and passes this value to the success continuation.
+Together with this value, the evaluator constructs and passes along a failure continuation that can be called later to choose a different alternative.
+
+A failure is triggered during evaluation (that is, a failure continuation is called) when a user program explicitly rejects the current line of attack (for example, a call to \code{require} may result in execution of \code{(amb)}, an expression that always fails---see \link{Section 4.3.1}).
+The failure continuation in hand at that point will cause the most recent choice point to choose another alternative.
+If there are no more alternatives to be considered at that choice point, a failure at an earlier choice point is triggered, and so on.
+Failure continuations are also invoked by the driver loop in response to a \code{try-again} request, to find another value of the expression.
+
+In addition, if a side-effect operation (such as assignment to a variable) occurs on a branch of the process resulting from a choice, it may be necessary, when the process finds a dead end, to undo the side effect before making a new choice.
+This is accomplished by having the side-effect operation produce a failure continuation that undoes the side effect and propagates the failure.
+
+In summary, failure continuations are constructed by
+\begin{itemize}
+
+	\item
+		\code{amb} expressions---to provide a mechanism to make alternative choices if the current choice made by the \code{amb} expression leads to a dead end;
+
+	\item
+		the top-level driver---to provide a mechanism to report failure when the choices are exhausted;
+
+	\item
+		assignments---to intercept failures and undo assignments during backtracking.
+
+\end{itemize}
+
+Failures are initiated only when a dead end is encountered.  This occurs
+\begin{itemize}
+
+	\item
+		if the user program executes \code{(amb)};
+
+	\item
+		if the user types \code{try-again} at the top-level driver.
+
+\end{itemize}
+
+Failure continuations are also called during processing of a failure:
+\begin{itemize}
+
+	\item
+		When the failure continuation created by an assignment finishes undoing a side effect, it calls the failure continuation it intercepted, in order to propagate the failure back to the choice point that led to this assignment or to the top level.
+
+	\item
+		When the failure continuation for an \code{amb} runs out of choices, it calls the failure continuation that was originally given to the \code{amb}, in order to propagate the failure back to the previous choice point or to the top level.
+
+\end{itemize}
+
+
+
+\subsubsection*{Structure of the evaluator}
+
+The syntax- and data-representation procedures for the \code{amb} evaluator, and also the basic \code{analyze} procedure, are identical to those in the evaluator of \link{Section 4.1.7}, except for the fact that we need additional syntax procedures to recognize the \code{amb} special form:%
+\footnote{
+	We assume that the evaluator supports \code{let} (see \link{Exercise 4.22}), which we have used in our nondeterministic programs.
+}
+\begin{scheme}
+  (define (amb? exp) (tagged-list? exp 'amb))
+
+  (define (amb-choices exp) (cdr exp))
+\end{scheme}
+We must also add to the dispatch in \code{analyze} a clause that will recognize this special form and generate an appropriate execution procedure:
+\begin{scheme}
+  ((amb? exp) (analyze-amb exp))
+\end{scheme}
+
+The top-level procedure \code{ambeval} (similar to the version of \code{eval}
+given in \link{Section 4.1.7}) analyzes the given expression and applies the
+resulting execution procedure to the given environment, together with two given
+continuations:
+\begin{scheme}
+  (define (ambeval exp env succeed fail)
+    ((analyze exp) env succeed fail))
+\end{scheme}
+
+A success continuation is a procedure of two arguments:
+the value just obtained and another failure continuation to be used if that value leads to a subsequent failure.
+A failure continuation is a procedure of no arguments.
+So the general form of an execution procedure is
+\begin{scheme}
+  (lambda (env succeed fail)
+    ~\textrm{;; \code{succeed} is \code{(lambda (value fail) …)}}~
+    ~\textrm{;; \code{fail} is \code{(lambda () …)}}~
+    …)
+\end{scheme}
+
+For example, executing
+\begin{scheme}
+  (ambeval ⟨~\var{exp}~⟩
+           the-global-environment
+           (lambda (value fail) value)
+           (lambda () 'failed))
+\end{scheme}
+will attempt to evaluate the given expression and will return either the expression’s value (if the evaluation succeeds) or the symbol \code{failed} (if the evaluation fails).
+The call to \code{ambeval} in the driver loop shown below uses much more complicated continuation procedures, which continue the loop and support the \code{try-again} request.
+
+Most of the complexity of the \code{amb} evaluator results from the mechanics of passing the continuations around as the execution procedures call each other.
+In going through the following code, you should compare each of the execution procedures with the corresponding procedure for the ordinary evaluator given in \link{Section 4.1.7}.
+
+
+
+\subsubsection*{Simple expressions}
+
+The execution procedures for the simplest kinds of expressions are essentially the same as those for the ordinary evaluator, except for the need to manage the continuations.
+The execution procedures simply succeed with the value of the expression, passing along the failure continuation that was passed to them.
+\begin{scheme}
+  (define (analyze-self-evaluating exp)
+    (lambda (env succeed fail)
+      (succeed exp fail)))
+
+  (define (analyze-quoted exp)
+    (let ((qval (text-of-quotation exp)))
+      (lambda (env succeed fail)
+        (succeed qval fail))))
+
+  (define (analyze-variable exp)
+    (lambda (env succeed fail)
+      (succeed (lookup-variable-value exp env) fail)))
+
+  (define (analyze-lambda exp)
+    (let ((vars (lambda-parameters exp))
+          (bproc (analyze-sequence (lambda-body exp))))
+      (lambda (env succeed fail)
+        (succeed (make-procedure vars bproc env) fail))))
+\end{scheme}
+
+Notice that looking up a variable always ‘succeeds.’  If \code{lookup-variable-value} fails to find the variable, it signals an error, as usual.
+Such a “failure” indicates a program bug---a reference to an unbound variable;
+it is not an indication that we should try another nondeterministic choice instead of the one that is currently being tried.
+
+
+
+\subsubsection*{Conditionals and sequences}
+
+Conditionals are also handled in a similar way as in the ordinary evaluator.
+The execution procedure generated by \code{analyze-if} invokes the predicate execution procedure \code{pproc} with a success continuation that checks whether the predicate value is true and goes on to execute either the consequent or the alternative.
+If the execution of \code{pproc} fails, the original failure continuation for the \code{if} expression is called.
+
+\begin{scheme}
+  (define (analyze-if exp)
+    (let ((pproc (analyze (if-predicate exp)))
+          (cproc (analyze (if-consequent exp)))
+          (aproc (analyze (if-alternative exp))))
+      (lambda (env succeed fail)
+        (pproc env
+               ~\textrm{;; success continuation for evaluating the predicate}~
+               ~\textrm{;; to obtain \code{pred-value}}~
+               (lambda (pred-value fail2)
+                 (if (true? pred-value)
+                     (cproc env succeed fail2)
+                     (aproc env succeed fail2)))
+               ~\textrm{;; failure continuation for evaluating the predicate}~
+               fail))))
+\end{scheme}
+
+Sequences are also handled in the same way as in the previous evaluator, except for the machinations in the subprocedure \code{sequentially} that are required for passing the continuations.
+Namely, to sequentially execute \code{a} and then \code{b}, we call \code{a} with a success continuation that calls \code{b}.
+
+\begin{scheme}
+  (define (analyze-sequence exps)
+    (define (sequentially a b)
+      (lambda (env succeed fail)
+        (a env
+           ~\textrm{;; success continuation for calling \code{a}}~
+           (lambda (a-value fail2)
+             (b env succeed fail2))
+           ~\textrm{;; failure continuation for calling \code{a}}~
+           fail)))
+    (define (loop first-proc rest-procs)
+      (if (null? rest-procs)
+          first-proc
+          (loop (sequentially first-proc
+                              (car rest-procs))
+                (cdr rest-procs))))
+    (let ((procs (map analyze exps)))
+      (if (null? procs)
+          (error "Empty sequence: ANALYZE"))
+      (loop (car procs) (cdr procs))))
+\end{scheme}
+
+
+
+\subsubsection*{Definitions and assignments}
+
+Definitions are another case where we must go to some trouble to manage the continuations, because it is necessary to evaluate the definition-value expression before actually defining the new variable.
+To accomplish this, the definition-value execution procedure \code{vproc} is called with the environment, a success continuation, and the failure continuation.
+If the execution of \code{vproc} succeeds, obtaining a value \code{val} for the defined variable, the variable is defined and the success is propagated:
+\begin{scheme}
+  (define (analyze-definition exp)
+    (let ((var (definition-variable exp))
+          (vproc (analyze (definition-value exp))))
+      (lambda (env succeed fail)
+        (vproc env
+               (lambda (val fail2)
+                 (define-variable! var val env)
+                 (succeed 'ok fail2))
+               fail))))
+\end{scheme}
+
+Assignments are more interesting.
+This is the first place where we really use the continuations, rather than just passing them around.
+The execution procedure for assignments starts out like the one for definitions.
+It first attempts to obtain the new value to be assigned to the variable.
+If this evaluation of \code{vproc} fails, the assignment fails.
+
+If \code{vproc} succeeds, however, and we go on to make the assignment, we must consider the possibility that this branch of the computation might later fail, which will require us to backtrack out of the assignment.
+Thus, we must arrange to undo the assignment as part of the backtracking process.%
+\footnote{
+	We didn’t worry about undoing definitions, since we can assume that internal definitions are scanned out (\link{Section 4.1.6}).
+}
+
+This is accomplished by giving \code{vproc} a success continuation (marked with the comment “*1*” below) that saves the old value of the variable before assigning the new value to the variable and proceeding from the assignment.
+The failure continuation that is passed along with the value of the assignment (marked with the comment “*2*” below) restores the old value of the variable before continuing the failure.
+That is, a successful assignment provides a failure continuation that will intercept a subsequent failure;
+whatever failure would otherwise have called \code{fail2} calls this procedure instead, to undo the assignment before actually calling \code{fail2}.
+
+\begin{scheme}
+  (define (analyze-assignment exp)
+    (let ((var (assignment-variable exp))
+          (vproc (analyze (assignment-value exp))))
+      (lambda (env succeed fail)
+        (vproc env
+               (lambda (val fail2)        ~\textrm{; *1*}~
+                 (let ((old-value
+                        (lookup-variable-value var env)))
+                   (set-variable-value! var val env)
+                   (succeed 'ok
+                            (lambda ()    ~\textrm{; *2*}~
+                              (set-variable-value!
+                               var old-value env)
+                              (fail2)))))
+               fail))))
+\end{scheme}
+
+
+
+\subsubsection*{Procedure applications}
+
+The execution procedure for applications contains no new ideas except for the technical complexity of managing the continuations.
+This complexity arises in \code{analyze-application}, due to the need to keep track of the success and failure continuations as we evaluate the operands.
+We use a procedure \code{get-args} to evaluate the list of operands, rather than a simple \code{map} as in the ordinary evaluator.
+
+\begin{scheme}
+  (define (analyze-application exp)
+    (let ((fproc (analyze (operator exp)))
+          (aprocs (map analyze (operands exp))))
+      (lambda (env succeed fail)
+        (fproc env
+               (lambda (proc fail2)
+                 (get-args aprocs
+                           env
+                           (lambda (args fail3)
+                             (execute-application
+                              proc args succeed fail3))
+                           fail2))
+               fail))))
+\end{scheme}
+
+In \code{get-args}, notice how \code{cdr}-ing down the list of \code{aproc} execution procedures and \code{cons}ing up the resulting list of \code{args} is accomplished by calling each \code{aproc} in the list with a success continuation that recursively calls \code{get-args}.
+Each of these recursive calls to \code{get-args} has a success continuation whose value is the \code{cons} of the newly obtained argument onto the list of accumulated arguments:
+
+\begin{scheme}
+  (define (get-args aprocs env succeed fail)
+    (if (null? aprocs)
+        (succeed '() fail)
+        ((car aprocs)
+         env
+         ~\textrm{;; success continuation for this \code{aproc}}~
+         (lambda (arg fail2)
+           (get-args
+            (cdr aprocs)
+            env
+            ~\textrm{;; success continuation for}~
+            ~\textrm{;; recursive call to \code{get-args}}~
+            (lambda (args fail3)
+              (succeed (cons arg args) fail3))
+            fail2))
+         fail)))
+\end{scheme}
+
+The actual procedure application, which is performed by \code{execute-appli-cation}, is accomplished in the same way as for the ordinary evaluator, except for the need to manage the continuations.
+
+\begin{scheme}
+  (define (execute-application proc args succeed fail)
+    (cond ((primitive-procedure? proc)
+           (succeed (apply-primitive-procedure proc args)
+                    fail))
+          ((compound-procedure? proc)
+           ((procedure-body proc)
+            (extend-environment
+             (procedure-parameters proc)
+             args
+             (procedure-environment proc))
+            succeed
+            fail))
+          (else
+           (error "Unknown procedure type: EXECUTE-APPLICATION"
+                  proc))))
+\end{scheme}
+
+
+
+\subsubsection*{Evaluating \code{amb} expressions}
+
+The \code{amb} special form is the key element in the nondeterministic language.
+Here we see the essence of the interpretation process and the reason for keeping track of the continuations.
+The execution procedure for \code{amb} defines a loop \code{try-next} that cycles through the execution procedures for all the possible values of the \code{amb} expression.
+Each execution procedure is called with a failure continuation that will try the next one.
+When there are no more alternatives to try, the entire \code{amb} expression fails.
+
+\begin{scheme}
+  (define (analyze-amb exp)
+    (let ((cprocs (map analyze (amb-choices exp))))
+      (lambda (env succeed fail)
+        (define (try-next choices)
+          (if (null? choices)
+              (fail)
+              ((car choices)
+               env
+               succeed
+               (lambda () (try-next (cdr choices))))))
+        (try-next cprocs))))
+\end{scheme}
+
+
+
+\subsubsection*{Driver loop}
+
+The driver loop for the \code{amb} evaluator is complex, due to the mechanism that permits the user to try again in evaluating an expression.
+The driver uses a procedure called \code{internal-loop}, which takes as argument a procedure \code{try-again}.
+The intent is that calling \code{try-again} should go on to the next untried alternative in the nondeterministic evaluation.
+\code{internal-loop} either calls \code{try-again} in response to the user typing \code{try-again} at the driver loop, or else starts a new evaluation by calling \code{ambeval}.
+
+The failure continuation for this call to \code{ambeval} informs the user that there are no more values and re-invokes the driver loop.
+
+The success continuation for the call to \code{ambeval} is more subtle.
+We print the obtained value and then invoke the internal loop again with a \code{try-again} procedure that will be able to try the next alternative.
+This \code{next-alternative} procedure is the second argument that was passed to the success continuation.
+Ordinarily, we think of this second argument as a failure continuation to be used if the current evaluation branch later fails.
+In this case, however, we have completed a successful evaluation, so we can invoke the “failure” alternative branch in order to search for additional successful evaluations.
+
+\begin{scheme}
+  (define input-prompt  ";;; Amb-Eval input:")
+  (define output-prompt ";;; Amb-Eval value:")
+
+  (define (driver-loop)
+    (define (internal-loop try-again)
+      (prompt-for-input input-prompt)
+      (let ((input (read)))
+        (if (eq? input 'try-again)
+            (try-again)
+            (begin
+              (newline) (display ";;; Starting a new problem ")
+              (ambeval
+               input
+               the-global-environment
+               ~\textrm{;; \code{ambeval} success}~
+               (lambda (val next-alternative)
+                 (announce-output output-prompt)
+                 (user-print val)
+                 (internal-loop next-alternative))
+               ~\textrm{;; \code{ambeval} failure}~
+               (lambda ()
+                 (announce-output
+                  ";;; There are no more values of")
+                 (user-print input)
+                 (driver-loop)))))))
+    (internal-loop
+     (lambda ()
+       (newline) (display ";;; There is no current problem")
+       (driver-loop))))
+\end{scheme}
+The initial call to \code{internal-loop} uses a \code{try-again} procedure that
+complains that there is no current problem and restarts the driver loop.  This
+is the behavior that will happen if the user types \code{try-again} when there
+is no evaluation in progress.
+
+
+
+\begin{exercise}
+	\label{Exercise 4.50}
+	Implement a new special form \code{ramb} that is like \code{amb} except that it searches alternatives in a random order, rather than from left to right.
+	Show how this can help with Alyssa’s problem in \link{Exercise 4.49}.
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 4.51}
+	Implement a new kind of assignment called \code{permanent-set!} that is not undone upon failure.
+	For example, we can choose two distinct elements from a list and count the number of trials required to make a successful choice as follows:
+	\begin{scheme}
+	  (define count 0)
+
+	  (let ((x (an-element-of '(a b c)))
+	        (y (an-element-of '(a b c))))
+	    (permanent-set! count (+ count 1))
+	    (require (not (eq? x y)))
+	    (list x y count))
+	  ~\outprint{;;; Starting a new problem}~
+	  ~\outprint{;;; Amb-Eval value:}~
+	  ~\outprint{(a b 2)}~
+
+	  ~\outprint{;;; Amb-Eval input:}~
+	  try-again
+	  ~\outprint{;;; Amb-Eval value:}~
+	  ~\outprint{(a c 3)}~
+	\end{scheme}
+	What values would have been displayed if we had used \code{set!} here rather than \code{permanent-set!} ?
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 4.52}
+	Implement a new construct called \code{if-fail} that permits the user to catch the failure of an expression.
+	\code{if-fail} takes two expressions.
+	It evaluates the first expression as usual and returns as usual if the evaluation succeeds.
+	If the evaluation fails, however, the value of the second expression is returned, as in the following example:
+	\begin{scheme}
+	  ~\outprint{;;; Amb-Eval input:}~
+	  (if-fail (let ((x (an-element-of '(1 3 5))))
+	             (require (even? x))
+	             x)
+	           'all-odd)
+	  ~\outprint{;;; Starting a new problem}~
+	  ~\outprint{;;; Amb-Eval value:}~
+	  ~\outprint{all-odd}~
+
+	  ~\outprint{;;; Amb-Eval input:}~
+	  (if-fail (let ((x (an-element-of '(1 3 5 8))))
+	             (require (even? x))
+	             x)
+	           'all-odd)
+	  ~\outprint{;;; Starting a new problem}~
+	  ~\outprint{;;; Amb-Eval value:}~
+	  ~\outprint{8}~
+	\end{scheme}
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 4.53}
+	With \code{permanent-set!} as described in \link{Exercise 4.51} and \code{if-fail} as in \link{Exercise 4.52}, what will be the result of evaluating
+	\begin{scheme}
+	  (let ((pairs '()))
+	    (if-fail
+	     (let ((p (prime-sum-pair '(1 3 5 8)
+	                              '(20 35 110))))
+	       (permanent-set! pairs (cons p pairs))
+	       (amb))
+	     pairs))
+	\end{scheme}
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 4.54}
+	If we had not realized that \code{require} could be implemented as an ordinary procedure that uses \code{amb}, to be defined by the user as part of a nondeterministic program, we would have had to implement it as a special form.
+	This would require syntax procedures
+	\begin{scheme}
+	  (define (require? exp)
+	    (tagged-list? exp 'require))
+
+	  (define (require-predicate exp)
+	    (cadr exp))
+	\end{scheme}
+	and a new clause in the dispatch in \code{analyze}
+	\begin{scheme}
+	  ((require? exp) (analyze-require exp))
+	\end{scheme}
+	as well the procedure \code{analyze-require} that handles \code{require} expressions.
+	Complete the following definition of \code{analyze-require}.
+	\begin{scheme}
+	  (define (analyze-require exp)
+	    (let ((pproc (analyze (require-predicate exp))))
+	      (lambda (env succeed fail)
+	        (pproc env
+	               (lambda (pred-value fail2)
+	                 (if ⟨??⟩
+	                     ⟨??⟩
+	                     (succeed 'ok fail2)))
+	               fail))))
+
+	\end{scheme}
+\end{exercise}

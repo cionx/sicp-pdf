@@ -1,0 +1,148 @@
+\subsection{Running the Evaluator as a Program}
+\label{Section 4.1.4}
+
+Given the evaluator, we have in our hands a description (expressed in Lisp) of the process by which Lisp expressions are evaluated.
+One advantage of expressing the evaluator as a program is that we can run the program.
+This gives us, running within Lisp, a working model of how Lisp itself evaluates expressions.
+This can serve as a framework for experimenting with evaluation rules, as we shall do later in this chapter.
+
+Our evaluator program reduces expressions ultimately to the application of primitive procedures.
+Therefore, all that we need to run the evaluator is to create a mechanism that calls on the underlying Lisp system to model the application of primitive procedures.
+
+There must be a binding for each primitive procedure name, so that when \code{eval} evaluates the operator of an application of a primitive, it will find an object to pass to \code{apply}.
+We thus set up a global environment that associates unique objects with the names of the primitive procedures that can appear in the expressions we will be evaluating.
+The global environment also includes bindings for the symbols \code{true} and \code{false}, so that they can be used as variables in expressions to be evaluated.
+\begin{scheme}
+  (define (setup-environment)
+    (let ((initial-env
+           (extend-environment (primitive-procedure-names)
+                               (primitive-procedure-objects)
+                               the-empty-environment)))
+      (define-variable! 'true true initial-env)
+      (define-variable! 'false false initial-env)
+      initial-env))
+
+  (define the-global-environment (setup-environment))
+\end{scheme}
+
+It does not matter how we represent the primitive procedure objects, so long as \code{apply} can identify and apply them by using the procedures \code{primitive-procedure?} and \code{apply-primitive-procedure}.
+We have chosen to represent a primitive procedure as a list beginning with the symbol \code{primitive} and containing a procedure in the underlying Lisp that implements that primitive.
+\begin{scheme}
+  (define (primitive-procedure? proc)
+    (tagged-list? proc 'primitive))
+
+  (define (primitive-implementation proc) (cadr proc))
+\end{scheme}
+
+\code{setup-environment} will get the primitive names and implementation procedures from a list:%
+\footnote{
+	Any procedure defined in the underlying Lisp can be used as a primitive for the metacircular evaluator.
+	The name of a primitive installed in the evaluator need not be the same as the name of its implementation in the underlying Lisp;
+	the names are the same here because the metacircular evaluator implements Scheme itself.
+	Thus, for example, we could put \code{(list 'first car)} or \code{(list 'square (lambda (x) (* x x)))} in the list of \code{primitive-procedures}.
+}
+%
+\begin{scheme}
+  (define primitive-procedures
+    (list (list 'car car)
+          (list 'cdr cdr)
+          (list 'cons cons)
+          (list 'null? null?)
+          ⟨~\var{\dark more primitives}~⟩ ))
+
+  (define (primitive-procedure-names)
+    (map car primitive-procedures))
+
+  (define (primitive-procedure-objects)
+    (map (lambda (proc) (list 'primitive (cadr proc)))
+         primitive-procedures))
+\end{scheme}
+
+To apply a primitive procedure, we simply apply the implementation procedure to the arguments, using the underlying Lisp system:%
+\footnote{
+	\code{apply-in-underlying-scheme} is the \code{apply} procedure we have used in earlier chapters.
+	The metacircular evaluator’s \code{apply} procedure (\link{Section 4.1.1}) models the working of this primitive.
+	Having two different things called \code{apply} leads to a technical problem in running the metacircular evaluator, because defining the metacircular evaluator’s \code{apply} will mask the definition of the primitive.
+	One way around this is to rename the metacircular \code{apply} to avoid conflict with the name of the primitive procedure.
+	We have assumed instead that we have saved a reference to the underlying \code{apply} by doing
+	\begin{smallscheme}
+	  (define apply-in-underlying-scheme apply)
+	\end{smallscheme}
+	before defining the metacircular \code{apply}.
+	This allows us to access the original version of \code{apply} under a different name.
+}
+\begin{scheme}
+  (define (apply-primitive-procedure proc args)
+    (apply-in-underlying-scheme
+     (primitive-implementation proc) args))
+\end{scheme}
+
+For convenience in running the metacircular evaluator, we provide a \newterm{driver loop} that models the read-eval-print loop of the underlying Lisp system.
+It prints a \newterm{prompt}, reads an input expression, evaluates this expression in the global environment, and prints the result.
+We precede each printed result by an \newterm{output prompt} so as to distinguish the value of the expression from other output that may be printed.%
+\footnote{
+	The primitive procedure \code{read} waits for input from the user, and returns the next complete expression that is typed.
+	For example, if the user types \code{(+ 23 x)}, \code{read} returns a three-element list containing the symbol \code{+}, the number 23, and the symbol \code{x}.
+	If the user types \code{'x}, \code{read} returns a two-element list containing the symbol \code{quote} and the symbol \code{x}.
+}
+\begin{scheme}
+  (define input-prompt  ";;; M-Eval input:")
+  (define output-prompt ";;; M-Eval value:")
+
+  (define (driver-loop)
+    (prompt-for-input input-prompt)
+    (let ((input (read)))
+      (let ((output (eval input the-global-environment)))
+        (announce-output output-prompt)
+        (user-print output)))
+    (driver-loop))
+  (define (prompt-for-input string)
+    (newline) (newline) (display string) (newline))
+  (define (announce-output string)
+    (newline) (display string) (newline))
+\end{scheme}
+
+We use a special printing procedure, \code{user-print}, to avoid printing the environment part of a compound procedure, which may be a very long list (or may even contain cycles).
+\begin{scheme}
+  (define (user-print object)
+    (if (compound-procedure? object)
+        (display (list 'compound-procedure
+                       (procedure-parameters object)
+                       (procedure-body object)
+                       '<procedure-env>))
+        (display object)))
+\end{scheme}
+
+Now all we need to do to run the evaluator is to initialize the global environment and start the driver loop.
+Here is a sample interaction:
+\begin{scheme}
+  (define the-global-environment (setup-environment))
+
+  (driver-loop)
+
+  ~\outprint{;;; M-Eval input:}~
+  (define (append x y)
+    (if (null? x)
+        y
+        (cons (car x) (append (cdr x) y))))
+  ~\outprint{;;; M-Eval value:}~
+  ~\outprint{ok}~
+
+
+  ~\outprint{;;; M-Eval input:}~
+  (append '(a b c) '(d e f))
+  ~\outprint{;;; M-Eval value:}~
+  ~\outprint{(a b c d e f)}~
+\end{scheme}
+
+
+
+\begin{exercise}
+	\label{Exercise 4.14}
+	Eva Lu Ator and Louis Reasoner are each experimenting with the metacircular evaluator.
+	Eva types in the definition of \code{map}, and runs some test programs that use it.
+	They work fine.
+	Louis, in contrast, has installed the system version of \code{map} as a primitive for the metacircular evaluator.
+	When he tries it, things go terribly wrong.
+	Explain why Louis’s \code{map} fails even though Eva’s works.
+\end{exercise}

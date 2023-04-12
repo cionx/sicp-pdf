@@ -1,0 +1,327 @@
+\subsection{Data-Directed Programming and Additivity}
+\label{Section 2.4.3}
+
+The general strategy of checking the type of a datum and calling an appropriate procedure is called \newterm{dispatching on type}.
+This is a powerful strategy for obtaining modularity in system design.
+On the other hand, implementing the dispatch as in \link{Section 2.4.2} has two significant weaknesses.
+One weakness is that the generic interface procedures (\code{real-part}, \code{imag-part}, \code{magnitude}, and \code{angle}) must know about all the different representations.
+For instance, suppose we wanted to incorporate a new representation for complex numbers into our complex-number system.
+We would need to identify this new representation with a type, and then add a clause to each of the generic interface procedures to check for the new type and apply the appropriate selector for that representation.
+
+Another weakness of the technique is that even though the individual representations can be designed separately, we must guarantee that no two procedures in the entire system have the same name.
+This is why Ben and Alyssa had to change the names of their original procedures from \link{Section 2.4.1}.
+
+The issue underlying both of these weaknesses is that the technique for implementing generic interfaces is not \newterm{additive}.
+The person implementing the generic selector procedures must modify those procedures each time a new representation is installed, and the people interfacing the individual representations must modify their code to avoid name conflicts.
+In each of these cases, the changes that must be made to the code are straightforward, but they must be made nonetheless, and this is a source of inconvenience and error.
+This is not much of a problem for the complex-number system as it stands, but suppose there were not two but hundreds of different representations for complex numbers.
+And suppose that there were many generic selectors to be maintained in the abstract-data interface.
+Suppose, in fact, that no one programmer knew all the interface procedures or all the representations.
+The problem is real and must be addressed in such programs as large-scale data-base-management systems.
+
+What we need is a means for modularizing the system design even further.
+This is provided by the programming technique known as \newterm{data-directed programming}.
+To understand how data-directed programming works, begin with the observation that whenever we deal with a set of generic operations that are common to a set of different types we are, in effect, dealing with a two-dimensional table that contains the possible operations on one axis and the possible types on the other axis.
+The entries in the table are the procedures that implement each operation for each type of argument presented.
+In the complex-number system developed in the previous section, the correspondence between operation name, data type, and actual procedure was spread out among the various conditional clauses in the generic interface procedures.
+But the same information could have been organized in a table, as shown in \link{Figure 2.22}.
+
+Data-directed programming is the technique of designing programs to work with such a table directly.
+Previously, we implemented the mechanism that interfaces the complex-arithmetic code with the two representation packages as a set of procedures that each perform an explicit dispatch on type.
+Here we will implement the interface as a single procedure that looks up the combination of the operation name and argument type in the table to find the correct procedure to apply, and then applies it to the contents of the argument.
+If we do this, then to add a new representation package to the system we need not change any existing procedures;
+we need only add new entries to the table.
+
+\begin{figure}[tb]
+	\centering
+	\includesvg[width=102mm]{fig/chap2/Fig2.22.svg}
+	\caption{
+		Table of operations for the complex-number system.
+	}
+	\label{Figure 2.22}
+\end{figure}
+
+To implement this plan, assume that we have two procedures, \code{put} and
+\code{get}, for manipulating the operation-and-type table:
+\begin{itemize}
+
+	\item
+		\code{(put ⟨\var{op} \var{type} \var{item}⟩)} installs the \code{⟨\var{item}⟩} in the table, indexed by the \code{⟨\var{op}⟩} and the \code{⟨\var{type}⟩}.
+
+	\item
+		\code{(get ⟨\var{op}⟩ ⟨\var{type}⟩)} looks up the \code{⟨\var{op}⟩}, \code{⟨\var{type}⟩} entry in the table and returns the item found there.
+		If no item is found, \code{get} returns false.
+
+\end{itemize}
+For now, we can assume that \code{put} and \code{get} are included in our language.
+In \link{Chapter 3} (\link{Section 3.3.3}) we will see how to implement these and other operations for manipulating tables.
+
+Here is how data-directed programming can be used in the complex-number system.
+Ben, who developed the rectangular representation, implements his code just as he did originally.
+He defines a collection of procedures, or a \newterm{package}, and interfaces these to the rest of the system by adding entries to the table that tell the system how to operate on rectangular numbers.
+This is accomplished by calling the following procedure:
+\begin{scheme}
+  (define (install-rectangular-package)
+    ~\textrm{;; internal procedures}~
+    (define (real-part z) (car z))
+    (define (imag-part z) (cdr z))
+    (define (make-from-real-imag x y) (cons x y))
+    (define (magnitude z)
+      (sqrt (+ (square (real-part z))
+               (square (imag-part z)))))
+    (define (angle z)
+      (atan (imag-part z) (real-part z)))
+    (define (make-from-mag-ang r a)
+      (cons (* r (cos a)) (* r (sin a))))
+
+    ~\textrm{;; interface to the rest of the system}~
+    (define (tag x) (attach-tag 'rectangular x))
+    (put 'real-part '(rectangular) real-part)
+    (put 'imag-part '(rectangular) imag-part)
+    (put 'magnitude '(rectangular) magnitude)
+    (put 'angle '(rectangular) angle)
+    (put 'make-from-real-imag 'rectangular
+         (lambda (x y) (tag (make-from-real-imag x y))))
+    (put 'make-from-mag-ang 'rectangular
+         (lambda (r a) (tag (make-from-mag-ang r a))))
+    'done)
+\end{scheme}
+
+Notice that the internal procedures here are the same procedures from \link{Section 2.4.1} that Ben wrote when he was working in isolation.
+No changes are necessary in order to interface them to the rest of the system.
+Moreover, since these procedure definitions are internal to the installation procedure, Ben needn’t worry about name conflicts with other procedures outside the rectangular package.
+To interface these to the rest of the system, Ben installs his \code{real-part} procedure under the operation name \code{real-part} and the type \code{(rectangular)}, and similarly for the other selectors.%
+\footnote{
+	We use the list \code{(rectangular)} rather than the symbol \code{rectangular} to allow for the possibility of operations with multiple arguments, not all of the same type.
+}
+The interface also defines the
+constructors to be used by the external system.%
+\footnote{
+	The type the constructors are installed under needn’t be a list because a constructor is always used to make an object of one particular type.
+}
+These are identical to Ben’s internally defined constructors, except that they attach the tag.
+
+Alyssa’s polar package is analogous:
+\begin{scheme}
+  (define (install-polar-package)
+    ~\textrm{;; internal procedures}~
+    (define (magnitude z) (car z))
+    (define (angle z) (cdr z))
+    (define (make-from-mag-ang r a) (cons r a))
+    (define (real-part z) (* (magnitude z) (cos (angle z))))
+    (define (imag-part z) (* (magnitude z) (sin (angle z))))
+    (define (make-from-real-imag x y)
+      (cons (sqrt (+ (square x) (square y)))
+            (atan y x)))
+
+    ~\textrm{;; interface to the rest of the system}~
+    (define (tag x) (attach-tag 'polar x))
+    (put 'real-part '(polar) real-part)
+    (put 'imag-part '(polar) imag-part)
+    (put 'magnitude '(polar) magnitude)
+    (put 'angle '(polar) angle)
+    (put 'make-from-real-imag 'polar
+         (lambda (x y) (tag (make-from-real-imag x y))))
+    (put 'make-from-mag-ang 'polar
+         (lambda (r a) (tag (make-from-mag-ang r a))))
+    'done)
+\end{scheme}
+
+Even though Ben and Alyssa both still use their original procedures defined with the same names as each other’s (e.g., \code{real-part}), these definitions are now internal to different procedures (see \link{Section 1.1.8}), so there is no name conflict.
+
+The complex-arithmetic selectors access the table by means of a general “operation” procedure called \code{apply-generic}, which applies a generic operation to some arguments.
+\code{apply-generic} looks in the table under the name of the operation and the types of the arguments and applies the resulting procedure if one is present:%
+\footnote{
+	\code{apply-generic} uses the dotted-tail notation described in \link{Exercise 2.20}, because different generic operations may take different numbers of arguments.
+	In \code{apply-generic}, \code{op} has as its value the first argument to \code{apply-generic} and \code{args} has as its value a list of the remaining arguments.
+
+	\code{apply-generic} also uses the primitive procedure \code{apply}, which takes two arguments, a procedure and a list.
+	\code{apply} applies the procedure, using the elements in the list as arguments.
+	For example,
+	\begin{smallscheme}
+	  (apply + (list 1 2 3 4))
+	\end{smallscheme}
+	returns \( 10 \).
+}
+\begin{scheme}
+  (define (apply-generic op . args)
+    (let ((type-tags (map type-tag args)))
+      (let ((proc (get op type-tags)))
+        (if proc
+            (apply proc (map contents args))
+            (error
+              "No method for these types: APPLY-GENERIC"
+              (list op type-tags))))))
+\end{scheme}
+Using \code{apply-generic}, we can define our generic selectors as follows:
+\begin{scheme}
+  (define (real-part z) (apply-generic 'real-part z))
+  (define (imag-part z) (apply-generic 'imag-part z))
+  (define (magnitude z) (apply-generic 'magnitude z))
+  (define (angle z) (apply-generic 'angle z))
+\end{scheme}
+Observe that these do not change at all if a new representation is added to the system.
+
+We can also extract from the table the constructors to be used by the programs external to the packages in making complex numbers from real and imaginary parts and from magnitudes and angles.
+As in \link{Section 2.4.2}, we construct rectangular numbers whenever we have real and imaginary parts, and polar numbers whenever we have magnitudes and angles:
+\begin{scheme}
+  (define (make-from-real-imag x y)
+    ((get 'make-from-real-imag 'rectangular) x y))
+
+  (define (make-from-mag-ang r a)
+    ((get 'make-from-mag-ang 'polar) r a))
+\end{scheme}
+
+
+
+\begin{exercise}
+	\label{Exercise 2.73}
+	\link{Section 2.3.2} described a program that performs symbolic differentiation:
+	\begin{scheme}
+	  (define (deriv exp var)
+	    (cond ((number? exp) 0)
+	          ((variable? exp)
+	           (if (same-variable? exp var) 1 0))
+	          ((sum? exp)
+	           (make-sum (deriv (addend exp) var)
+	                     (deriv (augend exp) var)))
+	          ((product? exp)
+	           (make-sum (make-product
+	                      (multiplier exp)
+	                      (deriv (multiplicand exp) var))
+	                     (make-product
+	                      (deriv (multiplier exp) var)
+	                      (multiplicand exp))))
+	          ⟨~\var{\dark more rules can be added here}~⟩
+	          (else (error "unknown expression type:
+	                        DERIV" exp))))
+	\end{scheme}
+	We can regard this program as performing a dispatch on the type of the expression to be differentiated.
+	In this situation the “type tag” of the datum is the algebraic operator symbol (such as \code{+}) and the operation being performed is \code{deriv}.
+	We can transform this program into data-directed style by rewriting the basic derivative procedure as
+	\begin{scheme}
+	  (define (deriv exp var)
+	    (cond ((number? exp) 0)
+	          ((variable? exp) (if (same-variable? exp var) 1 0))
+	          (else ((get 'deriv (operator exp))
+	                 (operands exp) var))))
+
+	  (define (operator exp) (car exp))
+
+	  (define (operands exp) (cdr exp))
+	\end{scheme}
+	\begin{enumerate}[label = \alph*., leftmargin = *]
+
+		\item
+			Explain what was done above.
+			Why can’t we assimilate the predicates \code{number?} and \code{variable?} into the data-directed dispatch?
+
+		\item
+			Write the procedures for derivatives of sums and products, and the auxiliary code required to install them in the table used by the program above.
+
+		\item
+			Choose any additional differentiation rule that you like, such as the one for exponents (\link{Exercise 2.56}), and install it in this data-directed system.
+
+		\item
+			In this simple algebraic manipulator the type of an expression is the algebraic operator that binds it together.
+			Suppose, however, we indexed the procedures in the opposite way, so that the dispatch line in \code{deriv} looked like
+			\begin{scheme}
+			  ((get (operator exp) 'deriv) (operands exp) var)
+			\end{scheme}
+			What corresponding changes to the derivative system are required?
+
+	\end{enumerate}
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 2.74}
+	Insatiable Enterprises, Inc., is a highly decentralized conglomerate company consisting of a large number of independent divisions located all over the world.
+	The company’s computer facilities have just been interconnected by means of a clever network-interfacing scheme that makes the entire network appear to any user to be a single computer.
+	Insatiable’s president, in her first attempt to exploit the ability of the network to extract administrative information from division files, is dismayed to discover that, although all the division files have been implemented as data structures in Scheme, the particular data structure used varies from division to division.
+	A meeting of division managers is hastily called to search for a strategy to integrate the files that will satisfy headquarters’ needs while preserving the existing autonomy of the divisions.
+
+	Show how such a strategy can be implemented with data-directed programming.
+	As an example, suppose that each division’s personnel records consist of a single file, which contains a set of records keyed on employees’ names.
+	The structure of the set varies from division to division.
+	Furthermore, each employee’s record is itself a set (structured differently from division to division) that contains information keyed under identifiers such as \code{address} and \code{salary}.
+	In particular:
+	\begin{enumerate}[label = \alph*., leftmargin = *]
+
+		\item
+			Implement for headquarters a \code{get-record} procedure that retrieves a specified employee’s record from a specified personnel file.
+			The procedure should be applicable to any division’s file.
+			Explain how the individual divisions’ files should be structured.
+			In particular, what type information must be supplied?
+
+		\item
+			Implement for headquarters a \code{get-salary} procedure that returns the salary information from a given employee’s record from any division’s personnel file.
+			How should the record be structured in order to make this operation work?
+
+		\item
+			Implement for headquarters a \code{find-employee-record} procedure.
+			This should search all the divisions’ files for the record of a given employee and return the record.
+			Assume that this procedure takes as arguments an employee’s name and a list of all the divisions’ files.
+
+		\item
+			When Insatiable takes over a new company, what changes must be made in order to  incorporate the new personnel information into the central system?
+
+	\end{enumerate}
+\end{exercise}
+
+
+
+\subsubsection*{Message passing}
+
+The key idea of data-directed programming is to handle generic operations in programs by dealing explicitly with operation-and-type tables, such as the table in \link{Figure 2.22}.
+The style of programming we used in \link{Section 2.4.2} organized the required dispatching on type by having each operation take care of its own dispatching.
+In effect, this decomposes the operation-and-type table into rows, with each generic operation procedure representing a row of the table.
+
+An alternative implementation strategy is to decompose the table into columns and, instead of using “intelligent operations” that dispatch on data types, to work with “intelligent data objects” that dispatch on operation names.
+We can do this by arranging things so that a data object, such as a rectangular number, is represented as a procedure that takes as input the required operation name and performs the operation indicated.
+In such a discipline, \code{make-from-real-imag} could be written as
+\begin{scheme}
+  (define (make-from-real-imag x y)
+    (define (dispatch op)
+      (cond ((eq? op 'real-part) x)
+            ((eq? op 'imag-part) y)
+            ((eq? op 'magnitude) (sqrt (+ (square x) (square y))))
+            ((eq? op 'angle) (atan y x))
+            (else (error "Unknown op: MAKE-FROM-REAL-IMAG" op))))
+    dispatch)
+\end{scheme}
+The corresponding \code{apply-generic} procedure, which applies a generic operation to an argument, now simply feeds the operation’s name to the data object and lets the object do the work:%
+\footnote{
+	One limitation of this organization is it permits only generic procedures of one argument.
+}
+\begin{scheme}
+  (define (apply-generic op arg) (arg op))
+\end{scheme}
+Note that the value returned by \code{make-from-real-imag} is a procedure---the internal \code{dispatch} procedure.
+This is the procedure that is invoked when \code{apply-generic} requests an operation to be performed.
+
+This style of programming is called \newterm{message passing}.
+The name comes from the image that a data object is an entity that receives the requested operation name as a “message.”
+We have already seen an example of message passing in \link{Section 2.1.3}, where we saw how \code{cons}, \code{car}, and \code{cdr} could be defined with no data objects but only procedures.
+Here we see that message passing is not a mathematical trick but a useful technique for organizing systems with generic operations.
+In the remainder of this chapter we will continue to use data-directed programming, rather than message passing, to discuss generic arithmetic operations.
+In \link{Chapter 3} we will return to message passing, and we will see that it can be a powerful tool for structuring simulation programs.
+
+
+
+\begin{exercise}
+	\label{Exercise 2.75}
+	Implement the constructor \code{make-from-mag-ang} in message-passing style.
+	This procedure should be analogous to the \code{make-from-real-imag} procedure given above.
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 2.76}
+	As a large system with generic operations evolves, new types of data objects or new operations may be needed.
+	For each of the three strategies---generic operations with explicit dispatch, data-directed style, and message-passing-style---describe the changes that must be made to a system in order to add new types or new operations.
+	Which organization would be most appropriate for a system in which new types must often be added?
+	Which would be most appropriate for a system in which new operations must often be added?
+\end{exercise}

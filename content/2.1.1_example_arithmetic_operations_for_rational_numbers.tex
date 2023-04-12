@@ -1,0 +1,195 @@
+\subsection{Example: Arithmetic Operations for Rational Numbers}
+\label{Section 2.1.1}
+
+Suppose we want to do arithmetic with rational numbers.
+We want to be able to add, subtract, multiply, and divide them and to test whether two rational numbers are equal.
+
+Let us begin by assuming that we already have a way of constructing a rational number from a numerator and a denominator.
+We also assume that, given a rational number, we have a way of extracting (or selecting) its numerator and its denominator.
+Let us further assume that the constructor and selectors are available as procedures:
+\begin{itemize}
+
+	\item
+		\code{(make-rat ⟨n⟩ ⟨d⟩)} returns the rational number whose numerator is the integer \code{⟨\var{n}⟩} and whose denominator is the integer \code{⟨\var{d}⟩}.
+
+	\item
+		\code{(numer ⟨x⟩)} returns the numerator of the rational number \code{⟨\var{x}⟩}.
+
+	\item
+		\code{(denom ⟨x⟩)} returns the denominator of the rational number \code{⟨\var{x}⟩}.
+
+\end{itemize}
+
+We are using here a powerful strategy of synthesis:
+\newterm{wishful thinking}.
+We haven’t yet said how a rational number is represented, or how the procedures \code{numer}, \code{denom}, and \code{make-rat} should be implemented.
+Even so, if we did have these three procedures, we could then add, subtract, multiply, divide, and test equality by using the following relations:
+\begin{align*}
+	\frac{n_1}{d_1} + \frac{n_2}{d_2} &= \frac{n_1 d_2 + n_2 d_1}{d_1 d_2} \,, \\[0.5em]
+	\frac{n_1}{d_1} - \frac{n_2}{d_2} &= \frac{n_1 d_2 - n_2 d_1}{d_1 d_2} \,, \\[0.5em]
+	\frac{n_1}{d_1} ⋅ \frac{n_2}{d_2} &= \frac{n_1 n_2}{d_1 d_2} \,, \\[0.5em]
+	\frac{n_1 / d_1}{n_2 / d_2} &= \frac{n_1 d_2}{d_1 n_2} \,, \\[0.5em]
+	\frac{n_1}{d_1} = \frac{n_2}{d_2} &\quad\text{if and only if} \quad n_1 d_2 = n_2 d_1 \,.
+\end{align*}
+
+We can express these rules as procedures:
+\begin{scheme}
+  (define (add-rat x y)
+    (make-rat (+ (* (numer x) (denom y))
+                 (* (numer y) (denom x)))
+              (* (denom x) (denom y))))
+
+  (define (sub-rat x y)
+    (make-rat (- (* (numer x) (denom y))
+                 (* (numer y) (denom x)))
+              (* (denom x) (denom y))))
+
+  (define (mul-rat x y)
+    (make-rat (* (numer x) (numer y))
+              (* (denom x) (denom y))))
+
+  (define (div-rat x y)
+    (make-rat (* (numer x) (denom y))
+              (* (denom x) (numer y))))
+
+  (define (equal-rat? x y)
+    (= (* (numer x) (denom y))
+       (* (numer y) (denom x))))
+\end{scheme}
+
+Now we have the operations on rational numbers defined in terms of the selector
+and constructor procedures \code{numer}, \code{denom}, and \code{make-rat}.
+But we haven’t yet defined these.  What we need is some way to glue together a
+numerator and a denominator to form a rational number.
+
+
+
+\subsubsection*{Pairs}
+
+To enable us to implement the concrete level of our data abstraction, our language provides a compound structure called a \newterm{pair}, which can be constructed with the primitive procedure \code{cons}.
+This procedure takes two arguments and returns a compound data object that contains the two arguments as parts.
+Given a pair, we can extract the parts using the primitive procedures \code{car} and \code{cdr}.%
+\footnote{
+	The name \code{cons} stands for “construct.”
+	The names \code{car} and \code{cdr} derive from the original implementation of Lisp on the \acronym{IBM 704}.
+	That machine had an addressing scheme that allowed one to reference the “address”  and  “decrement” parts of a memory location.
+	\code{car} stands for “Contents of Address part of Register” and \code{cdr} (pronounced “could-er”) stands for “Contents of Decrement part of Register.”
+}
+Thus, we can use \code{cons}, \code{car}, and \code{cdr} as follows:
+\begin{scheme}
+  (define x (cons 1 2))
+
+  (car x)
+  ~\outprint{1}~
+
+  (cdr x)
+  ~\outprint{2}~
+\end{scheme}
+Notice that a pair is a data object that can be given a name and manipulated, just like a primitive data object.
+Moreover, \code{cons} can be used to form pairs whose elements are pairs, and so on:
+\begin{scheme}
+  (define x (cons 1 2))
+
+  (define y (cons 3 4))
+
+  (define z (cons x y))
+
+  (car (car z))
+  ~\outprint{1}~
+
+  (car (cdr z))
+  ~\outprint{3}~
+\end{scheme}
+In \link{Section 2.2} we will see how this ability to combine pairs means that pairs can be used as general-purpose building blocks to create all sorts of complex data structures.
+The single compound-data primitive \newterm{pair}, implemented by the procedures \code{cons}, \code{car}, and \code{cdr}, is the only glue we need.
+Data objects constructed from pairs are called \newterm{list-structured} data.
+
+
+
+\subsubsection*{Representing rational numbers}
+
+Pairs offer a natural way to complete the rational-number system.
+Simply represent a rational number as a pair of two integers:
+a numerator and a denominator.
+Then \code{make-rat}, \code{numer}, and \code{denom} are readily implemented as follows:%
+\footnote{
+	Another way to define the selectors and constructor is
+	\begin{smallscheme}
+	  (define make-rat cons)
+	  (define numer car)
+	  (define denom cdr)
+	\end{smallscheme}
+	The first definition associates the name \code{make-rat} with the value of the expression \code{cons}, which is the primitive procedure that constructs pairs.
+	Thus \code{make-rat} and \code{cons} are names for the same primitive constructor.
+
+	Defining selectors and constructors in this way is efficient:
+	Instead of \code{make-rat} \emph{calling} \code{cons}, \code{make-rat} \emph{is} \code{cons}, so there is only one procedure called, not two, when \code{make-rat} is called.
+	On the other hand, doing this defeats debugging aids that trace procedure calls or put breakpoints on procedure calls:
+	You may want to watch \code{make-rat} being called, but you certainly don’t want to watch every call to \code{cons}.
+
+	We have chosen not to use this style of definition in this book.
+}
+\begin{scheme}
+  (define (make-rat n d) (cons n d))
+
+  (define (numer x) (car x))
+
+  (define (denom x) (cdr x))
+\end{scheme}
+Also, in order to display the results of our computations, we can print
+rational numbers by printing the numerator, a slash, and the
+denominator:%
+\footnote{
+	\code{display} is the Scheme primitive for printing data.
+	The Scheme primitive \code{newline} starts a new line for printing.
+	Neither of these procedures returns a useful value, so in the uses of \code{print-rat} below, we show only what \code{print-rat} prints, not what the interpreter prints as the value returned by \code{print-rat}.
+}
+\begin{scheme}
+  (define (print-rat x)
+    (newline)
+    (display (numer x))
+    (display "/")
+    (display (denom x)))
+\end{scheme}
+Now we can try our rational-number procedures:
+\begin{scheme}
+  (define one-half (make-rat 1 2))
+
+  (print-rat one-half)
+  ~\outprint{1/2}~
+
+  (define one-third (make-rat 1 3))
+
+  (print-rat (add-rat one-half one-third))
+  ~\outprint{5/6}~
+
+  (print-rat (mul-rat one-half one-third))
+  ~\outprint{1/6}~
+
+  (print-rat (add-rat one-third one-third))
+  ~\outprint{6/9}~
+\end{scheme}
+
+As the final example shows, our rational-number implementation does not reduce rational numbers to lowest terms.
+We can remedy this by changing \code{make-rat}.
+If we have a \code{gcd} procedure like the one in \link{Section 1.2.5} that produces the greatest common divisor of two integers, we can use \code{gcd} to reduce the numerator and the denominator to lowest terms before constructing the pair:
+\begin{scheme}
+  (define (make-rat n d)
+    (let ((g (gcd n d)))
+      (cons (/ n g) (/ d g))))
+\end{scheme}
+Now we have
+\begin{scheme}
+  (print-rat (add-rat one-third one-third))
+  ~\outprint{2/3}~
+\end{scheme}
+as desired.
+This modification was accomplished by changing the constructor \code{make-rat} without changing any of the procedures (such as \code{add-rat} and \code{mul-rat}) that implement the actual operations.
+
+
+
+\begin{exercise}
+\label{Exercise 2.1}
+Define a better version of \code{make-rat} that handles both positive and negative arguments.
+\code{make-rat} should normalize the sign so that if the rational number is positive, both the numerator and denominator are positive, and if the rational number is negative, only the numerator is negative.
+\end{exercise}

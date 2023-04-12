@@ -1,0 +1,250 @@
+\subsection{The Costs of Introducing Assignment}
+\label{Section 3.1.3}
+
+As we have seen, the \code{set!} operation enables us to model objects that have local state.
+However, this advantage comes at a price.
+Our programming language can no longer be interpreted in terms of the substitution model of procedure application that we introduced in \link{Section 1.1.5}.
+Moreover, no simple model with “nice” mathematical properties can be an adequate framework for dealing with objects and assignment in programming languages.
+
+So long as we do not use assignments, two evaluations of the same procedure with the same arguments will produce the same result, so that procedures can be viewed as computing mathematical functions.
+Programming without any use of assignments, as we did throughout the first two chapters of this book, is accordingly known as \newterm{functional programming}.
+
+To understand how assignment complicates matters, consider a simplified version of the \code{make-withdraw} procedure of \link{Section 3.1.1} that does not bother to check for an insufficient amount:
+\begin{scheme}
+  (define (make-simplified-withdraw balance)
+    (lambda (amount)
+      (set! balance (- balance amount))
+      balance))
+  (define W (make-simplified-withdraw 25))
+
+  (W 20)
+  ~\outprint{5}~
+
+  (W 10)
+  ~\outprint{-5}~
+\end{scheme}
+Compare this procedure with the following \code{make-decrementer} procedure, which does not use \code{set!}:
+\begin{scheme}
+  (define (make-decrementer balance)
+    (lambda (amount)
+      (- balance amount)))
+\end{scheme}
+\code{make-decrementer} returns a procedure that subtracts its input from a designated amount \code{balance}, but there is no accumulated effect over successive calls, as with \code{make-simplified-withdraw}:
+\begin{scheme}
+  (define D (make-decrementer 25))
+
+  (D 20)
+  ~\outprint{5}~
+
+  (D 10)
+  ~\outprint{15}~
+\end{scheme}
+We can use the substitution model to explain how \code{make-decrementer} works.
+For instance, let us analyze the evaluation of the expression
+\begin{scheme}
+  ((make-decrementer 25) 20)
+\end{scheme}
+We first simplify the operator of the combination by substituting \( 25 \) for \code{balance} in the body of \code{make-decrementer}.
+This reduces the expression to
+\begin{scheme}
+  ((lambda (amount) (- 25 amount)) 20)
+\end{scheme}
+Now we apply the operator by substituting 20 for \code{amount} in the body of the \code{lambda} expression:
+\begin{scheme}
+  (- 25 20)
+\end{scheme}
+The final answer is \( 5 \).
+
+Observe, however, what happens if we attempt a similar substitution analysis with \code{make-simplified-withdraw}:
+\begin{scheme}
+  ((make-simplified-withdraw 25) 20)
+\end{scheme}
+We first simplify the operator by substituting 25 for \code{balance} in the body of \code{make-simplified-withdraw}.
+This reduces the expression to%
+\footnote{
+	We don’t substitute for the occurrence of \code{balance} in the \code{set!} expression because the \code{⟨\var{name}⟩} in a \code{set!} is not evaluated.
+	If we did substitute for it, we would get \code{(set! 25 (- 25 amount))}, which makes no sense.
+}
+\begin{scheme}
+  ((lambda (amount) (set! balance (- 25 amount)) 25) 20)
+\end{scheme}
+Now we apply the operator by substituting 20 for \code{amount} in the body of the \code{lambda} expression:
+\begin{scheme}
+  (set! balance (- 25 20)) 25
+\end{scheme}
+If we adhered to the substitution model, we would have to say that the meaning of the procedure application is to first set \code{balance} to \( 5 \) and then return \( 25 \) as the value of the expression.
+This gets the wrong answer.
+In order to get the correct answer, we would have to somehow distinguish the first occurrence of \code{balance} (before the effect of the \code{set!})  from the second occurrence of \code{balance} (after the effect of the \code{set!}), and the substitution model cannot do this.
+
+The trouble here is that substitution is based ultimately on the notion that the symbols in our language are essentially names for values.
+But as soon as we introduce \code{set!} and the idea that the value of a variable can change, a variable can no longer be simply a name.
+Now a variable somehow refers to a place where a value can be stored, and the value stored at this place can change.
+In \link{Section 3.2} we will see how environments play this role of “place” in our computational model.
+
+
+
+\subsubsection*{Sameness and change}
+
+The issue surfacing here is more profound than the mere breakdown of a particular model of computation.
+As soon as we introduce change into our computational models, many notions that were previously straightforward become problematical.
+Consider the concept of two things being “the same.”
+
+Suppose we call \code{make-decrementer} twice with the same argument to create two procedures:
+\begin{scheme}
+  (define D1 (make-decrementer 25))
+
+  (define D2 (make-decrementer 25))
+\end{scheme}
+Are \code{D1} and \code{D2} the same?
+An acceptable answer is yes, because \code{D1} and \code{D2} have the same computational behavior---each is a procedure that subtracts its input from 25.
+In fact, \code{D1} could be substituted for \code{D2} in any computation without changing the result.
+
+Contrast this with making two calls to \code{make-simplified-withdraw}:
+\begin{scheme}
+  (define W1 (make-simplified-withdraw 25))
+
+  (define W2 (make-simplified-withdraw 25))
+\end{scheme}
+Are \code{W1} and \code{W2} the same?
+Surely not, because calls to \code{W1} and \code{W2} have distinct effects, as shown by the following sequence of interactions:
+\begin{scheme}
+  (W1 20)
+  ~\outprint{5}~
+
+  (W1 20)
+  ~\outprint{-15}~
+
+  (W2 20)
+  ~\outprint{5}~
+\end{scheme}
+Even though \code{W1} and \code{W2} are “equal” in the sense that they are both created by evaluating the same expression, \code{(make-simplified-withdraw 25)}, it is not true that \code{W1} could be substituted for \code{W2} in any expression without changing the result of evaluating the expression.
+
+A language that supports the concept that “equals can be substituted for equals” in an expression without changing the value of the expression is said to be \newterm{referentially transparent}.
+Referential transparency is violated when we include \code{set!} in our computer language.
+This makes it tricky to determine when we can simplify expressions by substituting equivalent expressions.
+Consequently, reasoning about programs that use assignment becomes drastically more difficult.
+
+Once we forgo referential transparency, the notion of what it means for computational objects to be “the same” becomes difficult to capture in a formal way.
+Indeed, the meaning of “same” in the real world that our programs model is hardly clear in itself.
+In general, we can determine that two apparently identical objects are indeed “the same one” only by modifying one object and then observing whether the other object has changed in the same way.
+But how can we tell if an object has “changed” other than by observing the “same” object twice and seeing whether some property of the object differs from one observation to the next?
+Thus, we cannot determine “change” without some \emph{a priori} notion of “sameness,” and we cannot determine sameness without observing the effects of change.
+
+As an example of how this issue arises in programming, consider the situation where Peter and Paul have a bank account with \dollar{100} in it.
+There is a substantial difference between modeling this as
+\begin{scheme}
+  (define peter-acc (make-account 100))
+  (define paul-acc (make-account 100))
+\end{scheme}
+and modeling it as
+\begin{scheme}
+  (define peter-acc (make-account 100))
+  (define paul-acc peter-acc)
+\end{scheme}
+In the first situation, the two bank accounts are distinct.
+Transactions made by Peter will not affect Paul’s account, and vice versa.
+In the second situation, however, we have defined \code{paul-acc} to be \emph{the same thing} as \code{peter-acc}.
+In effect, Peter and Paul now have a joint bank account, and if Peter makes a withdrawal from \code{peter-acc} Paul will observe less money in \code{paul-acc}.
+These two similar but distinct situations can cause confusion in building computational models.
+With the shared account, in particular, it can be especially confusing that there is one object (the bank account) that has two different names (\code{peter-acc} and \code{paul-acc});
+if we are searching for all the places in our program where \code{paul-acc} can be changed, we must remember to look also at things that change \code{peter-acc}.%
+\footnote{
+	The phenomenon of a single computational object being accessed by more than one name is known as \newterm{aliasing}.
+	The joint bank account situation illustrates a very simple example of an alias.
+	In \link{Section 3.3} we will see much more complex examples, such as “distinct” compound data structures that share parts.
+	Bugs can occur in our programs if we forget that a change to an object may also, as a “side effect,” change a “different”  object because the two  “different” objects are actually a single object appearing under different aliases.
+	These so-called \newterm{side-effect bugs} are so difficult to locate and to analyze that some people have proposed that programming languages be designed in such a way as to not allow side effects or aliasing (\link{Lampson et al. 1981}; \link{Morris et al. 1980}).
+}
+
+With reference to the above remarks on “sameness”  and  “change,” observe that if Peter and Paul could only examine their bank balances, and could not perform operations that changed the balance, then the issue of whether the two accounts are distinct would be moot.
+In general, so long as we never modify data objects, we can regard a compound data object to be precisely the totality of its pieces.
+For example, a rational number is determined by giving its numerator and its denominator.
+But this view is no longer valid in the presence of change, where a compound data object has an “identity” that is something different from the pieces of which it is composed.
+A bank account is still “the same” bank account even if we change the balance by making a withdrawal;
+conversely, we could have two different bank accounts with the same state information.
+This complication is a consequence, not of our programming language, but of our perception of a bank account as an object.
+We do not, for example, ordinarily regard a rational number as a changeable object with identity, such that we could change the numerator and still have “the same” rational number.
+
+
+
+\subsubsection*{Pitfalls of imperative programming}
+
+In contrast to functional programming, programming that makes extensive use of assignment is known as \newterm{imperative programming}.
+In addition to raising complications about computational models, programs written in imperative style are susceptible to bugs that cannot occur in functional programs.
+For example, recall the iterative factorial program from \link{Section 1.2.1}:
+\begin{scheme}
+  (define (factorial n)
+    (define (iter product counter)
+      (if (> counter n)
+          product
+          (iter (* counter product) (+ counter 1))))
+    (iter 1 1))
+\end{scheme}
+Instead of passing arguments in the internal iterative loop, we could adopt a more imperative style by using explicit assignment to update the values of the variables \code{product} and \code{counter}:
+\begin{scheme}
+  (define (factorial n)
+    (let ((product 1)
+          (counter 1))
+      (define (iter)
+        (if (> counter n)
+            product
+            (begin (set! product (* counter product))
+                   (set! counter (+ counter 1))
+                   (iter))))
+      (iter)))
+\end{scheme}
+This does not change the results produced by the program, but it does introduce a subtle trap.
+How do we decide the order of the assignments?
+As it happens, the program is correct as written.
+But writing the assignments in the opposite order
+\begin{scheme}
+  (set! counter (+ counter 1))
+  (set! product (* counter product))
+\end{scheme}
+would have produced a different, incorrect result.
+In general, programming with assignment forces us to carefully consider the relative orders of the assignments to make sure that each statement is using the correct version of the variables that have been changed.
+This issue simply does not arise in functional programs.%
+\footnote{
+	In view of this, it is ironic that introductory programming is most often taught in a highly imperative style.
+	This may be a vestige of a belief, common throughout the 1960s and 1970s, that programs that call procedures must inherently be less efficient than programs that perform assignments.
+	(\link{Steele 1977} debunks this argument.)
+	Alternatively it may reflect a view that step-by-step assignment is easier for beginners to visualize than procedure call.
+	Whatever the reason, it often saddles beginning programmers with “should I set this variable before or after that one” concerns that can complicate programming and obscure the important ideas.
+}
+
+The complexity of imperative programs becomes even worse if we consider applications in which several processes execute concurrently.
+We will return to this in \link{Section 3.4}.
+First, however, we will address the issue of providing a computational model for expressions that involve assignment, and explore the uses of objects with local state in designing simulations.
+
+\begin{exercise}
+	\label{Exercise 3.7}
+	Consider the bank account objects created by \code{make-account}, with the password modification described in \link{Exercise 3.3}.
+	Suppose that our banking system requires the ability to make joint accounts.
+	Define a procedure \code{make-joint} that accomplishes this.
+	\code{make-joint} should take three arguments.
+	The first is a password-protected account.
+	The second argument must match the password with which the account was defined in order for the \code{make-joint} operation to proceed.
+	The third argument is a new password.
+	\code{make-joint} is to create an additional access to the original account using the new password.
+	For example, if \code{peter-acc} is a bank account with password \code{open-sesame}, then
+	\begin{scheme}
+	  (define paul-acc
+	    (make-joint peter-acc 'open-sesame 'rosebud))
+	\end{scheme}
+	will allow one to make transactions on \code{peter-acc} using the name \code{paul-acc} and the password \code{rosebud}.
+	You may wish to modify your solution to \link{Exercise 3.3} to accommodate this new feature.
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 3.8}
+	When we defined the evaluation model in \link{Section 1.1.3}, we said that the first step in evaluating an expression is to evaluate its subexpressions.
+	But we never specified the order in which the subexpressions should be evaluated (e.g., left to right or right to left).
+	When we introduce assignment, the order in which the arguments to a procedure are evaluated can make a difference to the result.
+	Define a simple procedure \code{f} such that evaluating
+	\begin{scheme}
+	  (+ (f 0) (f 1))
+	\end{scheme}
+	will return \( 0 \) if the arguments to \code{+} are evaluated from left to right but will return \( 1 \) if the arguments are evaluated from right to left.
+\end{exercise}

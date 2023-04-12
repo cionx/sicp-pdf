@@ -1,0 +1,130 @@
+\subsection{Combining Instruction Sequences}
+\label{Section 5.5.4}
+
+This section describes the details on how instruction sequences are represented and combined.
+Recall from \link{Section 5.5.1} that an instruction sequence is represented as a list of the registers needed, the registers modified, and the actual instructions.
+We will also consider a label (symbol) to be a degenerate case of an instruction sequence, which doesn’t need or modify any registers.
+So to determine the registers needed and modified by instruction sequences we use the selectors
+\begin{scheme}
+  (define (registers-needed s)
+    (if (symbol? s) '() (car s)))
+
+  (define (registers-modified s)
+    (if (symbol? s) '() (cadr s)))
+
+  (define (statements s)
+    (if (symbol? s) (list s) (caddr s)))
+\end{scheme}
+and to determine whether a given sequence needs or modifies a given register we use the predicates
+\begin{scheme}
+  (define (needs-register? seq reg)
+    (memq reg (registers-needed seq)))
+
+  (define (modifies-register? seq reg)
+    (memq reg (registers-modified seq)))
+\end{scheme}
+
+In terms of these predicates and selectors, we can implement the various instruction sequence combiners used throughout the compiler.
+
+The basic combiner is \code{append-instruction-sequences}.
+This takes as arguments an arbitrary number of instruction sequences that are to be executed sequentially and returns an instruction sequence whose statements are the statements of all the sequences appended together.
+The subtle point is to determine the registers that are needed and modified by the resulting sequence.
+It modifies those registers that are modified by any of the sequences;
+it needs those registers that must be initialized before the first sequence can be run (the registers needed by the first sequence), together with those registers needed by any of the other sequences that are not initialized (modified) by sequences preceding it.
+
+The sequences are appended two at a time by \code{append-2-sequences}.
+This takes two instruction sequences \code{seq1} and \code{seq2} and returns the instruction sequence whose statements are the statements of \code{seq1} followed by the statements of \code{seq2}, whose modified registers are those registers that are modified by either \code{seq1} or \code{seq2}, and whose needed registers are the registers needed by \code{seq1} together with those registers needed by \code{seq2} that are not modified by \code{seq1}.
+(In terms of set operations, the new set of needed registers is the union of the set of registers needed by \code{seq1} with the set difference of the registers needed by \code{seq2} and the registers modified by \code{seq1}.)
+Thus, \code{append-instruction-sequences} is implemented as follows:
+\begin{scheme}
+  (define (append-instruction-sequences . seqs)
+    (define (append-2-sequences seq1 seq2)
+      (make-instruction-sequence
+       (list-union
+        (registers-needed seq1)
+        (list-difference (registers-needed seq2)
+                         (registers-modified seq1)))
+       (list-union (registers-modified seq1)
+                   (registers-modified seq2))
+       (append (statements seq1) (statements seq2))))
+    (define (append-seq-list seqs)
+      (if (null? seqs)
+          (empty-instruction-sequence)
+          (append-2-sequences
+           (car seqs)
+           (append-seq-list (cdr seqs)))))
+    (append-seq-list seqs))
+\end{scheme}
+
+This procedure uses some simple operations for manipulating sets represented as lists, similar to the (unordered) set representation described in \link{Section 2.3.3}:
+\begin{scheme}
+  (define (list-union s1 s2)
+    (cond ((null? s1) s2)
+          ((memq (car s1) s2) (list-union (cdr s1) s2))
+          (else (cons (car s1) (list-union (cdr s1) s2)))))
+
+  (define (list-difference s1 s2)
+    (cond ((null? s1) '())
+          ((memq (car s1) s2) (list-difference (cdr s1) s2))
+          (else (cons (car s1)
+                      (list-difference (cdr s1) s2)))))
+\end{scheme}
+
+\code{preserving}, the second major instruction sequence combiner, takes a list of registers \code{regs} and two instruction sequences \code{seq1} and \code{seq2} that are to be executed sequentially.
+It returns an instruction sequence whose statements are the statements of \code{seq1} followed by the statements of \code{seq2}, with appropriate \code{save} and \code{restore} instructions around \code{seq1} to protect the registers in \code{regs} that are modified by \code{seq1} but needed by \code{seq2}.
+To accomplish this, \code{preserving} first creates a sequence that has the required \code{save}s followed by the statements of \code{seq1} followed by the required \code{restore}s.
+This sequence needs the registers being saved and restored in addition to the registers needed by \code{seq1}, and modifies the registers modified by \code{seq1} except for the ones being saved and restored.
+This augmented sequence and \code{seq2} are then appended in the usual way.
+The following procedure implements this strategy recursively, walking down the list of registers to be preserved:%
+\footnote{
+	Note that \code{preserving} calls \code{append} with three arguments.
+	Though the definition of \code{append} shown in this book accepts only two arguments, Scheme standardly provides an \code{append} procedure that takes an arbitrary number of arguments.
+}
+
+\begin{scheme}
+  (define (preserving regs seq1 seq2)
+    (if (null? regs)
+        (append-instruction-sequences seq1 seq2)
+        (let ((first-reg (car regs)))
+          (if (and (needs-register? seq2 first-reg)
+                   (modifies-register? seq1 first-reg))
+              (preserving (cdr regs)
+               (make-instruction-sequence
+                (list-union (list first-reg)
+                            (registers-needed seq1))
+                (list-difference (registers-modified seq1)
+                                 (list first-reg))
+                (append `((save ,first-reg))
+                        (statements seq1)
+                        `((restore ,first-reg))))
+               seq2)
+              (preserving (cdr regs) seq1 seq2)))))
+\end{scheme}
+
+Another sequence combiner, \code{tack-on-instruction-sequence}, is used by \code{compile-lambda} to append a procedure body to another sequence.
+Because the procedure body is not “in line” to be executed as part of the combined sequence, its register use has no impact on the register use of the sequence in which it is embedded.
+We thus ignore the procedure body’s sets of needed and modified registers when we tack it onto the other sequence.
+\begin{scheme}
+  (define (tack-on-instruction-sequence seq body-seq)
+    (make-instruction-sequence
+     (registers-needed seq)
+     (registers-modified seq)
+     (append (statements seq)
+             (statements body-seq))))
+\end{scheme}
+
+\code{compile-if} and \code{compile-procedure-call} use a special combiner called \code{parallel-instruction-sequences} to append the two alternative branches that follow a test.
+The two branches will never be executed sequentially;
+for any particular evaluation of the test, one branch or the other will be entered.
+Because of this, the registers needed by the second branch are still needed by the combined sequence, even if these are modified by the first branch.
+
+\begin{scheme}
+  (define (parallel-instruction-sequences seq1 seq2)
+    (make-instruction-sequence
+     (list-union (registers-needed seq1)
+                 (registers-needed seq2))
+     (list-union (registers-modified seq1)
+                 (registers-modified seq2))
+     (append (statements seq1)
+             (statements seq2))))
+\end{scheme}

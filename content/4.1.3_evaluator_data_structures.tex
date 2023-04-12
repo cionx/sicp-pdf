@@ -1,0 +1,205 @@
+\subsection{Evaluator Data Structures}
+\label{Section 4.1.3}
+
+In addition to defining the external syntax of expressions, the evaluator implementation must also define the data structures that the evaluator manipulates internally, as part of the execution of a program, such as the representation of procedures and environments and the representation of true and false.
+
+
+
+\subsubsection*{Testing of predicates}
+
+For conditionals, we accept anything to be true that is not the explicit \code{false} object.
+\begin{scheme}
+  (define (true? x)  (not (eq? x false)))
+
+  (define (false? x) (eq? x false))
+\end{scheme}
+
+
+
+\subsubsection*{Representing procedures}
+
+To handle primitives, we assume that we have available the following procedures:
+\begin{itemize}
+
+	\item
+		\code{(apply-primitive-procedure ⟨\var{proc}⟩ ⟨\var{args}⟩)} \\
+		applies the given primitive procedure to the argument values in the list \code{⟨\var{args}⟩} and returns the result of the application.
+
+	\item
+		\code{(primitive-procedure?  ⟨\var{proc}⟩)} \\
+		tests whether \code{⟨\var{proc}⟩} is a primitive procedure.
+
+\end{itemize}
+These mechanisms for handling primitives are further described in \link{Section 4.1.4}.
+
+Compound procedures are constructed from parameters, procedure bodies, and environments using the constructor \code{make-procedure}:
+\begin{scheme}
+  (define (make-procedure parameters body env)
+    (list 'procedure parameters body env))
+
+  (define (compound-procedure? p)
+    (tagged-list? p 'procedure))
+
+  (define (procedure-parameters p) (cadr p))
+
+  (define (procedure-body p) (caddr p))
+
+  (define (procedure-environment p) (cadddr p))
+\end{scheme}
+
+
+
+\subsubsection*{Operations on Environments}
+
+The evaluator needs operations for manipulating environments.
+As explained in \link{Section 3.2}, an environment is a sequence of frames, where each frame is a table of bindings that associate variables with their corresponding values.
+We use the following operations for manipulating environments:
+\begin{itemize}
+
+	\item
+		\code{(lookup-variable-value ⟨\var{var}⟩ ⟨\var{env}⟩)} \\
+		returns the value that is bound to the symbol \code{⟨\var{var}⟩} in the environment \code{⟨\var{env}⟩}, or signals an error if the variable is unbound.
+
+	\item
+		\code{(extend-environment ⟨\var{variables}⟩ ⟨\var{values}⟩ ⟨\var{base-env}⟩)} \\
+		returns a new environment, consisting of a new frame in which the symbols in the list \code{⟨\var{variables}⟩} are bound to the corresponding elements in the list \code{⟨\var{values}⟩}, where the enclosing environment is the environment ⟨\var{base-env}⟩.
+
+	\item
+		\code{(define-variable! ⟨\var{var}⟩ ⟨\var{value}⟩ ⟨\var{env}⟩)} \\
+		adds to the first frame in the environment \code{⟨\var{env}⟩} a new binding that associates the variable \code{⟨\var{var}⟩} with the value \code{⟨\var{value}⟩}.
+
+	\item
+		\code{(set-variable-value! ⟨\var{var}⟩ ⟨\var{value}⟩ ⟨\var{env}⟩)} \\
+		changes the binding of the variable \code{⟨\var{var}⟩} in the environment \code{⟨\var{env}⟩} so that the variable is now bound to the value \code{⟨\var{value}⟩}, or signals an error if the variable is unbound.
+
+\end{itemize}
+
+To implement these operations we represent an environment as a list of frames.
+The enclosing environment of an environment is the \code{cdr} of the list.
+The empty environment is simply the empty list.
+\begin{scheme}
+  (define (enclosing-environment env) (cdr env))
+
+  (define (first-frame env) (car env))
+
+  (define the-empty-environment '())
+\end{scheme}
+
+Each frame of an environment is represented as a pair of lists:
+a list of the variables bound in that frame and a list of the associated values.%
+\footnote{
+	Frames are not really a data abstraction in the following code:
+	\code{set-variable-value!} and \code{define-variable!} use \code{set-car!} to directly modify the values in a frame.
+	The purpose of the frame procedures is to make the environment-manipulation procedures easy to read.
+}
+\begin{scheme}
+  (define (make-frame variables values)
+    (cons variables values))
+
+  (define (frame-variables frame) (car frame))
+
+  (define (frame-values frame) (cdr frame))
+
+  (define (add-binding-to-frame! var val frame)
+    (set-car! frame (cons var (car frame)))
+    (set-cdr! frame (cons val (cdr frame))))
+\end{scheme}
+
+To extend an environment by a new frame that associates variables with values, we make a frame consisting of the list of variables and the list of values, and we adjoin this to the environment.
+We signal an error if the number of variables does not match the number of values.
+\begin{scheme}
+  (define (extend-environment vars vals base-env)
+    (if (= (length vars) (length vals))
+        (cons (make-frame vars vals) base-env)
+        (if (< (length vars) (length vals))
+            (error "Too many arguments supplied" vars vals)
+            (error "Too few arguments supplied" vars vals))))
+\end{scheme}
+
+To look up a variable in an environment, we scan the list of variables in the first frame.
+If we find the desired variable, we return the corresponding element in the list of values.
+If we do not find the variable in the current frame, we search the enclosing environment, and so on.
+If we reach the empty environment, we signal an “unbound variable” error.
+\begin{scheme}
+  (define (lookup-variable-value var env)
+    (define (env-loop env)
+      (define (scan vars vals)
+        (cond ((null? vars)
+               (env-loop (enclosing-environment env)))
+              ((eq? var (car vars)) (car vals))
+              (else (scan (cdr vars) (cdr vals)))))
+      (if (eq? env the-empty-environment)
+          (error "Unbound variable" var)
+          (let ((frame (first-frame env)))
+            (scan (frame-variables frame)
+                  (frame-values frame)))))
+    (env-loop env))
+\end{scheme}
+
+To set a variable to a new value in a specified environment, we scan for the variable, just as in \code{lookup-variable-value}, and change the corresponding value when we find it.
+\begin{scheme}
+  (define (set-variable-value! var val env)
+    (define (env-loop env)
+      (define (scan vars vals)
+        (cond ((null? vars)
+               (env-loop (enclosing-environment env)))
+              ((eq? var (car vars)) (set-car! vals val))
+              (else (scan (cdr vars) (cdr vals)))))
+      (if (eq? env the-empty-environment)
+          (error "Unbound variable: SET!" var)
+          (let ((frame (first-frame env)))
+            (scan (frame-variables frame)
+                  (frame-values frame)))))
+    (env-loop env))
+\end{scheme}
+
+To define a variable, we search the first frame for a binding for the variable, and change the binding if it exists (just as in \code{set-variable-value!}).
+If no such binding exists, we adjoin one to the first frame.
+\begin{scheme}
+  (define (define-variable! var val env)
+    (let ((frame (first-frame env)))
+      (define (scan vars vals)
+        (cond ((null? vars)
+               (add-binding-to-frame! var val frame))
+              ((eq? var (car vars)) (set-car! vals val))
+              (else (scan (cdr vars) (cdr vals)))))
+      (scan (frame-variables frame) (frame-values frame))))
+\end{scheme}
+
+The method described here is only one of many plausible ways to represent environments.
+Since we used data abstraction to isolate the rest of the evaluator from the detailed choice of representation, we could change the environment representation if we wanted to.
+(See \link{Exercise 4.11}.)
+In a production-quality Lisp system, the speed of the evaluator’s environment operations---especially that of variable lookup---has a major impact on the performance of the system.
+The representation described here, although conceptually simple, is not efficient and would not ordinarily be used in a production system.%
+\footnote{
+	The drawback of this representation (as well as the variant in \link{Exercise 4.11}) is that the evaluator may have to search through many frames in order to find the binding for a given variable.
+	(Such an approach is referred to as \newterm{deep binding}.)
+	One way to avoid this inefficiency is to make use of a strategy called \newterm{lexical addressing}, which will be discussed in \link{Section 5.5.6}.
+}
+
+
+
+\begin{exercise}
+	\label{Exercise 4.11}
+	Instead of representing a frame as a pair of lists, we can represent a frame as a list of bindings, where each binding is a name-value pair.
+	Rewrite the environment operations to use this alternative representation.
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 4.12}
+	The procedures \code{set-variable-value!}, \code{define-variable!} and \code{lookup-variable-value} can be expressed in terms of more abstract procedures for traversing the environment structure.
+	Define abstractions that capture the common patterns and redefine the three procedures in terms of these abstractions.
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 4.13}
+	Scheme allows us to create new bindings for variables by means of \code{define}, but provides no way to get rid of bindings.
+	Implement for the evaluator a special form \code{make-unbound!} that removes the binding of a given symbol from the environment in which the \code{make-unbound!} expression is evaluated.
+	This problem is not completely specified.
+	For example, should we remove only the binding in the first frame of the environment?
+	Complete the specification and justify any choices you make.
+\end{exercise}

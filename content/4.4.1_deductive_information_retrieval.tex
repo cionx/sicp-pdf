@@ -1,0 +1,603 @@
+\subsection{Deductive Information Retrieval}
+\label{Section 4.4.1}
+
+Logic programming excels in providing interfaces to data bases for information retrieval.
+The query language we shall implement in this chapter is designed to be used in this way.
+
+In order to illustrate what the query system does, we will show how it can be used to manage the data base of personnel records for Microshaft, a thriving high-technology company in the Boston area.
+The language provides pattern-directed access to personnel information and can also take advantage of general rules in order to make logical deductions.
+
+
+
+\subsubsection*{A sample data base}
+
+The personnel data base for Microshaft contains \newterm{assertions} about company personnel.
+Here is the information about Ben Bitdiddle, the resident computer wizard:
+\begin{scheme}
+  (address (Bitdiddle Ben) (Slumerville (Ridge Road) 10))
+  (job (Bitdiddle Ben) (computer wizard))
+  (salary (Bitdiddle Ben) 60000)
+\end{scheme}
+Each assertion is a list (in this case a triple) whose elements can themselves be lists.
+
+As resident wizard, Ben is in charge of the company’s computer division, and he supervises two programmers and one technician.
+Here is the information about them:
+\begin{scheme}
+  (address (Hacker Alyssa P) (Cambridge (Mass Ave) 78))
+  (job (Hacker Alyssa P) (computer programmer))
+  (salary (Hacker Alyssa P) 40000)
+  (supervisor (Hacker Alyssa P) (Bitdiddle Ben))
+
+  (address (Fect Cy D) (Cambridge (Ames Street) 3))
+  (job (Fect Cy D) (computer programmer))
+  (salary (Fect Cy D) 35000)
+  (supervisor (Fect Cy D) (Bitdiddle Ben))
+
+  (address (Tweakit Lem E) (Boston (Bay State Road) 22))
+  (job (Tweakit Lem E) (computer technician))
+  (salary (Tweakit Lem E) 25000)
+  (supervisor (Tweakit Lem E) (Bitdiddle Ben))
+\end{scheme}
+There is also a programmer trainee, who is supervised by Alyssa:
+\begin{scheme}
+  (address (Reasoner Louis) (Slumerville (Pine Tree Road) 80))
+  (job (Reasoner Louis) (computer programmer trainee))
+  (salary (Reasoner Louis) 30000)
+  (supervisor (Reasoner Louis) (Hacker Alyssa P))
+\end{scheme}
+All of these people are in the computer division, as indicated by the word \code{computer} as the first item in their job descriptions.
+
+Ben is a high-level employee.
+His supervisor is the company’s big wheel himself:
+\begin{scheme}
+  (supervisor (Bitdiddle Ben) (Warbucks Oliver))
+
+  (address (Warbucks Oliver) (Swellesley (Top Heap Road)))
+  (job (Warbucks Oliver) (administration big wheel))
+  (salary (Warbucks Oliver) 150000)
+\end{scheme}
+
+Besides the computer division supervised by Ben, the company has an accounting division, consisting of a chief accountant and his assistant:
+\begin{scheme}
+  (address (Scrooge Eben) (Weston (Shady Lane) 10))
+  (job (Scrooge Eben) (accounting chief accountant))
+  (salary (Scrooge Eben) 75000)
+  (supervisor (Scrooge Eben) (Warbucks Oliver))
+
+  (address (Cratchet Robert) (Allston (N Harvard Street) 16))
+  (job (Cratchet Robert) (accounting scrivener))
+  (salary (Cratchet Robert) 18000)
+  (supervisor (Cratchet Robert) (Scrooge Eben))
+\end{scheme}
+
+There is also a secretary for the big wheel:
+\begin{scheme}
+  (address (Aull DeWitt) (Slumerville (Onion Square) 5))
+  (job (Aull DeWitt) (administration secretary))
+  (salary (Aull DeWitt) 25000)
+  (supervisor (Aull DeWitt) (Warbucks Oliver))
+\end{scheme}
+
+The data base also contains assertions about which kinds of jobs can be done by people holding other kinds of jobs.
+For instance, a computer wizard can do the jobs of both a computer programmer and a computer technician:
+\begin{scheme}
+  (can-do-job (computer wizard) (computer programmer))
+  (can-do-job (computer wizard) (computer technician))
+\end{scheme}
+A computer programmer could fill in for a trainee:
+\begin{scheme}
+  (can-do-job (computer programmer)
+              (computer programmer trainee))
+\end{scheme}
+Also, as is well known,
+\begin{scheme}
+  (can-do-job (administration secretary)
+              (administration big wheel))
+\end{scheme}
+
+
+
+\subsubsection*{Simple queries}
+
+The query language allows users to retrieve information from the data base by posing queries in response to the system’s prompt.
+For example, to find all computer programmers one can say
+\begin{scheme}
+  ~\outprint{;;; Query input:}~
+  (job ?x (computer programmer))
+\end{scheme}
+The system will respond with the following items:
+\begin{scheme}
+  ~\outprint{;;; Query results:}~
+  (job (Hacker Alyssa P) (computer programmer))
+  (job (Fect Cy D) (computer programmer))
+\end{scheme}
+The input query specifies that we are looking for entries in the data base that match a certain \newterm{pattern}.
+In this example, the pattern specifies entries consisting of three items, of which the first is the literal symbol \code{job}, the second can be anything, and the third is the literal list \code{(computer programmer)}.
+The “anything” that can be the second item in the matching list is specified by a \newterm{pattern variable}, \code{?x}.
+The general form of a pattern variable is a symbol, taken to be the name of the variable, preceded by a question mark.
+We will see below why it is useful to specify names for pattern variables rather than just putting \code{?} into patterns to represent “anything.”
+The system responds to a simple query by showing all entries in the data base that match the specified pattern.
+
+A pattern can have more than one variable.
+For example, the query
+\begin{scheme}
+  (address ?x ?y)
+\end{scheme}
+will list all the employees’ addresses.
+
+A pattern can have no variables, in which case the query simply determines whether that pattern is an entry in the data base.
+If so, there will be one match;
+if not, there will be no matches.
+
+The same pattern variable can appear more than once in a query, specifying that the same “anything” must appear in each position.
+This is why variables have names.
+For example,
+\begin{scheme}
+  (supervisor ?x ?x)
+\end{scheme}
+finds all people who supervise themselves (though there are no such assertions in our sample data base).
+
+The query
+\begin{scheme}
+  (job ?x (computer ?type))
+\end{scheme}
+matches all job entries whose third item is a two-element list whose first item is \code{computer}:
+\begin{scheme}
+  (job (Bitdiddle Ben) (computer wizard))
+  (job (Hacker Alyssa P) (computer programmer))
+  (job (Fect Cy D) (computer programmer))
+  (job (Tweakit Lem E) (computer technician))
+\end{scheme}
+This same pattern does \emph{not} match
+\begin{scheme}
+  (job (Reasoner Louis) (computer programmer trainee))
+\end{scheme}
+because the third item in the entry is a list of three elements, and the pattern’s third item specifies that there should be two elements.
+If we wanted 	to change the pattern so that the third item could be any list beginning with \code{computer}, we could specify%
+\footnote{
+	This uses the dotted-tail notation introduced in \link{Exercise 2.20}.
+}
+\begin{scheme}
+  (job ?x (computer . ?type))
+\end{scheme}
+
+For example,
+\begin{scheme}
+  (computer . ?type)
+\end{scheme}
+matches the data
+\begin{scheme}
+  (computer programmer trainee)
+\end{scheme}
+with \code{?type} as the list \code{(programmer trainee)}.
+It also matches the data
+\begin{scheme}
+  (computer programmer)
+\end{scheme}
+with \code{?type} as the list \code{(programmer)}, and matches the data
+\begin{scheme}
+  (computer)
+\end{scheme}
+with \code{?type} as the empty list \code{()}.
+
+We can describe the query language’s processing of simple queries as follows:
+\begin{itemize}
+
+	\item
+		The system finds all assignments to variables in the query pattern that \newterm{satisfy} the pattern---that is, all sets of values for the variables such that if the pattern variables are \newterm{instantiated with} (replaced by) the values, the result is in the data base.
+
+	\item
+	The system responds to the query by listing all instantiations of the query pattern with the variable assignments that satisfy it.
+
+\end{itemize}
+Note that if the pattern has no variables, the query reduces to a determination of whether that pattern is in the data base.
+If so, the empty assignment, which assigns no values to variables, satisfies that pattern for that data base.
+
+
+
+\begin{exercise}
+	\label{Exercise 4.55}
+	Give simple queries that retrieve the following information from the data base:
+	\begin{enumerate}[label = \alph*., leftmargin = *]
+
+		\item
+			all people supervised by Ben Bitdiddle;
+
+		\item
+			the names and jobs of all people in the accounting division;
+
+		\item
+			the names and addresses of all people who live in Slumerville.
+
+	\end{enumerate}
+\end{exercise}
+
+
+
+\subsubsection*{Compound queries}
+
+Simple queries form the primitive operations of the query language.
+In order to form compound operations, the query language provides means of combination.
+One thing that makes the query language a logic programming language is that the means of combination mirror the means of combination used in forming logical expressions:
+\code{and}, \code{or}, and \code{not}.
+(Here \code{and}, \code{or}, and \code{not} are not the Lisp primitives, but rather operations built into the query language.)
+
+We can use \code{and} as follows to find the addresses of all the computer programmers:
+\begin{scheme}
+  (and (job ?person (computer programmer))
+       (address ?person ?where))
+\end{scheme}
+The resulting output is
+\begin{scheme}
+  (and (job (Hacker Alyssa P) (computer programmer))
+       (address (Hacker Alyssa P) (Cambridge (Mass Ave) 78)))
+
+  (and (job (Fect Cy D) (computer programmer))
+       (address (Fect Cy D) (Cambridge (Ames Street) 3)))
+\end{scheme}
+
+In general,
+\begin{scheme}
+  (and ⟨~\var{query}\ind{1}~⟩ ⟨~\var{query}\ind{2}~⟩ … ⟨~\var{query}\ind{n}~⟩)
+\end{scheme}
+is satisfied by all sets of values for the pattern variables that simultaneously satisfy \code{⟨\var{query}\ind{1}}, …, \code{⟨\var{query}\ind{n}⟩}.
+
+As for simple queries, the system processes a compound query by finding all assignments to the pattern variables that satisfy the query, then displaying instantiations of the query with those values.
+
+Another means of constructing compound queries is through \code{or}.
+For example,
+\begin{scheme}
+  (or (supervisor ?x (Bitdiddle Ben))
+      (supervisor ?x (Hacker Alyssa P)))
+\end{scheme}
+
+\noindent
+will find all employees supervised by Ben Bitdiddle or Alyssa P. Hacker:
+\begin{scheme}
+  (or (supervisor (Hacker Alyssa P) (Bitdiddle Ben))
+      (supervisor (Hacker Alyssa P) (Hacker Alyssa P)))
+
+  (or (supervisor (Fect Cy D) (Bitdiddle Ben))
+      (supervisor (Fect Cy D) (Hacker Alyssa P)))
+
+  (or (supervisor (Tweakit Lem E) (Bitdiddle Ben))
+      (supervisor (Tweakit Lem E) (Hacker Alyssa P)))
+
+  (or (supervisor (Reasoner Louis) (Bitdiddle Ben))
+      (supervisor (Reasoner Louis) (Hacker Alyssa P)))
+\end{scheme}
+In general,
+\begin{scheme}
+  (or ⟨~\var{query}\ind{1}~⟩ ⟨~\var{query}\ind{2}~⟩ … ⟨~\var{query}\ind{n}~⟩)
+\end{scheme}
+is satisfied by all sets of values for the pattern variables that satisfy at least one of \code{⟨\var{query}\ind{1}}, …, \code{⟨\var{query}\ind{n}⟩}.
+
+Compound queries can also be formed with \code{not}. For example,
+\begin{scheme}
+  (and (supervisor ?x (Bitdiddle Ben))
+       (not (job ?x (computer programmer))))
+\end{scheme}
+finds all people supervised by Ben Bitdiddle who are not computer programmers.
+In general,
+\begin{scheme}
+  (not ⟨~\var{query}\ind{1}~⟩)
+\end{scheme}
+is satisfied by all assignments to the pattern variables that do not satisfy
+\code{⟨\var{query}\ind{1}⟩}.%
+\footnote{
+	Actually, this description of \code{not} is valid only for simple cases.
+	The real behavior of \code{not} is more complex.
+	We will examine \code{not}’s peculiarities in sections \link{Section 4.4.2} and \link{Section 4.4.3}.
+}
+
+The final combining form is called \code{lisp-value}.
+When \code{lisp-value} is the first element of a pattern, it specifies that the next element is a Lisp predicate to be applied to the rest of the (instantiated) elements as arguments.
+In general,
+\begin{scheme}
+  (lisp-value ⟨predicate⟩ ⟨~\var{arg}\ind{1}~⟩ ⟨~\var{arg}\ind{2}~⟩ … ⟨~\var{arg}\ind{n}~⟩)
+\end{scheme}
+will be satisfied by assignments to the pattern variables for which the
+\code{⟨\var{predicate}⟩} applied to the instantiated \code{⟨\var{arg}\ind{1}⟩}, …, \code{⟨\var{arg}\ind{1}⟩} is true.
+For example, to find all people whose salary is greater than \dollar{30,000} we could write%
+\footnote{
+	\code{lisp-value} should be used only to perform an operation not provided in the query language.
+	In particular, it should not be used to test equality (since that is what the matching in the query language is designed to do) or inequality (since that can be done with the \code{same} rule shown below).
+}
+\begin{scheme}
+  (and (salary ?person ?amount) (lisp-value > ?amount 30000))
+\end{scheme}
+
+
+
+\begin{exercise}
+	\label{Exercise 4.56}
+	Formulate compound queries that retrieve the following information:
+	\begin{enumerate}[label=\alph*., leftmargin = *]
+
+		\item
+			the names of all people who are supervised by Ben Bitdiddle, together with their addresses;
+
+		\item
+			all people whose salary is less than Ben Bitdiddle’s, together with their salary and Ben Bitdiddle’s salary;
+
+		\item
+			all people who are supervised by someone who is not in the computer division, together with the supervisor’s name and job.
+
+	\end{enumerate}
+\end{exercise}
+
+
+
+\subsubsection*{Rules}
+
+In addition to primitive queries and compound queries, the query language provides means for abstracting queries.
+These are given by \newterm{rules}.
+The rule
+\begin{scheme}
+  (rule (lives-near ?person-1 ?person-2)
+        (and (address ?person-1 (?town . ?rest-1))
+             (address ?person-2 (?town . ?rest-2))
+             (not (same ?person-1 ?person-2))))
+\end{scheme}
+specifies that two people live near each other if they live in the same town.
+The final \code{not} clause prevents the rule from saying that all people live near themselves.
+The \code{same} relation is defined by a very simple rule:%
+\footnote{
+	Notice that we do not need \code{same} in order to make two things be the same:
+	We just use the same pattern variable for each---in effect, we have one thing instead of two things in the first place.
+	For example, see \code{?town} in the \code{lives-near} rule and \code{?middle-manager} in the \code{wheel} rule below.
+	\code{same} is useful when we want to force two things to be different, such as \code{?person-1} and \code{?person-2} in the \code{lives-near} rule.
+	Although using the same pattern variable in two parts of a query forces the same value to appear in both places, using different pattern variables does not force different values to appear.
+	(The values assigned to different pattern variables may be the same or different.)
+}
+\begin{scheme}
+  (rule (same ?x ?x))
+\end{scheme}
+
+The following rule declares that a person is a “wheel” in an organization if he supervises someone who is in turn a supervisor:
+\begin{scheme}
+  (rule (wheel ?person)
+        (and (supervisor ?middle-manager ?person)
+             (supervisor ?x ?middle-manager)))
+\end{scheme}
+
+The general form of a rule is
+\begin{scheme}
+  (rule ⟨~\var{conclusion}~⟩ ⟨~\var{body}~⟩)
+\end{scheme}
+where \code{⟨\var{conclusion}⟩} is a pattern and \code{⟨\var{body}⟩} is any query.%
+\footnote{
+	We will also allow rules without bodies, as in \code{same}, and we will interpret such a rule to mean that the rule conclusion is satisfied by any values of the variables.
+}
+We can think of a rule as representing a large (even infinite) set of assertions, namely all instantiations of the rule conclusion with variable assignments that satisfy the rule body.
+When we described simple queries (patterns), we said that an assignment to variables satisfies a pattern if the instantiated pattern is in the data base.
+But the pattern needn’t be explicitly in the data base as an assertion.
+It can be an implicit assertion implied by a rule.
+For example, the query
+\begin{scheme}
+  (lives-near ?x (Bitdiddle Ben))
+\end{scheme}
+results in
+\begin{scheme}
+  (lives-near (Reasoner Louis) (Bitdiddle Ben))
+  (lives-near (Aull DeWitt) (Bitdiddle Ben))
+\end{scheme}
+To find all computer programmers who live near Ben Bitdiddle, we can ask
+\begin{scheme}
+  (and (job ?x (computer programmer))
+       (lives-near ?x (Bitdiddle Ben)))
+\end{scheme}
+As in the case of compound procedures, rules can be used as parts of other rules (as we saw with the \code{lives-near} rule above) or even be defined recursively.
+For instance, the rule
+\begin{scheme}
+  (rule (outranked-by ?staff-person ?boss)
+        (or (supervisor ?staff-person ?boss)
+            (and (supervisor ?staff-person ?middle-manager)
+                 (outranked-by ?middle-manager ?boss))))
+\end{scheme}
+says that a staff person is outranked by a boss in the organization if the boss is the person’s supervisor or (recursively) if the person’s supervisor is outranked by the boss.
+
+
+
+\begin{exercise}
+	\label{Exercise 4.57}
+	Define a rule that says that person 1 can replace person 2 if either person 1 does the same job as person 2 or someone who does person 1’s job can also do person 2’s job, and if person 1 and person 2 are not the same person.
+	Using your rule, give queries that find the following:
+	\begin{enumerate}[label = \alph*., leftmargin = *]
+
+		\item
+			all people who can replace Cy~D.~Fect;
+
+		\item
+			all people who can replace someone who is being paid more than they are, together with the two salaries.
+
+	\end{enumerate}
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 4.58}
+	Define a rule that says that a person is a “big shot” in a division if the person works in the division but does not have a supervisor who works in the division.
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 4.59}
+	Ben Bitdiddle has missed one meeting too many.
+	Fearing that his habit of forgetting meetings could cost him his job, Ben decides to do something about it.
+	He adds all the weekly meetings of the firm to the Microshaft data base by asserting the following:
+	\begin{scheme}
+	  (meeting accounting (Monday 9am))
+	  (meeting administration (Monday 10am))
+	  (meeting computer (Wednesday 3pm))
+	  (meeting administration (Friday 1pm))
+	\end{scheme}
+	Each of the above assertions is for a meeting of an entire division.
+	Ben also adds an entry for the company-wide meeting that spans all the divisions.
+	All of the company’s employees attend this meeting.
+	\begin{scheme}
+	  (meeting whole-company (Wednesday 4pm))
+	\end{scheme}
+	\begin{enumerate}[label = \alph*., leftmargin = *]
+
+			\item
+				On Friday morning, Ben wants to query the data base for all the meetings that occur that day.
+				What query should he use?
+
+			\item
+				Alyssa P. Hacker is unimpressed.
+				She thinks it would be much more useful to be able to ask for her meetings by specifying her name.
+				So she designs a rule that says that a person’s meetings include all \code{whole-company} meetings plus all meetings of that person’s division.
+				Fill in the body of Alyssa’s rule.
+				\begin{scheme}
+				  (rule (meeting-time ?person ?day-and-time)
+				        ⟨~\var{\dark rule-body}~⟩)
+				\end{scheme}
+
+			\item
+				Alyssa arrives at work on Wednesday morning and wonders what meetings she has to attend that day.
+				Having defined the above rule, what query should she make to find this out?
+
+	\end{enumerate}
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 4.60}
+	By giving the query
+	\begin{scheme}
+	  (lives-near ?person (Hacker Alyssa P))
+	\end{scheme}
+	Alyssa P. Hacker is able to find people who live near her, with whom she can ride to work.
+	On the other hand, when she tries to find all pairs of people who live near each other by querying
+	\begin{scheme}
+	  (lives-near ?person-1 ?person-2)
+	\end{scheme}
+	she notices that each pair of people who live near each other is listed twice;
+	for example,
+	\begin{scheme}
+	  (lives-near (Hacker Alyssa P) (Fect Cy D))
+	  (lives-near (Fect Cy D) (Hacker Alyssa P))
+	\end{scheme}
+	Why does this happen?
+	Is there a way to find a list of people who live near each other, in which each pair appears only once?
+	Explain.
+\end{exercise}
+
+
+
+\subsubsection*{Logic as programs}
+
+We can regard a rule as a kind of logical implication:
+\emph{If} an assignment of values to pattern variables satisfies the body, \emph{then} it satisfies the conclusion.
+Consequently, we can regard the query language as having the ability to perform \newterm{logical deductions} based upon the rules.
+As an example, consider the \code{append} operation described at the beginning of \link{Section 4.4}.
+As we said, \code{append} can be characterized by the following two rules:
+\begin{itemize}
+
+	\item
+		For any list \code{y}, the empty list and \code{y} \code{append} to form \code{y}.
+
+	\item
+		For any \code{u}, \code{v}, \code{y}, and \code{z}, \code{(cons u v)} and \code{y} \code{append} to form \code{(cons u z)} if \code{v} and \code{y} \code{append} to form \code{z}.
+
+\end{itemize}
+
+To express this in our query language, we define two rules for a relation
+\begin{scheme}
+  (append-to-form x y z)
+\end{scheme}
+which we can interpret to mean “\code{x} and \code{y} \code{append} to form \code{z}”:
+\begin{scheme}
+  (rule (append-to-form () ?y ?y))
+
+  (rule (append-to-form (?u . ?v) ?y (?u . ?z))
+        (append-to-form ?v ?y ?z))
+\end{scheme}
+The first rule has no body, which means that the conclusion holds for any value of \code{?y}.
+Note how the second rule makes use of dotted-tail notation to name the \code{car} and \code{cdr} of a list.
+
+Given these two rules, we can formulate queries that compute the \code{append} of two lists:
+\begin{scheme}
+  ~\outprint{;;; Query input:}~
+  (append-to-form (a b) (c d) ?z)
+  ~\outprint{;;; Query results:}~
+  (append-to-form (a b) (c d) (a b c d))
+\end{scheme}
+What is more striking, we can use the same rules to ask the question “Which list, when \code{append}ed to \code{(a b)}, yields \code{(a b c d)}?”
+This is done as follows:
+\begin{scheme}
+  ~\outprint{;;; Query input:}~
+  (append-to-form (a b) ?y (a b c d))
+  ~\outprint{;;; Query results:}~
+  (append-to-form (a b) (c d) (a b c d))
+\end{scheme}
+We can also ask for all pairs of lists that \code{append} to form \code{(a b c d)}:
+\begin{scheme}
+  ~\outprint{;;; Query input:}~
+  (append-to-form ?x ?y (a b c d))
+  ~\outprint{;;; Query results:}~
+  (append-to-form () (a b c d) (a b c d))
+  (append-to-form (a) (b c d) (a b c d))
+  (append-to-form (a b) (c d) (a b c d))
+  (append-to-form (a b c) (d) (a b c d))
+  (append-to-form (a b c d) () (a b c d))
+\end{scheme}
+
+The query system may seem to exhibit quite a bit of intelligence in using the rules to deduce the answers to the queries above.
+Actually, as we will see in the next section, the system is following a well-determined algorithm in unraveling the rules.
+Unfortunately, although the system works impressively in the \code{append} case, the general methods may break down in more complex cases, as we will see in \link{Section 4.4.3}.
+
+
+
+\begin{exercise}
+	\label{Exercise 4.61}
+	The following rules implement a \code{next-to} relation that finds adjacent elements of a list:
+	\begin{scheme}
+	  (rule (?x next-to ?y in (?x ?y . ?u)))
+
+	  (rule (?x next-to ?y in (?v . ?z))
+	        (?x next-to ?y in ?z))
+	\end{scheme}
+	What will the response be to the following queries?
+	\begin{scheme}
+	  (?x next-to ?y in (1 (2 3) 4))
+
+	  (?x next-to  1 in (2 1 3 1))
+	\end{scheme}
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 4.62}
+	Define rules to implement the \code{last-pair} operation of \link{Exercise 2.17}, which returns a list containing the last element of a nonempty list.
+	Check your rules on queries such as \code{(last-pair (3) ?x)}, \code{(last-pair (1 2 3) ?x)} and \code{(last-pair (2 ?x) (3))}.
+	Do your rules work correctly on queries such as \code{(last-pair ?x (3))} ?
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 4.63}
+	The following data base (see Genesis 4) traces the genealogy of the descendants of Ada back to Adam, by way of Cain:
+	\begin{scheme}
+	  (son Adam Cain)
+	  (son Cain Enoch)
+	  (son Enoch Irad)
+	  (son Irad Mehujael)
+	  (son Mehujael Methushael)
+	  (son Methushael Lamech)
+	  (wife Lamech Ada)
+	  (son Ada Jabal)
+	  (son Ada Jubal)
+	\end{scheme}
+
+	Formulate rules such as “If \( S \) is the son of \( f \), and \( f \) is the son of \( G \), then \( S \) is the grandson of \( G \)”  and  “If \( W \) is the wife of \( M \), and \( S \) is the son of \( W \), then \( S \) is the son of \( M \)” (which was supposedly more true in biblical times than today) that will enable the query system to find the grandson of Cain;
+	the sons of Lamech;
+	the grandsons of Methushael.
+	(See \link{Exercise 4.69} for some rules to deduce more complicated relationships.)
+\end{exercise}

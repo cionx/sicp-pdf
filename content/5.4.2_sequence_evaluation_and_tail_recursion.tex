@@ -1,0 +1,116 @@
+\subsection{Sequence Evaluation and Tail Recursion}
+\label{Section 5.4.2}
+
+The portion of the explicit-control evaluator at \code{ev-sequence} is analogous to the metacircular evaluator’s \code{eval-sequence} procedure.
+It handles sequences of expressions in procedure bodies or in explicit \code{begin} expressions.
+
+Explicit \code{begin} expressions are evaluated by placing the sequence of expressions to be evaluated in \code{unev}, saving \code{continue} on the stack, and jumping to \code{ev-sequence}.
+\begin{scheme}
+  ev-begin
+    (assign unev (op begin-actions) (reg exp))
+    (save continue)
+    (goto (label ev-sequence))
+\end{scheme}
+The implicit sequences in procedure bodies are handled by jumping to
+\code{ev-sequence} from \code{compound-apply}, at which point \code{continue}
+is already on the stack, having been saved at \code{ev-application}.
+
+The entries at \code{ev-sequence} and \code{ev-sequence-continue} form a loop that successively evaluates each expression in a sequence.
+The list of unevaluated expressions is kept in \code{unev}.
+Before evaluating each expression, we check to see if there are additional expressions to be evaluated in the sequence.
+If so, we save the rest of the unevaluated expressions (held in \code{unev}) and the environment in which these must be evaluated (held in \code{env}) and call \code{eval-dispatch} to evaluate the expression.
+The two saved registers are restored upon the return from this evaluation, at \code{ev-sequence-continue}.
+
+The final expression in the sequence is handled differently, at the entry point \code{ev-sequence-last-exp}.
+Since there are no more expressions to be evaluated after this one, we need not save \code{unev} or \code{env} before going to \code{eval-dispatch}.
+The value of the whole sequence is the value of the last expression, so after the evaluation of the last expression there is nothing left to do except continue at the entry point currently held on the stack (which was saved by \code{ev-application} or \code{ev-begin}.)
+Rather than setting up \code{continue} to arrange for \code{eval-dispatch} to return here and then restoring \code{continue} from the stack and continuing at that entry point, we restore \code{continue} from the stack before going to \code{eval-dispatch}, so that \code{eval-dispatch} will continue at that entry point after evaluating the expression.
+
+\begin{scheme}
+  ev-sequence
+    (assign exp (op first-exp) (reg unev))
+    (test (op last-exp?) (reg unev))
+    (branch (label ev-sequence-last-exp))
+    (save unev)
+    (save env)
+    (assign continue (label ev-sequence-continue))
+    (goto (label eval-dispatch))
+  ev-sequence-continue
+    (restore env)
+    (restore unev)
+    (assign unev (op rest-exps) (reg unev))
+    (goto (label ev-sequence))
+  ev-sequence-last-exp
+    (restore continue)
+    (goto (label eval-dispatch))
+\end{scheme}
+
+
+
+\subsubsection*{Tail recursion}
+
+In \link{Chapter 1} we said that the process described by a procedure such as
+\begin{scheme}
+  (define (sqrt-iter guess x)
+    (if (good-enough? guess x)
+        guess
+        (sqrt-iter (improve guess x) x)))
+\end{scheme}
+is an iterative process.
+Even though the procedure is syntactically recursive (defined in terms of itself), it is not logically necessary for an evaluator to save information in passing from one call to \code{sqrt-iter} to the next.%
+\footnote{
+	We saw in \link{Section 5.1} how to implement such a process with a register machine that had no stack;
+	the state of the process was stored in a fixed set of registers.
+}
+An evaluator that can execute a procedure such as \code{sqrt-iter} without requiring increasing storage as the procedure continues to call itself is called a \newterm{tail-recursive} evaluator.
+The metacircular implementation of the evaluator in \link{Chapter 4} does not specify whether the evaluator is tail-recursive, because that evaluator inherits its mechanism for saving state from the underlying Scheme.
+With the explicit-control evaluator, however, we can trace through the evaluation process to see when procedure calls cause a net accumulation of information on the stack.
+
+Our evaluator is tail-recursive, because in order to evaluate the final expression of a sequence we transfer directly to \code{eval-dispatch} without saving any information on the stack.
+Hence, evaluating the final expression in a sequence---even if it is a procedure call (as in \code{sqrt-iter}, where the \code{if} expression, which is the last expression in the procedure body, reduces to a call to \code{sqrt-iter})---will not cause any information to be accumulated on the stack.%
+\footnote{
+	This implementation of tail recursion in \code{ev-sequence} is one variety of a well-known optimization technique used by many compilers.
+	In compiling a procedure that ends with a procedure call, one can replace the call by a jump to the called procedure’s entry point.
+	Building this strategy into the interpreter, as we have done in this section, provides the optimization uniformly throughout the language.
+}
+
+If we did not think to take advantage of the fact that it was unnecessary to save information in this case, we might have implemented \code{eval-sequence} by treating all the expressions in a sequence in the same way---saving the registers, evaluating the expression, returning to restore the registers, and repeating this until all the expressions have been evaluated:%
+\footnote{
+	We can define \code{no-more-exps?} as follows:
+
+	\begin{smallscheme}
+	  (define (no-more-exps? seq) (null? seq))
+	\end{smallscheme}
+}
+\begin{scheme}
+  ev-sequence
+    (test (op no-more-exps?) (reg unev))
+    (branch (label ev-sequence-end))
+    (assign exp (op first-exp) (reg unev))
+    (save unev)
+    (save env)
+    (assign continue (label ev-sequence-continue))
+    (goto (label eval-dispatch))
+  ev-sequence-continue
+    (restore env)
+    (restore unev)
+    (assign unev (op rest-exps) (reg unev))
+    (goto (label ev-sequence))
+  ev-sequence-end
+    (restore continue)
+    (goto (reg continue))
+\end{scheme}
+
+This may seem like a minor change to our previous code for evaluation of a sequence:
+The only difference is that we go through the save-restore cycle for the last expression in a sequence as well as for the others.
+The interpreter will still give the same value for any expression.
+But this change is fatal to the tail-recursive implementation, because we must now return after evaluating the final expression in a sequence in order to undo the (useless) register saves.
+These extra saves will accumulate during a nest of procedure calls.
+Consequently, processes such as \code{sqrt-iter} will require space proportional to the number of iterations rather than requiring constant space.
+This difference can be significant.
+For example, with tail recursion, an infinite loop can be expressed using only the procedure-call mechanism:
+\begin{scheme}
+  (define (count n)
+    (newline) (display n) (count (+ n 1)))
+\end{scheme}
+Without tail recursion, such a procedure would eventually run out of stack space, and expressing a true iteration would require some control mechanism other than procedure call.

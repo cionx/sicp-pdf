@@ -1,0 +1,148 @@
+\subsection{The Nature of Time in Concurrent Systems}
+\label{Section 3.4.1}
+
+On the surface, time seems straightforward.
+It is an ordering imposed on events.%
+\footnote{
+	To quote some graffiti seen on a Cambridge building wall:
+	“Time is a device that was invented to keep everything from happening at once.”
+}
+For any events \( A \) and \( B \), either \( A \) occurs before \( B \), \( A \) and \( B \) are simultaneous, or \( A \) occurs after \( B \).
+For instance, returning to the bank account example, suppose that Peter withdraws \dollar{10} and Paul withdraws \dollar{25} from a joint account that initially contains \dollar{100}, leaving \dollar{65} in the account.
+Depending on the order of the two withdrawals, the sequence of balances in the account is either \( \dollar{100} \to \dollar{90} \to \dollar{65} \) or \( \dollar{100} \to \dollar{75} \to \dollar{65} \).
+In a computer implementation of the banking system, this changing sequence of balances could be modeled by successive assignments to a variable \code{balance}.
+
+In complex situations, however, such a view can be problematic.
+Suppose that Peter and Paul, and other people besides, are accessing the same bank account through a network of banking machines distributed all over the world.
+The actual sequence of balances in the account will depend critically on the detailed timing of the accesses and the details of the communication among the machines.
+
+This indeterminacy in the order of events can pose serious problems in the design of concurrent systems.
+For instance, suppose that the withdrawals made by Peter and Paul are implemented as two separate processes sharing a common variable \code{balance}, each process specified by the procedure given in \link{Section 3.1.1}:
+\begin{scheme}
+  (define (withdraw amount)
+    (if (>= balance amount)
+        (begin
+          (set! balance (- balance amount))
+          balance)
+        "Insufficient funds"))
+\end{scheme}
+If the two processes operate independently, then Peter might test the balance and attempt to withdraw a legitimate amount.
+However, Paul might withdraw some funds in between the time that Peter checks the balance and the time Peter completes the withdrawal, thus invalidating Peter’s test.
+
+Things can be worse still.
+Consider the expression
+\begin{scheme}
+  (set! balance (- balance amount))
+\end{scheme}
+executed as part of each withdrawal process.
+This consists of three steps:
+(1) accessing the value of the \code{balance} variable;
+(2) computing the new balance;
+(3) setting \code{balance} to this new value.
+If Peter and Paul’s withdrawals execute this statement concurrently, then the two withdrawals might interleave the order in which they access \code{balance} and set it to the new value.
+
+\begin{figure}[tp]
+	\centering
+	\includesvg[width=109mm]{fig/chap3/Fig3.29b.svg}
+	\caption{
+		Timing diagram showing how interleaving the order of events in two banking withdrawals can lead to an incorrect final balance.
+	}
+	\label{Figure 3.29}
+\end{figure}
+
+The timing diagram in \link{Figure 3.29} depicts an order of events where \code{balance} starts at 100, Peter withdraws 10, Paul withdraws 25, and yet the final value of \code{balance} is 75.
+As shown in the diagram, the reason for this anomaly is that Paul’s assignment of 75 to \code{balance} is made under the assumption that the value of \code{balance} to be decremented is 100.
+That assumption, however, became invalid when Peter changed \code{balance} to 90.
+This is a catastrophic failure for the banking system, because the total amount of money in the system is not conserved.
+Before the transactions, the total amount of money was \dollar{100}.
+Afterwards, Peter has \dollar{10}∫, Paul has \dollar{25}, and the bank has \dollar{75}.%
+\footnote{
+	An even worse failure for this system could occur if the two \code{set!} operations attempt to change the balance simultaneously, in which case the actual data appearing in memory might end up being a random combination of the information being written by the two processes.
+	Most computers have interlocks on the primitive memory-write operations, which protect against such simultaneous access.
+	Even this seemingly simple kind of protection, however, raises implementation challenges in the design of multiprocessing computers, where elaborate \newterm{cache-coherence} protocols are required to ensure that the various processors will maintain a consistent view of memory contents, despite the fact that data may be replicated (“cached”) among the different processors to increase the speed of memory access.
+}
+
+The general phenomenon illustrated here is that several processes may share a common state variable.
+What makes this complicated is that more than one process may be trying to manipulate the shared state at the same time.
+For the bank account example, during each transaction, each customer should be able to act as if the other customers did not exist.
+When a customer changes the balance in a way that depends on the balance, he must be able to assume that, just before the moment of change, the balance is still what he thought it was.
+
+
+
+\subsubsection*{Correct behavior of concurrent programs}
+
+The above example typifies the subtle bugs that can creep into concurrent programs.
+The root of this complexity lies in the assignments to variables that are shared among the different processes.
+We already know that we must be careful in writing programs that use \code{set!}, because the results of a computation depend on the order in which the assignments occur.%
+\footnote{
+	The factorial program in \link{Section 3.1.3} illustrates this for a single sequential process.
+}
+With concurrent processes we must be especially careful about assignments, because we may not be able to control the order of the assignments made by the different processes.
+If several such changes might be made concurrently (as with two depositors accessing a joint account) we need some way to ensure that our system behaves correctly.
+For example, in the case of withdrawals from a joint bank account, we must ensure that money is conserved.
+To make concurrent programs behave correctly, we may have to place some restrictions on concurrent execution.
+
+One possible restriction on concurrency would stipulate that no two operations that change any shared state variables can occur at the same time.
+This is an extremely stringent requirement.
+For distributed banking, it would require the system designer to ensure that only one transaction could proceed at a time.
+This would be both inefficient and overly conservative.
+\link{Figure 3.30} shows Peter and Paul sharing a bank account, where Paul has a private account as well.
+The diagram illustrates two withdrawals from the shared account (one by Peter and one by Paul) and a deposit to Paul’s private account.%
+\footnote{
+	The columns show the contents of Peter’s wallet, the joint account (in Bank1), Paul’s wallet, and Paul’s private account (in Bank2), before and after each withdrawal (W) and deposit (D).
+	Peter withdraws \dollar{10} from Bank1;
+	Paul deposits \dollar{5} in Bank2, then withdraws \dollar{25} from Bank1.
+}
+The two withdrawals from the shared account must not be concurrent (since both access and update the same account), and Paul’s deposit and withdrawal must not be concurrent (since both access and update the amount in Paul’s wallet).
+But there should be no problem permitting Paul’s deposit to his private account to proceed concurrently with Peter’s withdrawal from the shared account.
+
+\begin{figure}[tb]
+	\centering
+	\includesvg[width=94mm]{fig/chap3/Fig3.30b.svg}
+	\caption{
+		Concurrent deposits and withdrawals from a joint account in Bank1 and a private account in Bank2.
+	}
+	\label{Figure 3.30}
+\end{figure}
+
+A less stringent restriction on concurrency would ensure that a concurrent system produces the same result as if the processes had run sequentially in some order.
+There are two important aspects to this requirement.
+First, it does not require the processes to actually run sequentially, but only to produce results that are the same \emph{as if} they had run sequentially.
+For the example in \link{Figure 3.30}, the designer of the bank account system can safely allow Paul’s deposit and Peter’s withdrawal to happen concurrently, because the net result will be the same as if the two operations had happened sequentially.
+Second, there may be more than one possible “correct” result produced by a concurrent program, because we require only that the result be the same as for \emph{some} sequential order.
+For example, suppose that Peter and Paul’s joint account starts out with \dollar{100}, and Peter deposits \dollar{40} while Paul concurrently withdraws half the money in the account.
+Then sequential execution could result in the account balance being either \dollar{70} or \dollar{90} (see \link{Exercise 3.38}).%
+\footnote{
+	\label{Footnote 39} A more formal way to express this idea is to say that concurrent programs are inherently \newterm{nondeterministic}.
+	That is, they are described not by single-valued functions, but by functions whose results are sets of possible values.
+	In \link{Section 4.3} we will study a language for expressing nondeterministic computations.
+}
+
+There are still weaker requirements for correct execution of concurrent programs.
+A program for simulating diffusion (say, the flow of heat in an object) might consist of a large number of processes, each one representing a small volume of space, that update their values concurrently.
+Each process repeatedly changes its value to the average of its own value and its neighbors’ values.
+This algorithm converges to the right answer independent of the order in which the operations are done;
+there is no need for any restrictions on concurrent use of the shared values.
+
+
+
+\begin{exercise}
+	\label{Exercise 3.38}
+	Suppose that Peter, Paul, and Mary share a joint bank account that initially contains \dollar{100}.
+	Concurrently, Peter deposits \dollar{10}, Paul withdraws \dollar{20}, and Mary withdraws half the money in the account, by executing the following commands:
+	\begin{scheme}
+	  Peter: (set! balance (+ balance 10))
+	  Paul:  (set! balance (- balance 20))
+	  Mary:  (set! balance (- balance (/ balance 2)))
+	\end{scheme}
+	\begin{enumerate}[label = \alph*., leftmargin = *]
+
+		\item
+			List all the different possible values for \code{balance} after these three transactions have been completed, assuming that the banking system forces the three processes to run sequentially in some order.
+
+		\item
+			What are some other values that could be produced if the system allows the processes to be interleaved?
+			Draw timing diagrams like the one in \link{Figure 3.29} to explain how these values can occur.
+
+	\end{enumerate}
+\end{exercise}

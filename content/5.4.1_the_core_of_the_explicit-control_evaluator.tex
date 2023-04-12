@@ -1,0 +1,238 @@
+\subsection{The Core of the Explicit-Control Evaluator}
+\label{Section 5.4.1}
+
+The central element in the evaluator is the sequence of instructions beginning at \code{eval-dispatch}.
+This corresponds to the \code{eval} procedure of the metacircular evaluator described in \link{Section 4.1.1}.
+When the controller starts at \code{eval-dispatch}, it evaluates the expression specified by \code{exp} in the environment specified by \code{env}.
+When evaluation is complete, the controller will go to the entry point stored in \code{continue}, and the \code{val} register will hold the value of the expression.
+As with the metacircular \code{eval}, the structure of \code{eval-dispatch} is a case analysis on the syntactic type of the expression to be evaluated.%
+\footnote{
+	In our controller, the dispatch is written as a sequence of \code{test} and \code{branch} instructions.
+	Alternatively, it could have been written in a data-directed style (and in a real system it probably would have been) to avoid the need to perform sequential tests and to facilitate the definition of new expression types.
+	A machine designed to run Lisp would probably include a \code{dispatch-on-type} instruction that would efficiently execute such data-directed dispatches.
+}
+
+\begin{scheme}
+  eval-dispatch
+    (test (op self-evaluating?) (reg exp))
+    (branch (label ev-self-eval))
+    (test (op variable?) (reg exp))
+    (branch (label ev-variable))
+    (test (op quoted?) (reg exp))
+    (branch (label ev-quoted))
+    (test (op assignment?) (reg exp))
+    (branch (label ev-assignment))
+    (test (op definition?) (reg exp))
+    (branch (label ev-definition))
+    (test (op if?) (reg exp))
+    (branch (label ev-if))
+    (test (op lambda?) (reg exp))
+    (branch (label ev-lambda))
+    (test (op begin?) (reg exp))
+    (branch (label ev-begin))
+    (test (op application?) (reg exp))
+    (branch (label ev-application))
+    (goto (label unknown-expression-type))
+\end{scheme}
+
+
+
+\subsubsection*{Evaluating simple expressions}
+
+Numbers and strings (which are self-evaluating), variables, quotations, and \code{lambda} expressions have no subexpressions to be evaluated.
+For these, the evaluator simply places the correct value in the \code{val} register and continues execution at the entry point specified by \code{continue}.
+Evaluation of simple expressions is performed by the following controller code:
+\begin{scheme}
+  ev-self-eval
+    (assign val (reg exp))
+    (goto (reg continue))
+  ev-variable
+    (assign val (op lookup-variable-value) (reg exp) (reg env))
+    (goto (reg continue))
+  ev-quoted
+    (assign val (op text-of-quotation) (reg exp))
+    (goto (reg continue))
+  ev-lambda
+    (assign unev (op lambda-parameters) (reg exp))
+    (assign exp (op lambda-body) (reg exp))
+    (assign val (op make-procedure) (reg unev) (reg exp) (reg env))
+    (goto (reg continue))
+\end{scheme}
+Observe how \code{ev-lambda} uses the \code{unev} and \code{exp} registers to hold the parameters and body of the lambda expression so that they can be passed to the \code{make-procedure} operation, along with the environment in \code{env}.
+
+
+
+\subsubsection*{Evaluating procedure applications}
+
+A procedure application is specified by a combination containing an operator and operands.
+The operator is a subexpression whose value is a procedure, and the operands are subexpressions whose values are the arguments to which the procedure should be applied.
+The metacircular \code{eval} handles applications by calling itself recursively to evaluate each element of the combination, and then passing the results to \code{apply}, which performs the actual procedure application.
+The explicit-control evaluator does the same thing;
+these recursive calls are implemented by \code{goto} instructions, together with use of the stack to save registers that will be restored after the recursive call returns.
+Before each call we will be careful to identify which registers must be saved (because their values will be needed later).%
+\footnote{
+	This is an important but subtle point in translating algorithms from a procedural language, such as Lisp, to a register-machine language.
+	As an alternative to saving only what is needed, we could save all the registers (except \code{val}) before each recursive call.
+	This is called a \newterm{framed-stack} discipline.
+	This would work but might save more registers than necessary;
+	this could be an important consideration in a system where stack operations are expensive.
+	Saving registers whose contents will not be needed later may also hold onto useless data that could otherwise be garbage-collected, freeing space to be reused.
+}
+
+We begin the evaluation of an application by evaluating the operator to produce a procedure, which will later be applied to the evaluated operands.
+To evaluate the operator, we move it to the \code{exp} register and go to \code{eval-dispatch}.
+The environment in the \code{env} register is already the correct one in which to evaluate the operator.
+However, we save \code{env} because we will need it later to evaluate the operands.
+We also extract the operands into \code{unev} and save this on the stack.
+We set up \code{continue} so that \code{eval-dispatch} will resume at \code{ev-appl-did-operator} after the operator has been evaluated.
+First, however, we save the old value of \code{continue}, which tells the controller where to continue after the application.
+
+\begin{scheme}
+  ev-application
+    (save continue)
+    (save env)
+    (assign unev (op operands) (reg exp))
+    (save unev)
+    (assign exp (op operator) (reg exp))
+    (assign continue (label ev-appl-did-operator))
+    (goto (label eval-dispatch))
+\end{scheme}
+
+Upon returning from evaluating the operator subexpression, we proceed to evaluate the operands of the combination and to accumulate the resulting arguments in a list, held in \code{argl}.
+First we restore the unevaluated operands and the environment.
+We initialize \code{argl} to an empty list.
+Then we assign to the \code{proc} register the procedure that was produced by evaluating the operator.
+If there are no operands, we go directly to \code{apply-dispatch}.
+Otherwise we save \code{proc} on the stack and start the argument-evaluation loop:%
+\footnote{
+	We add to the evaluator data-structure procedures in \link{Section 4.1.3} the following two procedures for manipulating argument lists:
+	\begin{smallscheme}
+	  (define (empty-arglist) '())
+	  (define (adjoin-arg arg arglist) (append arglist (list arg)))
+	\end{smallscheme}
+	We also use an additional syntax procedure to test for the last operand in a combination:
+	\begin{smallscheme}
+	  (define (last-operand? ops) (null? (cdr ops)))
+	\end{smallscheme}
+}
+\begin{scheme}
+  ev-appl-did-operator
+    (restore unev)                       ~\textrm{; the operands}~
+    (restore env)
+    (assign argl (op empty-arglist))
+    (assign proc (reg val))              ~\textrm{; the operator}~
+    (test (op no-operands?) (reg unev))
+    (branch (label apply-dispatch))
+    (save proc)
+\end{scheme}
+
+Each cycle of the argument-evaluation loop evaluates an operand from the list in \code{unev} and accumulates the result into \code{argl}.
+To evaluate an operand, we place it in the \code{exp} register and go to \code{eval-dispatch}, after setting \code{continue} so that execution will resume with the argument-accumulation phase.
+But first we save the arguments accumulated so far (held in \code{argl}), the environment (held in \code{env}), and the remaining operands to be evaluated (held in \code{unev}).
+A special case is made for the evaluation of the last operand, which is handled at \code{ev-appl-last-arg}.
+
+\begin{scheme}
+  ev-appl-operand-loop
+    (save argl)
+    (assign exp (op first-operand) (reg unev))
+    (test (op last-operand?) (reg unev))
+    (branch (label ev-appl-last-arg))
+    (save env)
+    (save unev)
+    (assign continue (label ev-appl-accumulate-arg))
+    (goto (label eval-dispatch))
+\end{scheme}
+
+When an operand has been evaluated, the value is accumulated into the list held in \code{argl}.
+The operand is then removed from the list of unevaluated operands in \code{unev}, and the argument-evaluation continues.
+
+\begin{scheme}
+  ev-appl-accumulate-arg
+    (restore unev)
+    (restore env)
+    (restore argl)
+    (assign argl (op adjoin-arg) (reg val) (reg argl))
+    (assign unev (op rest-operands) (reg unev))
+    (goto (label ev-appl-operand-loop))
+\end{scheme}
+
+Evaluation of the last argument is handled differently.
+There is no need to save the environment or the list of unevaluated operands before going to \code{eval-dispatch}, since they will not be required after the last operand is evaluated.
+Thus, we return from the evaluation to a special entry point \code{ev-appl-accum-last-arg}, which restores the argument list, accumulates the new argument, restores the saved procedure, and goes off to perform the application.%
+\footnote{
+	The optimization of treating the last operand specially is known as \newterm{evlis tail recursion} (see \link{Wand 1980}).
+	We could be somewhat more efficient in the argument evaluation loop if we made evaluation of the first operand a special case too.
+	This would permit us to postpone initializing \code{argl} until after evaluating the first operand, so as to avoid saving \code{argl} in this case.
+	The compiler in \link{Section 5.5} performs this optimization.
+	(Compare the \code{construct-arglist} procedure of \link{Section 5.5.3}.)
+}
+
+\begin{scheme}
+  ev-appl-last-arg
+    (assign continue (label ev-appl-accum-last-arg))
+    (goto (label eval-dispatch))
+  ev-appl-accum-last-arg
+    (restore argl)
+    (assign argl (op adjoin-arg) (reg val) (reg argl))
+    (restore proc)
+    (goto (label apply-dispatch))
+\end{scheme}
+
+The details of the argument-evaluation loop determine the order in which the interpreter evaluates the operands of a combination (e.g., left to right or right to left---see \link{Exercise 3.8}).
+This order is not determined by the metacircular evaluator, which inherits its control structure from the underlying Scheme in which it is implemented.%
+\footnote{
+	The order of operand evaluation in the metacircular evaluator is determined by the order of evaluation of the arguments to \code{cons} in the procedure \code{list-of-values} of \link{Section 4.1.1} (see \link{Exercise 4.1}).
+}
+	Because the \code{first-operand} selector (used in \code{ev-appl-operand-loop} to extract successive operands from \code{unev}) is implemented as \code{car} and the \code{rest-operands} selector is implemented as \code{cdr}, the explicit-control evaluator will evaluate the operands of a combination in left-to-right order.
+
+
+
+\subsubsection*{Procedure application}
+
+The entry point \code{apply-dispatch} corresponds to the \code{apply} procedure of the metacircular evaluator.
+By the time we get to \code{apply-dispatch}, the \code{proc} register contains the procedure to apply and \code{argl} contains the list of evaluated arguments to which it must be applied.
+The saved value of \code{continue} (originally passed to \code{eval-dispatch} and saved at \code{ev-application}), which tells where to return with the result of the procedure application, is on the stack.
+When the application is complete, the controller transfers to the entry point specified by the saved \code{continue}, with the result of the application in \code{val}.
+As with the metacircular \code{apply}, there are two cases to consider.
+Either the procedure to be applied is a primitive or it is a compound procedure.
+
+\begin{scheme}
+  apply-dispatch
+  (test (op primitive-procedure?) (reg proc))
+  (branch (label primitive-apply))
+  (test (op compound-procedure?) (reg proc))
+  (branch (label compound-apply))
+  (goto (label unknown-procedure-type))
+\end{scheme}
+
+We assume that each primitive is implemented so as to obtain its arguments from \code{argl} and place its result in \code{val}.
+To specify how the machine handles primitives, we would have to provide a sequence of controller instructions to implement each primitive and arrange for \code{primitive-apply} to dispatch to the instructions for the primitive identified by the contents of \code{proc}.
+Since we are interested in the structure of the evaluation process rather than the details of the primitives, we will instead just use an \code{apply-primitive-procedure} operation that applies the procedure in \code{proc} to the arguments in \code{argl}.
+For the purpose of simulating the evaluator with the simulator of \link{Section 5.2} we use the procedure \code{apply-primitive-procedure}, which calls on the underlying Scheme system to perform the application, just as we did for the metacircular evaluator in \link{Section 4.1.4}.
+After computing the value of the primitive application, we restore \code{continue} and go to the designated entry point.
+
+\begin{scheme}
+  primitive-apply
+    (assign val (op apply-primitive-procedure)
+                (reg proc)
+              (reg argl))
+  (restore continue)
+  (goto (reg continue))
+\end{scheme}
+
+To apply a compound procedure, we proceed just as with the metacircular evaluator.
+We construct a frame that binds the procedure’s parameters to the arguments, use this frame to extend the environment carried by the procedure, and evaluate in this extended environment the sequence of expressions that forms the body of the procedure.
+\code{ev-sequence}, described below in \link{Section 5.4.2}, handles the evaluation of the sequence.
+
+\begin{scheme}
+  compound-apply
+    (assign unev (op procedure-parameters) (reg proc))
+    (assign env (op procedure-environment) (reg proc))
+    (assign env (op extend-environment)
+                (reg unev) (reg argl) (reg env))
+    (assign unev (op procedure-body) (reg proc))
+    (goto (label ev-sequence))
+\end{scheme}
+
+\code{compound-apply} is the only place in the interpreter where the \code{env} register is ever assigned a new value.
+Just as in the metacircular evaluator, the new environment is constructed from the environment carried by the procedure, together with the argument list and the corresponding list of variables to be bound.

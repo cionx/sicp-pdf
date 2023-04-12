@@ -1,0 +1,176 @@
+\subsection{Procedures as Black-Box Abstractions}
+\label{Section 1.1.8}
+
+\code{Sqrt} is our first example of a process defined by a set of mutually defined procedures.
+Notice that the definition of \code{sqrt-iter} is \newterm{recursive};
+that is, the procedure is defined in terms of itself.
+The idea of being able to define a procedure in terms of itself may be disturbing;
+it may seem unclear how such a “circular” definition could make sense at all, much less specify a well-defined process to be carried out by a computer.
+This will be addressed more carefully in \link{Section 1.2}.
+But first let’s consider some other important points illustrated by the \code{sqrt} example.
+
+Observe that the problem of computing square roots breaks up naturally into a number of subproblems:
+how to tell whether a guess is good enough, how to improve a guess, and so on.
+Each of these tasks is accomplished by a separate procedure.
+The entire \code{sqrt} program can be viewed as a cluster of procedures (shown in \link{Figure 1.2}) that mirrors the decomposition of the problem into subproblems.
+
+\begin{figure}[tb]
+	\centering
+	\includesvg[width=44mm]{fig/chap1/Fig1.2.svg}
+	\caption{
+		Procedural decomposition of the \code{sqrt} program.
+	}
+	\label{Figure 1.2}
+\end{figure}
+
+The importance of this decomposition strategy is not simply that one is dividing the program into parts.
+After all, we could take any large program and divide it into parts---%
+the first ten lines, the next ten lines, the next ten lines, and so on.
+Rather, it is crucial that each procedure accomplishes an identifiable task that can be used as a module in defining other procedures.
+For example, when we define the \code{good-enough?} procedure in terms of \code{square}, we are able to regard the \code{square} procedure as a “black box.”
+We are not at that moment concerned with \emph{how} the procedure computes its result, only with the fact that it computes the square.
+The details of how the square is computed can be suppressed, to be considered at a later time.
+Indeed, as far as the \code{good-enough?} procedure is concerned, \code{square} is not quite a procedure but rather an abstraction of a procedure, a so-called \newterm{procedural abstraction}.
+At this level of abstraction, any procedure that computes the square is equally good.
+
+Thus, considering only the values they return, the following two procedures for squaring a number should be indistinguishable.
+Each takes a numerical argument and produces the square of that number as the value.%
+\footnote{
+	It is not even clear which of these procedures is a more efficient implementation.
+	This depends upon the hardware available.
+	There are machines for which the “obvious” implementation is the less efficient one.
+	Consider a machine that has extensive tables of logarithms and antilogarithms stored in a very
+efficient manner.
+}
+\begin{scheme}
+  (define (square x) (* x x))
+
+  (define (square x) (exp (double (log x))))
+
+  (define (double x) (+ x x))
+\end{scheme}
+So a procedure definition should be able to suppress detail.
+The users of the procedure may not have written the procedure themselves, but may have obtained
+it from another programmer as a black box.
+A user should not need to know how the procedure is implemented in order to use it.
+
+
+
+\subsubsection*{Local names}
+
+One detail of a procedure’s implementation that should not matter to the user of the procedure is the implementer’s choice of names for the procedure’s formal parameters.
+Thus, the following procedures should not be distinguishable:
+\begin{scheme}
+  (define (square x) (* x x))
+
+  (define (square y) (* y y))
+\end{scheme}
+This principle---that the meaning of a procedure should be independent of the parameter names used by its author---seems on the surface to be self-evident, but its consequences are profound.
+The simplest consequence is that the parameter names of a procedure must be local to the body of the procedure.
+For example, we used \code{square} in the definition of \code{good-enough?} in our square-root procedure:
+\begin{scheme}
+  (define (good-enough? guess x)
+    (< (abs (- (square guess) x)) 0.001))
+\end{scheme}
+The intention of the author of \code{good-enough?} is to determine if the square of the first argument is within a given tolerance of the second argument.
+We see that the author of \code{good-enough?} used the name \code{guess} to refer to the first argument and \code{x} to refer to the second argument.
+The argument of \code{square} is \code{guess}.
+If the author of \code{square} used \code{x} (as above) to refer to that argument, we see that the \code{x} in \code{good-enough?} must be a different \code{x} than the one in \code{square}.
+Running the procedure \code{square} must not affect the value of \code{x} that is used by \code{good-enough?}, because that value of \code{x} may be needed by \code{good-enough?} after \code{square} is done computing.
+
+If the parameters were not local to the bodies of their respective procedures, then the parameter \code{x} in \code{square} could be confused with the parameter \code{x} in \code{good-enough?}, and the behavior of \code{good-enough?} would depend upon which version of \code{square} we used.
+Thus, \code{square} would not be the black box we desired.
+
+A formal parameter of a procedure has a very special role in the procedure definition, in that it doesn’t matter what name the formal parameter has.
+Such a name is called a \newterm{bound variable}, and we say that the procedure definition \newterm{binds} its formal parameters.
+The meaning of a procedure definition is unchanged if a bound variable is consistently renamed throughout the definition.%
+\footnote{
+	The concept of consistent renaming is actually subtle and difficult to define formally.
+	Famous logicians have made embarrassing errors here.
+}
+If a variable is not bound, we say that it is \newterm{free}.
+The set of expressions for which a binding defines a name is called the \newterm{scope} of that name.
+In a procedure definition, the bound variables declared as the formal parameters of the procedure have the body of the procedure as their scope.
+
+In the definition of \code{good-enough?} above, \code{guess} and \code{x} are bound variables but \code{<}, \code{-}, \code{abs}, and \code{square} are free.
+The meaning of \code{good-enough?} should be independent of the names we choose for \code{guess} and \code{x} so long as they are distinct and different from \code{<}, \code{-}, \code{abs}, and \code{square}.
+(If we renamed \code{guess} to \code{abs} we would have introduced a bug by \newterm{capturing} the variable \code{abs}.
+It would have changed from free to bound.)
+The meaning of \code{good-enough?} is not independent of the names of its free variables, however.
+It surely depends upon the fact (external to this definition) that the symbol \code{abs} names a procedure for computing the absolute value of a number.
+\code{Good-enough?} will compute a different function if we substitute \code{cos} for \code{abs} in its definition.
+
+
+
+\subsubsection*{Internal definitions and block structure}
+
+We have one kind of name isolation available to us so far: The formal parameters of a procedure are local to the body of the procedure.
+The square-root program illustrates another way in which we would like to control the use of names.
+The existing program consists of separate procedures:
+\begin{scheme}
+  (define (sqrt x)
+    (sqrt-iter 1.0 x))
+
+  (define (sqrt-iter guess x)
+    (if (good-enough? guess x)
+        guess
+        (sqrt-iter (improve guess x) x)))
+
+  (define (good-enough? guess x)
+    (< (abs (- (square guess) x)) 0.001))
+
+  (define (improve guess x)
+    (average guess (/ x guess)))
+\end{scheme}
+The problem with this program is that the only procedure that is important to users of \code{sqrt} is \code{sqrt}.
+The other procedures (\code{sqrt-iter}, \code{good-enough?}, and \code{improve}) only clutter up their minds.
+They may not define any other procedure called \code{good-enough?} as part of another program to work together with the square-root program, because \code{sqrt} needs it.
+The problem is especially severe in the construction of large systems by many separate programmers.
+For example, in the construction of a large library of numerical procedures, many numerical functions are computed as successive approximations and thus might have procedures named \code{good-enough?} and \code{improve} as auxiliary procedures.
+We would like to localize the subprocedures, hiding them inside \code{sqrt} so that \code{sqrt} could coexist with other successive approximations, each having its own private \code{good-enough?} procedure.
+To make this possible, we allow a procedure to have internal definitions that are local to that procedure.
+For example, in the square-root problem we can write
+\begin{scheme}
+  (define (sqrt x)
+    (define (good-enough? guess x)
+      (< (abs (- (square guess) x)) 0.001))
+    (define (improve guess x) (average guess (/ x guess)))
+    (define (sqrt-iter guess x)
+      (if (good-enough? guess x)
+          guess
+          (sqrt-iter (improve guess x) x)))
+    (sqrt-iter 1.0 x))
+\end{scheme}
+Such nesting of definitions, called \newterm{block structure}, is basically the right solution to the simplest name-packaging problem.
+But there is a better idea lurking here.
+In addition to internalizing the definitions of the auxiliary procedures, we can simplify them.
+Since \code{x} is bound in the definition of \code{sqrt}, the procedures \code{good-enough?}, \code{improve}, and \code{sqrt-iter}, which are defined internally to \code{sqrt}, are in the scope of \code{x}.
+Thus, it is not necessary to pass \code{x} explicitly to each of these procedures.
+Instead, we allow \code{x} to be a free variable in the internal definitions, as shown below.
+Then \code{x} gets its value from the argument with which the enclosing procedure \code{sqrt} is called.
+This discipline is called \newterm{lexical scoping}.%
+\footnote{
+	Lexical scoping dictates that free variables in a procedure are taken to refer to bindings made by enclosing procedure definitions;
+	that is, they are looked up in the environment in which the procedure was defined.
+	We will see how this works in detail in \link{Chapter 3} when we study environments and the detailed behavior of the interpreter.
+	\label{Footnote 28}
+}
+\begin{scheme}
+  (define (sqrt x)
+    (define (good-enough? guess)
+      (< (abs (- (square guess) x)) 0.001))
+    (define (improve guess)
+      (average guess (/ x guess)))
+    (define (sqrt-iter guess)
+      (if (good-enough? guess)
+          guess
+          (sqrt-iter (improve guess))))
+    (sqrt-iter 1.0))
+\end{scheme}
+We will use block structure extensively to help us break up large programs into tractable pieces.%
+\footnote{
+	Embedded definitions must come first in a procedure body.
+	The management is not responsible for the consequences of running programs that intertwine definition and use.
+}
+The idea of block structure originated with the programming language Algol~60.
+It appears in most advanced programming languages and is an important tool for helping to organize the construction of large programs.
