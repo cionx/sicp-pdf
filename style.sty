@@ -1,5 +1,7 @@
 \usepackage{microtype}
 
+\usepackage[automark]{scrlayer-scrpage}
+
 % Font settings
 \RequirePackage[
 	% no space around the following equal sign!
@@ -55,6 +57,23 @@
 \usepackage{booktabs}
 \usepackage{enumitem}  % allows customized labels in enumerations
 \usepackage{hyperref}  % makes cross references and URLs clickable
+
+% remove numbers from headmark
+\renewcommand*{\chaptermarkformat}{\thechapter.\enspace}
+\renewcommand*{\sectionmarkformat}{\thesection.\enspace}
+% pagenumber in bold
+%\addtokomafont{pagenumber}{\bfseries}
+% even pages header
+\lehead{\pagemark}
+\rehead{\upshape{\headmark}}
+% odd pages header
+\rohead{\pagemark}
+\lohead{\upshape{\headmark}}
+% make foot empty
+\ofoot{}
+\cfoot{}
+\ifoot{}
+
 
 \xsimsetup{
 	path = {exercises},
