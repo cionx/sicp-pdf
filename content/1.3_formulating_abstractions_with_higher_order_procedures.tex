@@ -968,10 +968,10 @@ This poses challenges for efficient implementation, but the resulting gain in ex
 
 \begin{exercise}
 	\label{Exercise 1.43}
-	If \( f \) is a numerical function and \( n \) is a positive integer, then we can form the \( n \)\textsuperscript{th} repeated application of \( f \), which is defined to be the function whose value at \( x \) is \( f(f( \dotsm f(x) \dotsm )) \).
-	For example, if \( f \) is the function \( x \mapsto x + 1 \), then the \( n \)\textsuperscript{th} repeated application of \( f \) is the function \( x \mapsto x + n \).
-	If \( f \) is the operation of squaring a number, then the \( n \)\textsuperscript{th} repeated application of \( f \) is the function that raises its argument to the (\( 2^n \))\textsuperscript{th} power.
-	Write a procedure that takes as inputs a procedure that computes \( f \) and a positive integer \( n \) and returns the procedure that computes the \( n \)\textsuperscript{th} repeated application of \( f \).
+	If \( f \) is a numerical function and \( n \) is a positive integer, then we can form the \( n \)\nth{th} repeated application of \( f \), which is defined to be the function whose value at \( x \) is \( f(f( \dotsm f(x) \dotsm )) \).
+	For example, if \( f \) is the function \( x \mapsto x + 1 \), then the \( n \)\nth{th} repeated application of \( f \) is the function \( x \mapsto x + n \).
+	If \( f \) is the operation of squaring a number, then the \( n \)\nth{th} repeated application of \( f \) is the function that raises its argument to the (\( 2^n \))\nth{th} power.
+	Write a procedure that takes as inputs a procedure that computes \( f \) and a positive integer \( n \) and returns the procedure that computes the \( n \)\nth{th} repeated application of \( f \).
 	Your procedure should be able to be used as follows:
 	\begin{scheme}
 	  ((repeated square 2) 5)
@@ -1000,8 +1000,8 @@ This poses challenges for efficient implementation, but the resulting gain in ex
 	The same method works for finding cube roots as fixed points of the average-damped \( y \mapsto x / y^2 \).
 	Unfortunately, the process does not work for fourth roots---a single average damp is not enough to make a fixed-point search for \( y \mapsto x / y^3 \) converge.
 	On the other hand, if we average damp twice (i.e., use the average damp of the average damp of \( y \mapsto x / y^3 \)) the fixed-point search does converge.
-	Do some experiments to determine how many average damps are required to compute \( n \)\textsuperscript{th} roots as a fixed-point search based upon repeated average damping of \( y \mapsto x / y^{n - 1} \).
-	Use this to implement a simple procedure for computing \( n \)\textsuperscript{th} roots using \code{fixed-point}, \code{average-damp}, and the \code{repeated} procedure of \link{Exercise 1.43}.
+	Do some experiments to determine how many average damps are required to compute \( n \)\nth{th} roots as a fixed-point search based upon repeated average damping of \( y \mapsto x / y^{n - 1} \).
+	Use this to implement a simple procedure for computing \( n \)\nth{th} roots using \code{fixed-point}, \code{average-damp}, and the \code{repeated} procedure of \link{Exercise 1.43}.
 	Assume that any arithmetic operations you need are available as primitives.
 \end{exercise}
 

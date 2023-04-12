@@ -432,7 +432,7 @@ The observation that a tree-recursive process may be highly inefficient but ofte
 	\end{example}
 	The numbers at the edge of the triangle are all \( 1 \), and each number inside the triangle is the sum of the two numbers above it.%
 	\footnote{
-		The elements of Pascal’s triangle are called the \newterm{binomial coefficients}, because the \( n \)\textsuperscript{th} row consists of the coefficients of the terms in the expansion of \( (x + y)^n \).
+		The elements of Pascal’s triangle are called the \newterm{binomial coefficients}, because the \( n \)\nth{th} row consists of the coefficients of the terms in the expansion of \( (x + y)^n \).
 		This pattern for computing the coefficients appeared in Blaise Pascal’s 1653 seminal work on probability theory, \textit{Traité du triangle arithmétique}.
 		According to \link{Knuth (1973)}, the same pattern appears in the \textit{Szu-yuen Yü-chien} (“The Precious Mirror of the Four Elements”), published by the Chinese mathematician Chu Shih-chieh in 1303, in the works of the twelfth-century Persian poet and mathematician Omar Khayyam, and in the works of the twelfth-century Hindu mathematician Bháscara Áchárya.
 	}
@@ -667,7 +667,7 @@ It is also possible to use the idea of successive squaring to devise an iterativ
 	Recall the transformation of the state variables \( a \) and \( b \) in the \code{fib-iter} process of \link{Section 1.2.2}:
 	\( a \gets a + b \) and \( b \gets a \).
 	Call this transformation \( T \), and observe that applying \( T \) over and over again \( n \) times, starting with \( 1 \) and \( 0 \), produces the pair \( \Fib (n + 1) \) and \( \Fib(n) \).
-	In other words, the Fibonacci numbers are produced by applying \( T^n \), the \( n \)\textsuperscript{th} power of the transformation \( T \), starting with the pair \( (1, 0) \).
+	In other words, the Fibonacci numbers are produced by applying \( T^n \), the \( n \)\nth{th} power of the transformation \( T \), starting with the pair \( (1, 0) \).
 	Now consider \( T \) to be the special case of \( p = 0 \) and \( q = 1 \) in a family of transformations \( T_{pq} \), where \( T_{pq} \) transforms the pair \( (a, b) \) according to \( a \gets bq + aq + ap \) and \( b \gets bp + aq \).
 	Show that if we apply such a transformation \( T_{pq} \) twice, the effect is the same as using a single transformation \( T_{p' q'} \) of the same form, and compute \( p'\) and \( q' \) in terms of \( p \) and \( q \).
 	This gives us an explicit way to square these transformations, and thus we can compute \( T^n \) using successive squaring, as in the \code{fast-expt} procedure.
@@ -746,7 +746,7 @@ The fact that the number of steps required by Euclid’s Algorithm has logarithm
 
 \begin{quote}
 \heading{Lamé’s Theorem:}
-	If Euclid’s Algorithm requires \( k \) steps to compute the \acronym{GCD} of some pair, then the smaller number in the pair must be greater than or equal to the \( k \)\textsuperscript{th} Fibonacci number.%
+	If Euclid’s Algorithm requires \( k \) steps to compute the \acronym{GCD} of some pair, then the smaller number in the pair must be greater than or equal to the \( k \)\nth{th} Fibonacci number.%
 \footnote{
 	This theorem was proved in 1845 by Gabriel Lamé, a French mathematician and engineer known chiefly for his contributions to mathematical physics.
 	To prove the theorem, we consider pairs (\( a_k, b_k \)), where \( a_k ≥ b_k \), for which Euclid’s Algorithm terminates in \( k \) steps.
@@ -837,7 +837,7 @@ The \( Θ(\log n) \) primality test is based on a result from number theory know
 }
 \begin{quote}
 	\heading{Fermat’s Little Theorem:}
-	If \( n \) is a prime number and \( a \) is any positive integer less than \( n \), then \( a \) raised to the \( n \)\textsuperscript{th} power is congruent to \( a \) modulo \( n \).
+	If \( n \) is a prime number and \( a \) is any positive integer less than \( n \), then \( a \) raised to the \( n \)\nth{th} power is congruent to \( a \) modulo \( n \).
 \end{quote}
 (Two numbers are said to be \newterm{congruent modulo} \( n \) if they both have the same remainder when divided by \( n \).
 The remainder of a number \( a \) when divided by \( n \) is also referred to as the \newterm{remainder of} \( a \) \newterm{modulo} \( n \), or simply as \( a \) \newterm{modulo} \( n \).)
@@ -875,7 +875,7 @@ It uses successive squaring, so that the number of steps grows logarithmically w
 }
 
 
-The Fermat test is performed by choosing at random a number \( a \) between \( 1 \) and \( n - 1 \) inclusive and checking whether the remainder modulo \( n \) of the \( n \)\textsuperscript{th} power of \( a \) is equal to \( a \).
+The Fermat test is performed by choosing at random a number \( a \) between \( 1 \) and \( n - 1 \) inclusive and checking whether the remainder modulo \( n \) of the \( n \)\nth{th} power of \( a \) is equal to \( a \).
 The random number \( a \) is chosen using the procedure \code{random}, which we assume is included as a primitive in Scheme.
 \code{random} returns a nonnegative integer less than its integer input.
 Hence, to obtain a random number between \( 1 \) and \( n - 1 \), we call \code{random} with an input of \( n-1 \) and add 1 to the result:
@@ -1056,8 +1056,8 @@ There is a great deal of research activity in this area, and probabilistic algor
 \begin{exercise}
 	\label{Exercise 1.28}
 	One variant of the Fermat test that cannot be fooled is called the \newterm{Miller--Rabin test} (\link{Miller 1976}; \link{Rabin 1980}).
-	This starts from an alternate form of Fermat’s Little Theorem, which states that if \( n \) is a prime number and \( a \) is any positive integer less than \( n \), then \( a \) raised to the (\( n - 1 \))\textsuperscript{th} power is congruent to \( 1 \) modulo \( n \).
-	To test the primality of a number \( n \) by the Miller--Rabin test, we pick a random number \( a < n \) and raise \( a \) to the (\( n - 1 \))\textsuperscript{th} power modulo \( n \) using the \code{expmod} procedure.
+	This starts from an alternate form of Fermat’s Little Theorem, which states that if \( n \) is a prime number and \( a \) is any positive integer less than \( n \), then \( a \) raised to the (\( n - 1 \))\nth{th} power is congruent to \( 1 \) modulo \( n \).
+	To test the primality of a number \( n \) by the Miller--Rabin test, we pick a random number \( a < n \) and raise \( a \) to the (\( n - 1 \))\nth{th} power modulo \( n \) using the \code{expmod} procedure.
 	However, whenever we perform the squaring step in \code{expmod}, we check to see if we have discovered a “nontrivial square root of \( 1 \) modulo \( n \),” that is, a number not equal to \( 1 \) or \( n - 1 \) whose square is equal to \( 1 \) modulo \( n \).
 	It is possible to prove that if such a nontrivial square root of 1 exists, then \( n \) is not prime.
 	It is also possible to prove that if \( n \) is an odd number that is not prime, then, for at least half the numbers \( a < n \), computing \( a^{n - 1} \) in this way will reveal a nontrivial square root of \( 1 \) modulo \( n \).

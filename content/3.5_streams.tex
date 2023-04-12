@@ -574,7 +574,7 @@ The reason this procedure works is that, at any point, enough of the \code{prime
 That is, for every \( n \) we test for primality, either \( n \) is not prime (in which case there is a prime already generated that divides it) or \( n \) is prime (in which case there is a prime already generated---i.e., a prime less than \( n \)---that is greater than \( \sqrt{n} \)).%
 \footnote{
 	This last point is very subtle and relies on the fact that \( p_{n+1} ≤ p_n^2 \).
-	(Here, \( p_k \) denotes the \( k \)\textsuperscript{th} prime.)
+	(Here, \( p_k \) denotes the \( k \)\nth{th} prime.)
 	Estimates such as these are very difficult to establish.
 	The ancient proof by Euclid that there are an infinite number of primes shows that \( p_{n+1} ≤ p_1 p_2 \dotsm p_n + 1 \), and no substantially better result was proved until 1851, when the Russian mathematician P.~L.~Chebyshev established that \( p_{n+1} ≤ 2 p_n \) for all \( n \).
 	This result, originally conjectured in 1845, is known as \newterm{Bertrand’s hypothesis}.
@@ -596,7 +596,7 @@ That is, for every \( n \) we test for primality, either \( n \) is not prime (i
 \begin{exercise}
 	\label{Exercise 3.54}
 	Define a procedure \code{mul-streams}, analogous to \code{add-streams}, that produces the elementwise product of its two input streams.
-	Use this together with the stream of \code{integers} to complete the following definition of the stream whose \( n \)\textsuperscript{th} element (counting from \( 0 \)) is \( n + 1 \) factorial:
+	Use this together with the stream of \code{integers} to complete the following definition of the stream whose \( n \)\nth{th} element (counting from \( 0 \)) is \( n + 1 \) factorial:
 	\begin{scheme}
 	  (define factorials
 	    (cons-stream 1 (mul-streams ⟨??⟩ ⟨??⟩)))
@@ -668,7 +668,7 @@ That is, for every \( n \) we test for primality, either \( n \) is not prime (i
 
 \begin{exercise}
 	\label{Exercise 3.57}
-		How many additions are performed when we compute the \( n \)\textsuperscript{th} Fibonacci number using the definition of \code{fibs} based on the \code{add-streams} procedure?
+		How many additions are performed when we compute the \( n \)\nth{th} Fibonacci number using the definition of \code{fibs} based on the \code{add-streams} procedure?
 		Show that the number of additions would be exponentially greater if we had implemented \code{(delay ⟨\var{exp}⟩)} simply as \code{(lambda () ⟨\var{exp}⟩)}, without using the optimization provided by the \code{memo-proc} procedure described in \link{Section 3.5.1}.%
 	\footnote{
 		This exercise shows how call-by-need is closely related to ordinary memoization as described in \link{Exercise 3.27}.
@@ -879,7 +879,7 @@ But streams give us an opportunity to do some interesting tricks.
 For example, we can transform a stream with a \newterm{sequence accelerator} that converts a sequence of approximations to a new sequence that converges to the same value as the original, only faster.
 
 One such accelerator, due to the eighteenth-century Swiss mathematician Leonhard Euler, works well with sequences that are partial sums of alternating series (series of terms with alternating signs).
-In Euler’s technique, if \( S_n \) is the \( n \)\textsuperscript{th} term of the original sum sequence, then the accelerated sequence has terms
+In Euler’s technique, if \( S_n \) is the \( n \)\nth{th} term of the original sum sequence, then the accelerated sequence has terms
 \[
 	S_{n+1} - \frac{(S_{n+1} - S_n)^2}{S_{n-1} - 2S_n + S_{n+1}} \,.
 \]
