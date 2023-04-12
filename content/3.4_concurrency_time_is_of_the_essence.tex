@@ -50,8 +50,8 @@ It is an ordering imposed on events.%
 	“Time is a device that was invented to keep everything from happening at once.”
 }
 For any events \( A \) and \( B \), either \( A \) occurs before \( B \), \( A \) and \( B \) are simultaneous, or \( A \) occurs after \( B \).
-For instance, returning to the bank account example, suppose that Peter withdraws \$10 and Paul withdraws \$25 from a joint account that initially contains \$100, leaving \$65 in the account.
-Depending on the order of the two withdrawals, the sequence of balances in the account is either \( \$100 \to \$90 \to \$65 \) or \( \$100 \to \$75 \to \$65 \).
+For instance, returning to the bank account example, suppose that Peter withdraws \dollar{10} and Paul withdraws \dollar{25} from a joint account that initially contains \dollar{100}, leaving \dollar{65} in the account.
+Depending on the order of the two withdrawals, the sequence of balances in the account is either \( \dollar{100} \to \dollar{90} \to \dollar{65} \) or \( \dollar{100} \to \dollar{75} \to \dollar{65} \).
 In a computer implementation of the banking system, this changing sequence of balances could be modeled by successive assignments to a variable \code{balance}.
 
 In complex situations, however, such a view can be problematic.
@@ -96,8 +96,8 @@ The timing diagram in \link{Figure 3.29} depicts an order of events where \code{
 As shown in the diagram, the reason for this anomaly is that Paul’s assignment of 75 to \code{balance} is made under the assumption that the value of \code{balance} to be decremented is 100.
 That assumption, however, became invalid when Peter changed \code{balance} to 90.
 This is a catastrophic failure for the banking system, because the total amount of money in the system is not conserved.
-Before the transactions, the total amount of money was \$100.
-Afterwards, Peter has \$10, Paul has \$25, and the bank has \$75.%
+Before the transactions, the total amount of money was \dollar{100}.
+Afterwards, Peter has \dollar{10}∫, Paul has \dollar{25}, and the bank has \dollar{75}.%
 \footnote{
 	An even worse failure for this system could occur if the two \code{set!} operations attempt to change the balance simultaneously, in which case the actual data appearing in memory might end up being a random combination of the information being written by the two processes.
 	Most computers have interlocks on the primitive memory-write operations, which protect against such simultaneous access.
@@ -132,8 +132,8 @@ This would be both inefficient and overly conservative.
 The diagram illustrates two withdrawals from the shared account (one by Peter and one by Paul) and a deposit to Paul’s private account.%
 \footnote{
 	The columns show the contents of Peter’s wallet, the joint account (in Bank1), Paul’s wallet, and Paul’s private account (in Bank2), before and after each withdrawal (W) and deposit (D).
-	Peter withdraws \$10 from Bank1;
-	Paul deposits \$5 in Bank2, then withdraws \$25 from Bank1.
+	Peter withdraws \dollar{10} from Bank1;
+	Paul deposits \dollar{5} in Bank2, then withdraws \dollar{25} from Bank1.
 }
 The two withdrawals from the shared account must not be concurrent (since both access and update the same account), and Paul’s deposit and withdrawal must not be concurrent (since both access and update the amount in Paul’s wallet).
 But there should be no problem permitting Paul’s deposit to his private account to proceed concurrently with Peter’s withdrawal from the shared account.
@@ -152,8 +152,8 @@ There are two important aspects to this requirement.
 First, it does not require the processes to actually run sequentially, but only to produce results that are the same \emph{as if} they had run sequentially.
 For the example in \link{Figure 3.30}, the designer of the bank account system can safely allow Paul’s deposit and Peter’s withdrawal to happen concurrently, because the net result will be the same as if the two operations had happened sequentially.
 Second, there may be more than one possible “correct” result produced by a concurrent program, because we require only that the result be the same as for \emph{some} sequential order.
-For example, suppose that Peter and Paul’s joint account starts out with \$100, and Peter deposits \$40 while Paul concurrently withdraws half the money in the account.
-Then sequential execution could result in the account balance being either \$70 or \$90 (see \link{Exercise 3.38}).%
+For example, suppose that Peter and Paul’s joint account starts out with \dollar{100}, and Peter deposits \dollar{40} while Paul concurrently withdraws half the money in the account.
+Then sequential execution could result in the account balance being either \dollar{70} or \dollar{90} (see \link{Exercise 3.38}).%
 \footnote{
 	\label{Footnote 39} A more formal way to express this idea is to say that concurrent programs are inherently \newterm{nondeterministic}.
 	That is, they are described not by single-valued functions, but by functions whose results are sets of possible values.
@@ -170,8 +170,8 @@ there is no need for any restrictions on concurrent use of the shared values.
 
 \begin{exercise}
 	\label{Exercise 3.38}
-	Suppose that Peter, Paul, and Mary share a joint bank account that initially contains \$100.
-	Concurrently, Peter deposits \$10, Paul withdraws \$20, and Mary withdraws half the money in the account, by executing the following commands:
+	Suppose that Peter, Paul, and Mary share a joint bank account that initially contains \dollar{100}.
+	Concurrently, Peter deposits \dollar{10}, Paul withdraws \dollar{20}, and Mary withdraws half the money in the account, by executing the following commands:
 	\begin{scheme}
 	  Peter: (set! balance (+ balance 10))
 	  Paul:  (set! balance (- balance 20))
@@ -446,7 +446,7 @@ Suppose, however, that Peter and Paul both have access to accounts \( a \)1, \( 
 Even with account deposits and withdrawals serialized for individual accounts (as in the \code{make-account} procedure shown above in this section), \code{exchange} can still produce incorrect results.
 For example, Peter might compute the difference in the balances for \( a \)1 and \( a \)2, but then Paul might change the balance in \( a \)1 before Peter is able to complete the exchange.%
 \footnote{
-	If the account balances start out as \$10, \$20, and \$30, then after any number of concurrent exchanges, the balances should still be \$10, \$20, and \$30 in some order.
+	If the account balances start out as \dollar{10}, \dollar{20}, and \dollar{30}, then after any number of concurrent exchanges, the balances should still be \dollar{10}, \dollar{20}, and \dollar{30} in some order.
 	Serializing the deposits to individual accounts is not sufficient to guarantee this.
 	See \link{Exercise 3.43}.
 }
@@ -503,8 +503,8 @@ We simply serialize the original \code{exchange} procedure with the serializers 
 
 \begin{exercise}
 	\label{Exercise 3.43}
-	Suppose that the balances in three accounts start out as \$10, \$20, and \$30, and that multiple processes run, exchanging the balances in the accounts.
-	Argue that if the processes are run sequentially, after any number of concurrent exchanges, the account balances should be \$10, \$20, and \$30 in some order.
+	Suppose that the balances in three accounts start out as \dollar{10}, \dollar{20}, and \dollar{30}, and that multiple processes run, exchanging the balances in the accounts.
+	Argue that if the processes are run sequentially, after any number of concurrent exchanges, the account balances should be \dollar{10}, \dollar{20}, and \dollar{30} in some order.
 	Draw a timing diagram like the one in \link{Figure 3.29} to show how this condition can be violated if the exchanges are implemented using the first version of the account-exchange program in this section.
 	On the other hand, argue that even with this \code{exchange} program, the sum of the balances in the accounts will be preserved.
 	Draw a timing diagram to show how even this condition would be violated if we did not serialize the transactions on individual accounts.

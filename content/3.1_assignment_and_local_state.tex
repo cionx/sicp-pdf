@@ -3,7 +3,7 @@
 
 We ordinarily view the world as populated by independent objects, each of which has a state that changes over time.
 An object is said to “have state” if its behavior is influenced by its history.
-A bank account, for example, has state in that the answer to the question “Can I withdraw \$100?” depends upon the history of deposit and withdrawal transactions.
+A bank account, for example, has state in that the answer to the question “Can I withdraw \dollar{100}?” depends upon the history of deposit and withdrawal transactions.
 We can characterize an object’s state by one or more \newterm{state variables}, which among them maintain enough information about history to determine the object’s current behavior.
 In a simple banking system, we could characterize the state of an account by a current balance rather than by remembering the entire history of account transactions.
 
@@ -27,7 +27,7 @@ To illustrate what we mean by having a computational object with time-varying st
 We will do this using a procedure \code{withdraw}, which takes as argument an \code{amount} to be withdrawn.
 If there is enough money in the account to accommodate the withdrawal, then \code{withdraw} should return the balance remaining after the withdrawal.
 Otherwise, \code{withdraw} should return the message \emph{Insufficient funds}.
-For example, if we begin with \$100 in the account, we should obtain the following sequence of responses using \code{withdraw}:
+For example, if we begin with \dollar{100} in the account, we should obtain the following sequence of responses using \code{withdraw}:
 \begin{scheme}
   (withdraw 25)
   ~\outprint{75}~
@@ -581,7 +581,7 @@ In general, we can determine that two apparently identical objects are indeed �
 But how can we tell if an object has “changed” other than by observing the “same” object twice and seeing whether some property of the object differs from one observation to the next?
 Thus, we cannot determine “change” without some \emph{a priori} notion of “sameness,” and we cannot determine sameness without observing the effects of change.
 
-As an example of how this issue arises in programming, consider the situation where Peter and Paul have a bank account with \$100 in it.
+As an example of how this issue arises in programming, consider the situation where Peter and Paul have a bank account with \dollar{100} in it.
 There is a substantial difference between modeling this as
 \begin{scheme}
   (define peter-acc (make-account 100))
