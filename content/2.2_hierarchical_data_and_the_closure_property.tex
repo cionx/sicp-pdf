@@ -1,2661 +1,1969 @@
 \section{Hierarchical Data and the Closure Property}
 \label{Section 2.2}
 
-As we have seen, pairs provide a primitive ``glue'' that we can use to
-construct compound data objects.  \link{Figure 2.2} shows a standard way to
-visualize a pair---in this case, the pair formed by \code{(cons 1 2)}.  In this
-representation, which is called \newterm{box-and-pointer notation}, each object
-is shown as a \newterm{pointer} to a box.  The box for a primitive object
-contains a representation of the object.  For example, the box for a number
-contains a numeral.  The box for a pair is actually a double box, the left part
-containing (a pointer to) the \code{car} of the pair and the right part
-containing the \code{cdr}.
+As we have seen, pairs provide a primitive “glue” that we can use to construct compound data objects.
+\link{Figure 2.2} shows a standard way to visualize a pair---in this case, the pair formed by \code{(cons 1 2)}.
+In this representation, which is called \newterm{box-and-pointer notation}, each object is shown as a \newterm{pointer} to a box.
+The box for a primitive object contains a representation of the object.
+For example, the box for a number contains a numeral.
+The box for a pair is actually a double box, the left part containing (a pointer to) the \code{car} of the pair and the right part containing the \code{cdr}.
 
-We have already seen that \code{cons} can be used to combine not only numbers
-but pairs as well.  (You made use of this fact, or should have, in doing
-\link{Exercise 2.2} and \link{Exercise 2.3}.)  As a consequence, pairs provide a
-universal building block from which we can construct all sorts of data
-structures.  \link{Figure 2.3} shows two ways to use pairs to combine the
-numbers 1, 2, 3, and 4.
+We have already seen that \code{cons} can be used to combine not only numbers but pairs as well.
+(You made use of this fact, or should have, in doing \link{Exercise 2.2} and \link{Exercise 2.3}.)
+As a consequence, pairs provide a universal building block from which we can construct all sorts of data structures.
+\link{Figure 2.3} shows two ways to use pairs to combine the numbers \( 1 \), \( 2 \), \( 3 \), and \( 4 \).
 
 \begin{figure}[tb]
-\phantomsection\label{Figure 2.2}
-\centering
-\begin{comment}
-\heading{Figure 2.2:} Box-and-pointer representation of \code{(cons 1 2)}.
-
-\begin{example}
-     +---+---+     +---+
----->| * | *-+---->| 2 |
-     +-|-+---+     +---+
-       |
-       V
-     +---+
-     | 1 |
-     +---+
-\end{example}
-\end{comment}
-\includesvg[width=34mm]{fig/chap2/Fig2.2c.svg}
-\begin{quote}
-\heading{Figure 2.2:} Box-and-pointer representation of \code{(cons 1 2)}.
-\end{quote}
+	\centering
+	\includesvg[width=34mm]{fig/chap2/Fig2.2c.svg}
+	\caption{
+		Box-and-pointer representation of \code{(cons 1 2)}.
+	}
+	\label{Figure 2.2}
 \end{figure}
 
 \begin{figure}[tb]
-\phantomsection\label{Figure 2.3}
-\centering
-\begin{comment}
-\heading{Figure 2.3:} Two ways to combine 1, 2, 3, and 4 using pairs.
-
-\begin{example}
-     +---+---+     +---+---+         +---+---+     +---+
----->| * | *-+---->| * | * |    ---->| * | *-+---->| 4 |
-     +-|-+---+     +-|-+-|-+         +-|-+---+     +---+
-       |             |   |             |
-       V             V   V             V
-   +---+---+      +---+ +---+      +---+---+     +---+---+
-   | * | * |      | 3 | | 4 |      | * | *-+---->| * | * |
-   +-|-+-|-+      +---+ +---+      +-|-+---+     +-|-+-|-+
-     |   |                           |             |   |
-     V   V                           V             V   V
-  +---+ +---+                      +---+        +---+ +---+
-  | 1 | | 2 |                      | 1 |        | 2 | | 3 |
-  +---+ +---+                      +---+        +---+ +---+
-
-  (cons (cons 1 2)                 (cons (cons 1
-        (cons 3 4))                            (cons 2 3))
-                                         4)
-\end{example}
-\end{comment}
-\includesvg[width=96mm]{fig/chap2/Fig2.3c.svg}
-\begin{quote}
-\heading{Figure 2.3:} Two ways to combine 1, 2, 3, and 4 using pairs.
-\end{quote}
+	\centering
+	\includesvg[width=96mm]{fig/chap2/Fig2.3c.svg}
+	\caption{
+		Two ways to combine 1, 2, 3, and 4 using pairs.
+	}
+	\label{Figure 2.3}
 \end{figure}
 
-The ability to create pairs whose elements are pairs is the essence of list
-structure's importance as a representational tool.  We refer to this ability as
-the \newterm{closure property} of \code{cons}.  In general, an operation for
-combining data objects satisfies the closure property if the results of
-combining things with that operation can themselves be combined using the same
-operation.\footnote{The use of the word ``closure'' here comes from abstract
-algebra, where a set of elements is said to be closed under an operation if
-applying the operation to elements in the set produces an element that is again
-an element of the set.  The Lisp community also (unfortunately) uses the word
-``closure'' to describe a totally unrelated concept: A closure is an
-implementation technique for representing procedures with free variables.  We
-do not use the word ``closure'' in this second sense in this book.  } Closure
-is the key to power in any means of combination because it permits us to create
-\newterm{hierarchical} structures---structures made up of parts, which
-themselves are made up of parts, and so on.
+The ability to create pairs whose elements are pairs is the essence of list structure’s importance as a representational tool.
+We refer to this ability as the \newterm{closure property} of \code{cons}.
+In general, an operation for combining data objects satisfies the closure property if the results of combining things with that operation can themselves be combined using the same operation.%
+\footnote{
+	The use of the word “closure” here comes from abstract algebra, where a set of elements is said to be closed under an operation if applying the operation to elements in the set produces an element that is again an element of the set.
+	The Lisp community also (unfortunately) uses the word “closure” to describe a totally unrelated concept:
+	A closure is an implementation technique for representing procedures with free variables.
+	We do not use the word “closure” in this second sense in this book.
+}
+Closure is the key to power in any means of combination because it permits us to create \newterm{hierarchical} structures---structures made up of parts, which themselves are made up of parts, and so on.
 
-From the outset of \link{Chapter 1}, we've made essential use of closure in
-dealing with procedures, because all but the very simplest programs rely on the
-fact that the elements of a combination can themselves be combinations.  In
-this section, we take up the consequences of closure for compound data.  We
-describe some conventional techniques for using pairs to represent sequences
-and trees, and we exhibit a graphics language that illustrates closure in a
-vivid way.\footnote{The notion that a means of combination should satisfy
-closure is a straightforward idea.  Unfortunately, the data combiners provided
-in many popular programming languages do not satisfy closure, or make closure
-cumbersome to exploit.  In Fortran or Basic, one typically combines data
-elements by assembling them into arrays---but one cannot form arrays whose
-elements are themselves arrays.  Pascal and C admit structures whose elements
-are structures.  However, this requires that the programmer manipulate pointers
-explicitly, and adhere to the restriction that each field of a structure can
-contain only elements of a prespecified form.  Unlike Lisp with its pairs,
-these languages have no built-in general-purpose glue that makes it easy to
-manipulate compound data in a uniform way.  This limitation lies behind Alan
-Perlis's comment in his foreword to this book: ``In Pascal the plethora of
-declarable data structures induces a specialization within functions that
-inhibits and penalizes casual cooperation.  It is better to have 100 functions
-operate on one data structure than to have 10 functions operate on 10 data
-structures.''}
+From the outset of \link{Chapter 1}, we’ve made essential use of closure in dealing with procedures, because all but the very simplest programs rely on the fact that the elements of a combination can themselves be combinations.
+In this section, we take up the consequences of closure for compound data.
+We describe some conventional techniques for using pairs to represent sequences and trees, and we exhibit a graphics language that illustrates closure in a vivid way.%
+\footnote{
+	The notion that a means of combination should satisfy closure is a straightforward idea.
+	Unfortunately, the data combiners provided in many popular programming languages do not satisfy closure, or make closure cumbersome to exploit.
+	In Fortran or Basic, one typically combines data elements by assembling them into arrays---but one cannot form arrays whose elements are themselves arrays.
+	Pascal and C admit structures whose elements are structures.
+	However, this requires that the programmer manipulate pointers explicitly, and adhere to the restriction that each field of a structure can contain only elements of a prespecified form.
+	Unlike Lisp with its pairs, these languages have no built-in general-purpose glue that makes it easy to manipulate compound data in a uniform way.
+	This limitation lies behind Alan Perlis’s comment in his foreword to this book:
+	“In Pascal the plethora of declarable data structures induces a specialization within functions that inhibits and penalizes casual cooperation.
+	It is better to have 100 functions operate on one data structure than to have 10 functions operate on 10 data structures.”
+}
 
 
 
 \subsection{Representing Sequences}
 \label{Section 2.2.1}
 
-One of the useful structures we can build with pairs is a
-\newterm{sequence}---an ordered collection of data objects.  There are, of
-course, many ways to represent sequences in terms of pairs.  One particularly
-straightforward representation is illustrated in \link{Figure 2.4}, where the
-sequence 1, 2, 3, 4 is represented as a chain of pairs.  The \code{car} of each
-pair is the corresponding item in the chain, and the \code{cdr} of the pair is
-the next pair in the chain.  The \code{cdr} of the final pair signals the end
-of the sequence by pointing to a distinguished value that is not a pair,
-represented in box-and-pointer diagrams as a diagonal line and in programs as
-the value of the variable \code{nil}.  The entire sequence is constructed by
-nested \code{cons} operations:
-
-\begin{scheme}
-(cons 1
-      (cons 2
-            (cons 3
-                  (cons 4 nil))))
-\end{scheme}
+One of the useful structures we can build with pairs is a \newterm{sequence}---an ordered collection of data objects.
+There are, of course, many ways to represent sequences in terms of pairs.
+One particularly straightforward representation is illustrated in \link{Figure 2.4}, where the sequence 1, 2, 3, 4 is represented as a chain of pairs.
+The \code{car} of each pair is the corresponding item in the chain, and the \code{cdr} of the pair is the next pair in the chain.
+The \code{cdr} of the final pair signals the end of the sequence by pointing to a distinguished value that is not a pair, represented in box-and-pointer diagrams as a diagonal line and in programs as the value of the variable \code{nil}.
 
 \begin{figure}[tb]
-\phantomsection\label{Figure 2.4}
-\centering
-\begin{comment}
-\heading{Figure 2.4:} The sequence 1, 2, 3, 4 represented as a chain of pairs.
-
-\begin{example}
-     +---+---+     +---+---+     +---+---+     +---+---+
----->| * | *-+---->| * | *-+---->| * | *-+---->| * | / |
-     +-|-+---+     +-|-+---+     +-|-+---+     +-|-+---+
-       |             |             |             |
-       V             V             V             V
-     +---+         +---+         +---+         +---+
-     | 1 |         | 2 |         | 3 |         | 4 |
-     +---+         +---+         +---+         +---+
-\end{example}
-\end{comment}
-\includesvg[width=76mm]{fig/chap2/Fig2.4c.svg}
-\begin{quote}
-\heading{Figure 2.4:} The sequence 1, 2, 3, 4 represented as a chain of pairs.
-\end{quote}
+	\centering
+	\includesvg[width=76mm]{fig/chap2/Fig2.4c.svg}
+	\caption{
+		The sequence 1, 2, 3, 4 represented as a chain of pairs.
+	}
+	\label{Figure 2.4}
 \end{figure}
+The entire sequence is constructed by nested \code{cons} operations:
+\begin{scheme}
+  (cons 1
+        (cons 2
+              (cons 3
+                    (cons 4 nil))))
+\end{scheme}
 
-Such a sequence of pairs, formed by nested \code{cons}es, is called a
-\newterm{list}, and Scheme provides a primitive called \code{list} to help in
-constructing lists.\footnote{In this book, we use \newterm{list} to mean a
-chain of pairs terminated by the end-of-list marker.  In contrast, the term
-\newterm{list structure} refers to any data structure made out of pairs, not
-just to lists.}  The above sequence could be produced by \code{(list 1 2 3 4)}.
+Such a sequence of pairs, formed by nested \code{cons}es, is called a \newterm{list}, and Scheme provides a primitive called \code{list} to help in constructing lists.%
+\footnote{
+	In this book, we use \newterm{list} to mean a chain of pairs terminated by the end-of-list marker.
+ In contrast, the term \newterm{list structure} refers to any data structure made out of pairs, not just to lists.
+}
+The above sequence could be produced by \code{(list 1 2 3 4)}.
 In general,
-
 \begin{scheme}
-(list ~\( \dark \langle \)~~\var{\dark a}~~\( \dark _{\mono{1}}\rangle \)~ ~\( \dark \langle \)~~\var{\dark a}~~\( \dark _{\mono{2}}\rangle \)~ ~\( \dots \)~ ~\( \dark \langle \)~~\var{\dark a}~~\( \dark _{\monoit{n}}\rangle \)~)
+  (list ⟨~\var{a}\ind{1}~⟩ ⟨~\var{a}\ind{2}~⟩ … ⟨~\var{a}\ind{n}~⟩)
 \end{scheme}
-
-\noindent
 is equivalent to
-
 \begin{scheme}
-(cons ~\( \dark \langle \)~~\var{\dark a}~~\( \dark _{\mono{1}}\rangle \)~
-      (cons ~\( \dark \langle \)~~\var{\dark a}~~\( \dark _{\mono{2}}\rangle \)~
-            (cons ~\( \dots \)~
-                  (cons ~\( \dark \langle \)~~\var{\dark a}~~\( \dark _{\monoit{n}}\rangle \)~
-                        nil)~\( \dots \)~)))
+  (cons ⟨~\var{a}\ind{1}~⟩ (cons ⟨~\var{a}\ind{2}~⟩ (cons … (cons ⟨~\var{a}\ind{n}~⟩ nil) …)))
 \end{scheme}
-
-\noindent
-Lisp systems conventionally print lists by printing the sequence of elements,
-enclosed in parentheses.  Thus, the data object in \link{Figure 2.4} is printed
-as \code{(1 2 3 4)}:
-
+Lisp systems conventionally print lists by printing the sequence of elements, enclosed in parentheses.
+Thus, the data object in \link{Figure 2.4} is printed as \code{(1 2 3 4)}:
 \begin{scheme}
-(define one-through-four (list 1 2 3 4))
-one-through-four
-~\textit{(1 2 3 4)}~
+  (define one-through-four (list 1 2 3 4))
+
+  one-through-four
+  ~\outprint{(1 2 3 4)}~
 \end{scheme}
+Be careful not to confuse the expression \code{(list 1 2 3 4)} with the list \code{(1 2 3 4)}, which is the result obtained when the expression is evaluated.
+Attempting to evaluate the expression \code{(1 2 3 4)} will signal an error when the interpreter tries to apply the procedure \code{1} to arguments \code{2}, \code{3}, and \code{4}.
 
-\noindent
-Be careful not to confuse the expression \code{(list 1 2 3 4)} with the list
-\mbox{\code{(1 2 3 4)}}, which is the result obtained when the expression is
-evaluated.  Attempting to evaluate the expression \code{(1 2 3 4)} will signal
-an error when the interpreter tries to apply the procedure \code{1} to
-arguments \code{2}, \code{3}, and \code{4}.
-
-We can think of \code{car} as selecting the first item in the list, and of
-\code{cdr} as selecting the sublist consisting of all but the first item.
-Nested applications of \code{car} and \code{cdr} can be used to extract the
-second, third, and subsequent items in the list.\footnote{Since nested
-applications of \code{car} and \code{cdr} are cumbersome to write, Lisp
-dialects provide abbreviations for them---for instance,
-
-\begin{smallscheme}
-(cadr ~\( \dark \langle \)~~\var{\dark arg}~~\( \dark \rangle \)~) = (car (cdr ~\( \dark \langle \)~~\var{\dark arg}~~\( \dark \rangle \)~))
-\end{smallscheme}
-
-The names of all such procedures start with \code{c} and end with \code{r}.
-Each \code{a} between them stands for a \code{car} operation and each \code{d}
-for a \code{cdr} operation, to be applied in the same order in which they
-appear in the name.  The names \code{car} and \code{cdr} persist because simple
-combinations like \code{cadr} are pronounceable.} The constructor \code{cons}
-makes a list like the original one, but with an additional item at the
-beginning.
-
+We can think of \code{car} as selecting the first item in the list, and of \code{cdr} as selecting the sublist consisting of all but the first item.
+Nested applications of \code{car} and \code{cdr} can be used to extract the second, third, and subsequent items in the list.%
+\footnote{
+	Since nested applications of \code{car} and \code{cdr} are cumbersome to write, Lisp dialects provide abbreviations for them---for instance,
+	\begin{smallscheme}
+	  (cadr ⟨~\var{arg}~⟩) = (car (cdr ⟨~\var{arg}~⟩))
+	\end{smallscheme}
+	The names of all such procedures start with \code{c} and end with \code{r}.
+	Each \code{a} between them stands for a \code{car} operation and each \code{d} for a \code{cdr} operation, to be applied in the same order in which they appear in the name.
+	The names \code{car} and \code{cdr} persist because simple combinations like \code{cadr} are pronounceable.
+}
+The constructor \code{cons} makes a list like the original one, but with an additional item at the beginning.
 \begin{scheme}
-(car one-through-four)
-~\textit{1}~
-(cdr one-through-four)
-~\textit{(2 3 4)}~
-(car (cdr one-through-four))
-~\textit{2}~
-(cons 10 one-through-four)
-~\textit{(10 1 2 3 4)}~
-(cons 5 one-through-four)
-~\textit{(5 1 2 3 4)}~
-\end{scheme}
+  (car one-through-four)
+  ~\outprint{1}~
 
-\noindent
-The value of \code{nil}, used to terminate the chain of pairs, can be thought
-of as a sequence of no elements, the \newterm{empty list}.  The word
-\newterm{nil} is a contraction of the Latin word \emph{nihil}, which means
-``nothing.''\footnote{It's remarkable how much energy in the standardization of
-Lisp dialects has been dissipated in arguments that are literally over nothing:
-Should \code{nil} be an ordinary name?  Should the value of \code{nil} be a
-symbol?  Should it be a list?  Should it be a pair?  In Scheme, \code{nil} is
-an ordinary name, which we use in this section as a variable whose value is the
-end-of-list marker (just as \code{true} is an ordinary variable that has a true
-value).  Other dialects of Lisp, including Common Lisp, treat \code{nil} as a
-special symbol.  The authors of this book, who have endured too many language
-standardization brawls, would like to avoid the entire issue.  Once we have
-introduced quotation in \link{Section 2.3}, we will denote the empty list as
-\code{'()} and dispense with the variable \code{nil} entirely.}
+  (cdr one-through-four)
+  ~\outprint{(2 3 4)}~
+
+  (car (cdr one-through-four))
+  ~\outprint{2}~
+
+  (cons 10 one-through-four)
+  ~\outprint{(10 1 2 3 4)}~
+
+  (cons 5 one-through-four)
+  ~\outprint{(5 1 2 3 4)}~
+\end{scheme}
+The value of \code{nil}, used to terminate the chain of pairs, can be thought of as a sequence of no elements, the \newterm{empty list}.
+The word \newterm{nil} is a contraction of the Latin word \emph{nihil}, which means “nothing.”%
+\footnote{
+	It’s remarkable how much energy in the standardization of Lisp dialects has been dissipated in arguments that are literally over nothing:
+	Should \code{nil} be an ordinary name?
+	Should the value of \code{nil} be a symbol?
+	Should it be a list?
+	Should it be a pair?
+	In Scheme, \code{nil} is an ordinary name, which we use in this section as a variable whose value is the end-of-list marker (just as \code{true} is an ordinary variable that has a true value).
+	Other dialects of Lisp, including Common Lisp, treat \code{nil} as a special symbol.
+	The authors of this book, who have endured too many language standardization brawls, would like to avoid the entire issue.
+	Once we have introduced quotation in \link{Section 2.3}, we will denote the empty list as \code{'()} and dispense with the variable \code{nil} entirely.
+}
+
+
 
 \subsubsection*{List operations}
 
-The use of pairs to represent sequences of elements as lists is accompanied by
-conventional programming techniques for manipulating lists by successively
-``\code{cdr}ing down'' the lists.  For example, the procedure \code{list\-/ref}
-takes as arguments a list and a number \( n \) and returns the \( n^{\mathrm{th}} \) item of
-the list.  It is customary to number the elements of the list beginning with 0.
-The method for computing \code{list\-/ref} is the following:
-
+The use of pairs to represent sequences of elements as lists is accompanied by conventional programming techniques for manipulating lists by successively “\code{cdr}ing down” the lists.
+For example, the procedure \code{list-ref} takes as arguments a list and a number \( n \) and returns the \( n \)\textsuperscript{th} item of the list.
+It is customary to number the elements of the list beginning with \( 0 \).
+The method for computing \code{list-ref} is the following:
 \begin{itemize}
 
-\item
-For \( n = 0 \), \code{list\-/ref} should return the \code{car} of the list.
+	\item
+		For \( n = 0 \), \code{list-ref} should return the \code{car} of the list.
 
-\item
-Otherwise, \code{list\-/ref} should return  the \( (n - 1) \)-st item of the
-\code{cdr} of the list.
+	\item
+		Otherwise, \code{list-ref} should return the \( (n - 1) \)\textsuperscript{th} item of the \code{cdr} of the list.
 
 \end{itemize}
-
 \begin{scheme}
-(define (list-ref items n)
-  (if (= n 0)
-      (car items)
-      (list-ref (cdr items) (- n 1))))
-(define squares (list 1 4 9 16 25))
-(list-ref squares 3)
-~\textit{16}~
+  (define (list-ref items n)
+    (if (= n 0)
+        (car items)
+        (list-ref (cdr items) (- n 1))))
+
+  (define squares (list 1 4 9 16 25))
+
+  (list-ref squares 3)
+  ~\outprint{16}~
 \end{scheme}
 
-\noindent
-Often we \code{cdr} down the whole list.  To aid in this, Scheme includes a
-primitive predicate \code{null?}, which tests whether its argument is the empty
-list.  The procedure \code{length}, which returns the number of items in a
-list, illustrates this typical pattern of use:
-
+Often we \code{cdr} down the whole list.
+To aid in this, Scheme includes a  primitive predicate \code{null?}, which tests whether its argument is the empty list.
+The procedure \code{length}, which returns the number of items in a list, illustrates this typical pattern of use:
 \begin{scheme}
-(define (length items)
-  (if (null? items)
-      0
-      (+ 1 (length (cdr items)))))
-(define odds (list 1 3 5 7))
-(length odds)
-~\textit{4}~
+  (define (length items)
+    (if (null? items)
+        0
+        (+ 1 (length (cdr items)))))
+
+  (define odds (list 1 3 5 7))
+
+  (length odds)
+  ~\outprint{4}~
 \end{scheme}
-
-\noindent
-The \code{length} procedure implements a simple recursive plan. The reduction
-step is:
-
+The \code{length} procedure implements a simple recursive plan.
+The reduction  step is:
 \begin{itemize}
 
-\item
-The \code{length} of any list is 1 plus the \code{length} of the \code{cdr} of
-the list.
+	\item
+		The \code{length} of any list is 1 plus the \code{length} of the \code{cdr} of
+	the list.
 
 \end{itemize}
-
-\noindent
 This is applied successively until we reach the base case:
-
 \begin{itemize}
 
-\item
-The \code{length} of the empty list is 0.
+	\item
+		The \code{length} of the empty list is 0.
 
 \end{itemize}
-
-\noindent
 We could also compute \code{length} in an iterative style:
-
 \begin{scheme}
-(define (length items)
-  (define (length-iter a count)
-    (if (null? a)
-        count
-        (length-iter (cdr a) (+ 1 count))))
-  (length-iter items 0))
+  (define (length items)
+    (define (length-iter a count)
+      (if (null? a)
+          count
+          (length-iter (cdr a) (+ 1 count))))
+    (length-iter items 0))
 \end{scheme}
 
-\noindent
-Another conventional programming technique is to ``\code{cons} up'' an answer
-list while \code{cdr}ing down a list, as in the procedure \code{append}, which
-takes two lists as arguments and combines their elements to make a new list:
-
+Another conventional programming technique is to “\code{cons} up” an answer list while \code{cdr}ing down a list, as in the procedure \code{append}, which takes two lists as arguments and combines their elements to make a new list:
 \begin{scheme}
-(append squares odds)
-~\textit{(1 4 9 16 25 1 3 5 7)}~
-(append odds squares)
-~\textit{(1 3 5 7 1 4 9 16 25)}~
+  (append squares odds)
+  ~\outprint{(1 4 9 16 25 1 3 5 7)}~
+
+  (append odds squares)
+  ~\outprint{(1 3 5 7 1 4 9 16 25)}~
 \end{scheme}
-
-\noindent
-\code{append} is also implemented using a recursive plan.  To \code{append}
-lists \code{list1} and \code{list2}, do the following:
-
+\code{append} is also implemented using a recursive plan.
+To \code{append} lists \code{list1} and \code{list2}, do the following:
 \begin{itemize}
 
-\item
-If \code{list1} is the empty list, then the result is just \code{list2}.
+	\item
+		If \code{list1} is the empty list, then the result is just \code{list2}.
 
-\item
-Otherwise, \code{append} the \code{cdr} of \code{list1} and \code{list2}, and
-\code{cons} the \code{car} of \code{list1} onto the result:
+	\item
+	Otherwise, \code{append} the \code{cdr} of \code{list1} and \code{list2}, and \code{cons} the \code{car} of \code{list1} onto the result:
 
 \end{itemize}
-
 \begin{scheme}
-(define (append list1 list2)
-  (if (null? list1)
-      list2
-      (cons (car list1) (append (cdr list1) list2))))
+  (define (append list1 list2)
+    (if (null? list1)
+        list2
+        (cons (car list1) (append (cdr list1) list2))))
 \end{scheme}
 
-\begin{quote}
-\heading{\phantomsection\label{Exercise 2.17}Exercise 2.17:} Define a procedure
-\code{last\-/pair} that returns the list that contains only the last element of a
-given (nonempty) list:
 
-\begin{scheme}
-(last-pair (list 23 72 149 34))
-~\textit{(34)}~
-\end{scheme}
-\end{quote}
 
-\begin{quote}
-\heading{\phantomsection\label{Exercise 2.18}Exercise 2.18:} Define a procedure \code{reverse}
-that takes a list as argument and returns a list of the same elements in
-reverse order:
+\begin{exercise}
+	\label{Exercise 2.17}
+	Define a procedure \code{last-pair} that returns the list that contains only the last element of a given (nonempty) list:
+	\begin{scheme}
+	  (last-pair (list 23 72 149 34))
+	  ~\outprint{(34)}~
+	\end{scheme}
+\end{exercise}
 
-\begin{scheme}
-(reverse (list 1 4 9 16 25))
-~\textit{(25 16 9 4 1)}~
-\end{scheme}
-\end{quote}
 
-\begin{quote}
-\heading{\phantomsection\label{Exercise 2.19}Exercise 2.19:} Consider the change-counting
-program of \link{Section 1.2.2}.  It would be nice to be able to easily change
-the currency used by the program, so that we could compute the number of ways
-to change a British pound, for example.  As the program is written, the
-knowledge of the currency is distributed partly into the procedure
-\code{first\-/denomination} and partly into the procedure \code{count\-/change}
-(which knows that there are five kinds of U.S. coins).  It would be nicer to be
-able to supply a list of coins to be used for making change.
 
-We want to rewrite the procedure \code{cc} so that its second argument is a
-list of the values of the coins to use rather than an integer specifying which
-coins to use.  We could then have lists that defined each kind of currency:
+\begin{exercise}
+	\label{Exercise 2.18}
+	Define a procedure \code{reverse} that takes a list as argument and returns a list of the same elements in reverse order:
+	\begin{scheme}
+	  (reverse (list 1 4 9 16 25))
+	  ~\outprint{(25 16 9 4 1)}~
+	\end{scheme}
+\end{exercise}
 
-\begin{scheme}
-(define us-coins (list 50 25 10 5 1))
-(define uk-coins (list 100 50 20 10 5 2 1 0.5))
-\end{scheme}
 
-We could then call \code{cc} as follows:
 
-\begin{scheme}
-(cc 100 us-coins)
-~\textit{292}~
-\end{scheme}
+\begin{exercise}
+	\label{Exercise 2.19}
+	Consider the change-counting program of \link{Section 1.2.2}.
+	It would be nice to be able to easily change the currency used by the program, so that we could compute the number of ways to change a British pound, for example.
+	As the program is written, the knowledge of the currency is distributed partly into the procedure \code{first-denomination} and partly into the procedure \code{count-change} (which knows that there are five kinds of U.S. coins).
+	It would be nicer to be able to supply a list of coins to be used for making change.
 
-To do this will require changing the program \code{cc} somewhat.  It will still
-have the same form, but it will access its second argument differently, as
-follows:
+	We want to rewrite the procedure \code{cc} so that its second argument is a list of the values of the coins to use rather than an integer specifying which coins to use.
+	We could then have lists that defined each kind of currency:
+	\begin{scheme}
+	  (define us-coins (list 50 25 10 5 1))
 
-\begin{scheme}
-(define (cc amount coin-values)
-  (cond ((= amount 0) 1)
-        ((or (< amount 0) (no-more? coin-values)) 0)
-        (else
-         (+ (cc amount
-                (except-first-denomination
-                 coin-values))
-            (cc (- amount
-                   (first-denomination
-                    coin-values))
-                coin-values)))))
-\end{scheme}
+	  (define uk-coins (list 100 50 20 10 5 2 1 0.5))
+	\end{scheme}
+	We could then call \code{cc} as follows:
+	\begin{scheme}
+	  (cc 100 us-coins)
+	  ~\outprint{292}~
+	\end{scheme}
+	To do this will require changing the program \code{cc} somewhat.
+	It will still have the same form, but it will access its second argument differently, as follows:
+	\begin{scheme}
+	  (define (cc amount coin-values)
+	    (cond ((= amount 0) 1)
+	          ((or (< amount 0) (no-more? coin-values)) 0)
+	          (else
+	           (+ (cc amount
+	                  (except-first-denomination
+	                   coin-values))
+	              (cc (- amount
+	                     (first-denomination
+	                      coin-values))
+	                  coin-values)))))
+	\end{scheme}
+	Define the procedures \code{first-denomination}, \code{except-first-denomination}, and \code{no-more?} in terms of primitive operations on list structures.
+	Does the order of the list \code{coin-values} affect the answer produced by \code{cc}?
+	Why or why not?
+\end{exercise}
 
-Define the procedures \code{first\-/denomination},
-\code{except\-/first\-/denomination}, and \code{no\-/more?} in terms of primitive
-operations on list structures.  Does the order of the list \code{coin\-/values}
-affect the answer produced by \code{cc}?  Why or why not?
-\end{quote}
 
-\begin{quote}
-\heading{\phantomsection\label{Exercise 2.20}Exercise 2.20:} The procedures \code{+},
-\code{*}, and \code{list} take arbitrary numbers of arguments. One way to
-define such procedures is to use \code{define} with \newterm{dotted-tail
-notation}.  In a procedure definition, a parameter list that has a dot before
-the last parameter name indicates that, when the procedure is called, the
-initial parameters (if any) will have as values the initial arguments, as
-usual, but the final parameter's value will be a \newterm{list} of any
-remaining arguments.  For instance, given the definition
 
-\begin{scheme}
-(define (f x y . z) ~\( \dark \langle \)~~\var{\dark body}~~\( \dark \rangle \)~)
-\end{scheme}
+\begin{exercise}
+	\label{Exercise 2.20}
+	The procedures \code{+}, \code{*}, and \code{list} take arbitrary numbers of arguments.
+	One way to define such procedures is to use \code{define} with \newterm{dotted-tail notation}.
+	In a procedure definition, a parameter list that has a dot before the last parameter name indicates that, when the procedure is called, the initial parameters (if any) will have as values the initial arguments, as usual, but the final parameter’s value will be a \newterm{list} of any remaining arguments.
+	For instance, given the definition
+	\begin{scheme}
+	  (define (f x y . z) ⟨~\var{body}~⟩)
+	\end{scheme}
+	the procedure \code{f} can be called with two or more arguments.
+	If we evaluate
+	\begin{scheme}
+	  (f 1 2 3 4 5 6)
+	\end{scheme}
+	then in the body of \code{f}, \code{x} will be \( 1 \), \code{y} will be \( 2 \), and \code{z} will be the list \code{(3 4 5 6)}.
+	Given the definition
+	\begin{scheme}
+	  (define (g . w) ⟨~\var{body}~⟩)
+	\end{scheme}
+	the procedure \code{g} can be called with zero or more arguments.
+	If we evaluate
+	\begin{scheme}
+	  (g 1 2 3 4 5 6)
+	\end{scheme}
+	then in the body of \code{g}, \code{w} will be the list \code{(1 2 3 4 5 6)}.%
+	\footnote{
+		To define \code{f} and \code{g} using \code{lambda} we would write
+		\begin{smallscheme}
+		  (define f (lambda (x y . z) ⟨~\var{body}~⟩))
 
-\noindent
-the procedure \code{f} can be called with two or more arguments.  If we
-evaluate
+		  (define g (lambda w ⟨~\var{body}~⟩))
+		\end{smallscheme}
+	}
 
-\begin{scheme}
-(f 1 2 3 4 5 6)
-\end{scheme}
+	Use this notation to write a procedure \code{same-parity} that takes one or more integers and returns a list of all the arguments that have the same even-odd parity as the first argument.
+	For example,
+	\begin{scheme}
+	  (same-parity 1 2 3 4 5 6 7)
+	  ~\outprint{(1 3 5 7)}~
 
-\noindent
-then in the body of \code{f}, \code{x} will be 1, \code{y} will be 2, and
-\code{z} will be the list \mbox{\code{(3 4 5 6)}}.  Given the definition
+	  (same-parity 2 3 4 5 6 7)
+	  ~\outprint{(2 4 6)}~
+	\end{scheme}
+\end{exercise}
 
-\begin{scheme}
-(define (g . w) ~\( \dark \langle \)~~\var{\dark body}~~\( \dark \rangle \)~)
-\end{scheme}
 
-\noindent
-the procedure \code{g} can be called with zero or more arguments.  If we
-evaluate
-
-\begin{scheme}
-(g 1 2 3 4 5 6)
-\end{scheme}
-
-\noindent
-then in the body of \code{g}, \code{w} will be the list \code{(1 2 3 4 5
-6)}.\footnote{To define \code{f} and \code{g} using \code{lambda} we would
-write
-
-\begin{smallscheme}
-(define f (lambda (x y . z) ~\( \dark \langle \)~~\var{\dark body}~~\( \dark \rangle \)~))
-(define g (lambda w ~\( \dark \langle \)~~\var{\dark body}~~\( \dark \rangle \)~))
-\end{smallscheme}
-}
-
-Use this notation to write a procedure \code{same\-/parity} that takes one or
-more integers and returns a list of all the arguments that have the same
-even-odd parity as the first argument.  For example,
-
-\begin{scheme}
-(same-parity 1 2 3 4 5 6 7)
-~\textit{(1 3 5 7)}~
-(same-parity 2 3 4 5 6 7)
-~\textit{(2 4 6)}~
-\end{scheme}
-\end{quote}
 
 \subsubsection*{Mapping over lists}
 
-One extremely useful operation is to apply some transformation to each element
-in a list and generate the list of results.  For instance, the following
-procedure scales each number in a list by a given factor:
-
+One extremely useful operation is to apply some transformation to each element in a list and generate the list of results.
+For instance, the following procedure scales each number in a list by a given factor:
 \begin{scheme}
-(define (scale-list items factor)
-  (if (null? items)
-      nil
-      (cons (* (car items) factor)
-            (scale-list (cdr items)
-                        factor))))
-(scale-list (list 1 2 3 4 5) 10)
-~\textit{(10 20 30 40 50)}~
+  (define (scale-list items factor)
+    (if (null? items)
+        nil
+        (cons (* (car items) factor)
+              (scale-list (cdr items)
+                          factor))))
+
+  (scale-list (list 1 2 3 4 5) 10)
+  ~\outprint{(10 20 30 40 50)}~
 \end{scheme}
 
-\noindent
-We can abstract this general idea and capture it as a common pattern expressed
-as a higher-order procedure, just as in \link{Section 1.3}.  The higher-order
-procedure here is called \code{map}.  \code{map} takes as arguments a procedure
-of one argument and a list, and returns a list of the results produced by
-applying the procedure to each element in the list:\footnote{\label{Footnote 12}
-Scheme standardly provides a \code{map} procedure that
-is more general than the one described here.  This more general \code{map}
-takes a procedure of \( n \) arguments, together with \( n \) lists, and applies
-the procedure to all the first elements of the lists, all the second elements
-of the lists, and so on, returning a list of the results.  For example:
-
+We can abstract this general idea and capture it as a common pattern expressed as a higher-order procedure, just as in \link{Section 1.3}.
+The higher-order procedure here is called \code{map}.
+\code{map} takes as arguments a procedure of one argument and a list, and returns a list of the results produced by applying the procedure to each element in the list%
+\footnote{
+	\label{Footnote 12} Scheme standardly provides a \code{map} procedure that is more general than the one described here.
+	This more general \code{map} takes a procedure of \( n \) arguments, together with \( n \) lists, and applies the procedure to all the first elements of the lists, all the second elements of the lists, and so on, returning a list of the results.
+	For example:
 \begin{smallscheme}
-(map + (list 1 2 3) (list 40 50 60) (list 700 800 900))
-~\textit{(741 852 963)}~
-(map (lambda (x y) (+ x (* 2 y)))
-     (list 1 2 3)
-     (list 4 5 6))
-~\textit{(9 12 15)}~
+  (map + (list 1 2 3) (list 40 50 60) (list 700 800 900))
+  ~\outprint{(741 852 963)}~
+
+  (map (lambda (x y) (+ x (* 2 y)))
+       (list 1 2 3)
+       (list 4 5 6))
+  ~\outprint{(9 12 15)}~
 \end{smallscheme}
 }
-
 \begin{scheme}
-(define (map proc items)
-  (if (null? items)
-      nil
-      (cons (proc (car items))
-            (map proc (cdr items)))))
-(map abs (list -10 2.5 -11.6 17))
-~\textit{(10 2.5 11.6 17)}~
-(map (lambda (x) (* x x)) (list 1 2 3 4))
-~\textit{(1 4 9 16)}~
+  (define (map proc items)
+    (if (null? items)
+        nil
+        (cons (proc (car items))
+              (map proc (cdr items)))))
+  (map abs (list -10 2.5 -11.6 17))
+  ~\outprint{(10 2.5 11.6 17)}~
+
+  (map (lambda (x) (* x x)) (list 1 2 3 4))
+  ~\outprint{(1 4 9 16)}~
 \end{scheme}
-
-\noindent
-Now we can give a new definition of \code{scale\-/list} in terms of \code{map}:
-
+Now we can give a new definition of \code{scale-list} in terms of \code{map}:
 \begin{scheme}
-(define (scale-list items factor)
-  (map (lambda (x) (* x factor))
-       items))
+  (define (scale-list items factor)
+    (map (lambda (x) (* x factor))
+         items))
 \end{scheme}
+\code{map} is an important construct, not only because it captures a common pattern, but because it establishes a higher level of abstraction in dealing with lists.
+In the original definition of \code{scale-list}, the recursive structure of the program draws attention to the element-by-element processing of the list.
+Defining \code{scale-list} in terms of \code{map} suppresses that level of detail and emphasizes that scaling transforms a list of elements to a list of results.
+The difference between the two definitions is not that the computer is performing a different process (it isn’t) but that we think about the process differently.
+In effect, \code{map} helps establish an abstraction barrier that isolates the implementation of procedures that transform lists from the details of how the elements of the list are extracted and combined.
+Like the barriers shown in \link{Figure 2.1}, this abstraction gives us the flexibility to change the low-level details of how sequences are implemented, while preserving the conceptual framework of operations that transform sequences to sequences.
+\link{Section 2.2.3} expands on this use of sequences as a framework for organizing programs.
 
-\noindent
-\code{map} is an important construct, not only because it captures a common
-pattern, but because it establishes a higher level of abstraction in dealing
-with lists.  In the original definition of \code{scale\-/list}, the recursive
-structure of the program draws attention to the element-by-element processing
-of the list.  Defining \code{scale\-/list} in terms of \code{map} suppresses that
-level of detail and emphasizes that scaling transforms a list of elements to a
-list of results.  The difference between the two definitions is not that the
-computer is performing a different process (it isn't) but that we think about
-the process differently.  In effect, \code{map} helps establish an abstraction
-barrier that isolates the implementation of procedures that transform lists
-from the details of how the elements of the list are extracted and combined.
-Like the barriers shown in \link{Figure 2.1}, this abstraction gives us the
-flexibility to change the low-level details of how sequences are implemented,
-while preserving the conceptual framework of operations that transform
-sequences to sequences.  \link{Section 2.2.3} expands on this use of sequences
-as a framework for organizing programs.
 
-\begin{quote}
-\heading{\phantomsection\label{Exercise 2.21}Exercise 2.21:} The procedure \code{square\-/list}
-takes a list of numbers as argument and returns a list of the squares of those
-numbers.
 
-\begin{scheme}
-(square-list (list 1 2 3 4))
-~\textit{(1 4 9 16)}~
-\end{scheme}
+\begin{exercise}
+	\label{Exercise 2.21}
+	The procedure \code{square-list} takes a list of numbers as argument and returns a list of the squares of those numbers.
+	\begin{scheme}
+	  (square-list (list 1 2 3 4))
+	  ~\outprint{(1 4 9 16)}~
+	\end{scheme}
+	Here are two different definitions of \code{square-list}.
+	Complete both of them by filling in the missing expressions:
+	\begin{scheme}
+	  (define (square-list items)
+	    (if (null? items)
+	        nil
+	        (cons ⟨??⟩ ⟨??⟩)))
 
-Here are two different definitions of \code{square\-/list}.  Complete both of
-them by filling in the missing expressions:
+	  (define (square-list items)
+	    (map ⟨??⟩ ⟨??⟩))
+	\end{scheme}
+\end{exercise}
 
-\begin{scheme}
-(define (square-list items)
-  (if (null? items)
-      nil
-      (cons ~\( \dark \langle \)~??~\( \dark \rangle \)~ ~\( \dark \langle \)~??~\( \dark \rangle \)~)))
-(define (square-list items)
-  (map ~\( \dark \langle \)~??~\( \dark \rangle \)~ ~\( \dark \langle \)~??~\( \dark \rangle \)~))
-\end{scheme}
-\end{quote}
 
-\begin{quote}
-\heading{\phantomsection\label{Exercise 2.22}Exercise 2.22:} Louis Reasoner tries to rewrite
-the first \code{square\-/list} procedure of \link{Exercise 2.21} so that it
-evolves an iterative process:
 
-\begin{scheme}
-(define (square-list items)
-  (define (iter things answer)
-    (if (null? things)
-        answer
-        (iter (cdr things)
-              (cons (square (car things))
-                    answer))))
-  (iter items nil))
-\end{scheme}
+\begin{exercise}
+	\label{Exercise 2.22}
+	Louis Reasoner tries to rewrite the first \code{square-list} procedure of \link{Exercise 2.21} so that it evolves an iterative process:
+	\begin{scheme}
+	  (define (square-list items)
+	    (define (iter things answer)
+	      (if (null? things)
+	          answer
+	          (iter (cdr things)
+	                (cons (square (car things))
+	                      answer))))
+	    (iter items nil))
+	\end{scheme}
+	Unfortunately, defining \code{square-list} this way produces the answer list in the reverse order of the one desired.
+	Why?
 
-Unfortunately, defining \code{square\-/list} this way produces the answer list in
-the reverse order of the one desired.  Why?
+	Louis then tries to fix his bug by interchanging the arguments to \code{cons}:
+	\begin{scheme}
+	  (define (square-list items)
+	    (define (iter things answer)
+	      (if (null? things)
+	          answer
+	          (iter (cdr things)
+	                (cons answer
+	                      (square (car things))))))
+	    (iter items nil))
+	\end{scheme}
+	This doesn’t work either.
+	Explain.
+\end{exercise}
 
-Louis then tries to fix his bug by interchanging the arguments to \code{cons}:
 
-\begin{scheme}
-(define (square-list items)
-  (define (iter things answer)
-    (if (null? things)
-        answer
-        (iter (cdr things)
-              (cons answer
-                    (square (car things))))))
-  (iter items nil))
-\end{scheme}
 
-This doesn't work either.  Explain.
-\end{quote}
+\begin{exercise}
+	\label{Exercise 2.23}
+	The procedure \code{for-each} is similar to \code{map}.
+	It takes as arguments a procedure and a list of elements.
+	However, rather than forming a list of the results, \code{for-each} just applies the procedure to each of the elements in turn, from left to right.
+	The values returned by applying the procedure to the elements are not used at all---\code{for-each} is used with procedures that perform an action, such as printing.
+	For example,
+	\begin{scheme}
+	  (for-each (lambda (x)
+	              (newline)
+	              (display x))
+	            (list 57 321 88))
+	  ~\outprint{57}~
+	  ~\outprint{321}~
+	  ~\outprint{88}~
+	\end{scheme}
+	The value returned by the call to \code{for-each} (not illustrated above) can be something arbitrary, such as true.
+	Give an implementation of \code{for-each}.
+\end{exercise}
 
-\begin{quote}
-\heading{\phantomsection\label{Exercise 2.23}Exercise 2.23:} The procedure \code{for\-/each} is
-similar to \code{map}.  It takes as arguments a procedure and a list of
-elements.  However, rather than forming a list of the results, \code{for\-/each}
-just applies the procedure to each of the elements in turn, from left to right.
-The values returned by applying the procedure to the elements are not used at
-all---\code{for\-/each} is used with procedures that perform an action, such as
-printing.  For example,
 
-\begin{scheme}
-(for-each (lambda (x)
-            (newline)
-            (display x))
-          (list 57 321 88))
-~\textit{57}~
-~\textit{321}~
-~\textit{88}~
-\end{scheme}
-
-The value returned by the call to \code{for\-/each} (not illustrated above) can
-be something arbitrary, such as true.  Give an implementation of
-\code{for\-/each}.
-\end{quote}
 
 \subsection{Hierarchical Structures}
 \label{Section 2.2.2}
 
-The representation of sequences in terms of lists generalizes naturally to
-represent sequences whose elements may themselves be sequences.  For example,
-we can regard the object \code{((1 2) 3 4)} constructed by
-
+The representation of sequences in terms of lists generalizes naturally to represent sequences whose elements may themselves be sequences.
+For example, we can regard the object \code{((1 2) 3 4)} constructed by
 \begin{scheme}
-(cons (list 1 2) (list 3 4))
+  (cons (list 1 2) (list 3 4))
 \end{scheme}
-
-\noindent
 as a list of three items, the first of which is itself a list, \code{(1 2)}.
-Indeed, this is suggested by the form in which the result is printed by the
-interpreter.  \link{Figure 2.5} shows the representation of
-this structure in terms of pairs.
+Indeed, this is suggested by the form in which the result is printed by the interpreter.
+\link{Figure 2.5} shows the representation of this structure in terms of pairs.
 
 \begin{figure}[tb]
-\phantomsection\label{Figure 2.5}
-\centering
-\begin{comment}
-\heading{Figure 2.5:} Structure formed by \code{(cons (list 1 2) (list 3 4))}.
-
-\begin{example}
-                                          (3 4)
-                                            |
-                                            V
-((1 2) 3 4)  +---+---+                  +---+---+     +---+---+
-        ---->| * | *-+----------------->| * | *-+---->| * | / |
-             +-|-+---+                  +-|-+---+     +-|-+---+
-               |                          |             |
-               V                          V             V
-      (1 2)  +---+---+     +---+---+    +---+         +---+
-        ---->| * | *-+---->| * | / |    | 3 |         | 4 |
-             +-|-+---+     +-|-+---+    +---+         +---+
-               |             |
-               V             V
-             +---+         +---+
-             | 1 |         | 2 |
-             +---+         +---+
-\end{example}
-\end{comment}
-\includesvg[width=91mm]{fig/chap2/Fig2.5c.svg}
-\begin{quote}
-\heading{Figure 2.5:} Structure formed by \code{(cons (list 1 2) (list 3 4))}.
-\end{quote}
+	\centering
+	\includesvg[width=91mm]{fig/chap2/Fig2.5c.svg}
+	\caption{
+		Structure formed by \code{(cons (list 1 2) (list 3 4))}.
+	}
+	\label{Figure 2.5}
 \end{figure}
 
-Another way to think of sequences whose elements are sequences is as
-\newterm{trees}.  The elements of the sequence are the branches of the tree,
-and \mbox{elements} that are themselves sequences are subtrees.  \link{Figure 2.6}
-shows \mbox{the structure} in \link{Figure 2.5} viewed as a tree.
+Another way to think of sequences whose elements are sequences is as \newterm{trees}.
+The elements of the sequence are the branches of the tree, and elements that are themselves sequences are subtrees.
+\link{Figure 2.6} shows the structure in \link{Figure 2.5} viewed as a tree.
+
 
 \begin{figure}[tb]
-\phantomsection\label{Figure 2.6}
-\centering
-\begin{comment}
-\heading{Figure 2.6:} The list structure in \link{Figure 2.5} viewed as a tree.
-
-\begin{example}
- ((1 2) 3 4)
-     /\\
-    /  | \
-(1 2)  3 4
- / \
- 1 2
-\end{example}
-\end{comment}
-\includesvg[width=22mm]{fig/chap2/Fig2.6a.svg}
-\begin{quote}
-\heading{Figure 2.6:} The list structure in \link{Figure 2.5} viewed as a tree.
-\end{quote}
+	\label{Figure 2.6}
+	\centering
+	\includesvg[width=22mm]{fig/chap2/Fig2.6a.svg}
+	\caption{
+		The list structure in \link{Figure 2.5} viewed as a tree.
+	}
 \end{figure}
-
-Recursion is a natural tool for dealing with tree structures, since we can
-often reduce operations on trees to operations on their branches, which reduce
-in turn to operations on the branches of the branches, and so on, until we
-reach the leaves of the tree.  As an example, compare the \code{length}
-procedure of \link{Section 2.2.1} with the \code{count\-/leaves} procedure, which
-returns the total number of leaves of a tree:
-
+Recursion is a natural tool for dealing with tree structures, since we can often reduce operations on trees to operations on their branches, which reduce in turn to operations on the branches of the branches, and so on, until we reach the leaves of the tree.
+As an example, compare the \code{length} procedure of \link{Section 2.2.1} with the \code{count-leaves} procedure, which returns the total number of leaves of a tree:
 \begin{scheme}
-(define x (cons (list 1 2) (list 3 4)))
-(length x)
-~\textit{3}~
-(count-leaves x)
-~\textit{4}~
-(list x x)
-~\textit{(((1 2) 3 4) ((1 2) 3 4))}~
-(length (list x x))
-~\textit{2}~
-(count-leaves (list x x))
-~\textit{8}~
+  (define x (cons (list 1 2) (list 3 4)))
+
+  (length x)
+  ~\outprint{3}~
+
+  (count-leaves x)
+  ~\outprint{4}~
+
+  (list x x)
+  ~\outprint{(((1 2) 3 4) ((1 2) 3 4))}~
+
+  (length (list x x))
+  ~\outprint{2}~
+
+  (count-leaves (list x x))
+  ~\outprint{8}~
 \end{scheme}
 
-\noindent
-To implement \code{count\-/leaves}, recall the recursive plan for computing
+To implement \code{count-leaves}, recall the recursive plan for computing
 \code{length}:
-
 \begin{itemize}
 
-\item
-\code{length} of a list \code{x} is 1 plus \code{length} of the
-\code{cdr} of \code{x}.
+	\item
+		\code{length} of a list \code{x} is 1 plus \code{length} of the \code{cdr} of \code{x}.
 
-\item
-\code{length} of the empty list is 0.
+	\item
+		\code{length} of the empty list is 0.
 
 \end{itemize}
-
-\noindent
-\code{count\-/leaves} is similar.  The value for the empty list is the same:
-
+\code{count-leaves} is similar.  The value for the empty list is the same:
 \begin{itemize}
 
-\item
-\code{count\-/leaves} of the empty list is 0.
+	\item
+		\code{count-leaves} of the empty list is 0.
 
 \end{itemize}
-
-\noindent
-But in the reduction step, where we strip off the \code{car} of the list, we
-must take into account that the \code{car} may itself be a tree whose leaves we
-need to count.  Thus, the appropriate reduction step is
-
+But in the reduction step, where we strip off the \code{car} of the list, we must take into account that the \code{car} may itself be a tree whose leaves we need to count.
+Thus, the appropriate reduction step is
 \begin{itemize}
 
-\item
-\code{count\-/leaves} of a tree \code{x} is \code{count\-/leaves} of the \code{car}
-of \code{x} plus \code{count\-/leaves} of the \code{cdr} of \code{x}.
+	\item
+		\code{count-leaves} of a tree \code{x} is \code{count-leaves} of the \code{car}  of \code{x} plus \code{count-leaves} of the \code{cdr} of \code{x}.
 
 \end{itemize}
-
-\noindent
 Finally, by taking \code{car}s we reach actual leaves, so we need another base
 case:
-
 \begin{itemize}
 
-\item
-\code{count\-/leaves} of a leaf is 1.
+	\item
+		\code{count-leaves} of a leaf is 1.
 
 \end{itemize}
-
-\noindent
-To aid in writing recursive procedures on trees, Scheme provides the primitive
-predicate \code{pair?}, which tests whether its argument is a pair.  Here is
-the complete procedure:\footnote{The order of the first two clauses in the
-\code{cond} matters, since the empty list satisfies \code{null?} and also is
-not a pair.}
-
+To aid in writing recursive procedures on trees, Scheme provides the primitive predicate \code{pair?}, which tests whether its argument is a pair.
+Here is the complete procedure:%
+\footnote{
+	The order of the first two clauses in the \code{cond} matters, since the empty list satisfies \code{null?} and also is not a pair.
+}
 \begin{scheme}
-(define (count-leaves x)
-  (cond ((null? x) 0)
-        ((not (pair? x)) 1)
-        (else (+ (count-leaves (car x))
-                 (count-leaves (cdr x))))))
+  (define (count-leaves x)
+    (cond ((null? x) 0)
+          ((not (pair? x)) 1)
+          (else (+ (count-leaves (car x))
+                   (count-leaves (cdr x))))))
 \end{scheme}
 
-\begin{quote}
-\heading{\phantomsection\label{Exercise 2.24}Exercise 2.24:} Suppose we evaluate the
-expression \code{(list 1 (list 2 (list 3 4)))}.  Give the result printed by the
-interpreter, the corresponding box-and-pointer structure, and the
-interpretation of this as a tree (as in \link{Figure 2.6}).
-\end{quote}
 
-\begin{quote}
-\heading{\phantomsection\label{Exercise 2.25}Exercise 2.25:} Give combinations of \code{car}s
-and \code{cdr}s that will pick 7 from each of the following lists:
 
-\begin{scheme}
-(1 3 (5 7) 9)
-((7))
-(1 (2 (3 (4 (5 (6 7))))))
-\end{scheme}
-\end{quote}
+\begin{exercise}
+	\label{Exercise 2.24}
+	Suppose we evaluate the expression \code{(list 1 (list 2 (list 3 4)))}.
+	Give the result printed by the interpreter, the corresponding box-and-pointer structure, and the interpretation of this as a tree (as in \link{Figure 2.6}).
+\end{exercise}
 
-\begin{quote}
-\heading{\phantomsection\label{Exercise 2.26}Exercise 2.26:} Suppose we define \code{x} and
-\code{y} to be two lists:
 
-\begin{scheme}
-(define x (list 1 2 3))
-(define y (list 4 5 6))
-\end{scheme}
 
-What result is printed by the interpreter in response to evaluating each of the
-following expressions:
+\begin{exercise}
+	\label{Exercise 2.25}
+	Give combinations of \code{car}s and \code{cdr}s that will pick 7 from each of the following lists:
+	\begin{scheme}
+	  (1 3 (5 7) 9)
 
-\begin{scheme}
-(append x y)
-(cons x y)
-(list x y)
-\end{scheme}
-\end{quote}
+	  ((7))
 
-\begin{quote}
-\heading{\phantomsection\label{Exercise 2.27}Exercise 2.27:} Modify your \code{reverse}
-procedure of \link{Exercise 2.18} to produce a \code{deep\-/reverse} procedure
-that takes a list as argument and returns as its value the list with its
-elements reversed and with all sublists deep-reversed as well.  For example,
+	  (1 (2 (3 (4 (5 (6 7))))))
+	\end{scheme}
+\end{exercise}
 
-\begin{scheme}
-(define x (list (list 1 2) (list 3 4)))
-x
-~\textit{((1 2) (3 4))}~
-(reverse x)
-~\textit{((3 4) (1 2))}~
-(deep-reverse x)
-~\textit{((4 3) (2 1))}~
-\end{scheme}
-\end{quote}
 
-\begin{quote}
-\heading{\phantomsection\label{Exercise 2.28}Exercise 2.28:} Write a procedure \code{fringe}
-that takes as argument a tree (represented as a list) and returns a list whose
-elements are all the leaves of the tree arranged in left-to-right order.  For
-example,
 
-\begin{scheme}
-(define x (list (list 1 2) (list 3 4)))
-(fringe x)
-~\textit{(1 2 3 4)}~
-(fringe (list x x))
-~\textit{(1 2 3 4 1 2 3 4)}~
-\end{scheme}
-\end{quote}
+\begin{exercise}
+	\label{Exercise 2.26}
+	Suppose we define \code{x} and \code{y} to be two lists:
+	\begin{scheme}
+	  (define x (list 1 2 3))
 
-\begin{quote}
-\heading{\phantomsection\label{Exercise 2.29}Exercise 2.29:} A binary mobile consists of two
-branches, a left branch and a right branch.  Each branch is a rod of a certain
-length, from which hangs either a weight or another binary mobile.  We can
-represent a binary mobile using compound data by constructing it from two
-branches (for example, using \code{list}):
+	  (define y (list 4 5 6))
+	\end{scheme}
+	What result is printed by the interpreter in response to evaluating each of the
+	following expressions:
+	\begin{scheme}
+	  (append x y)
 
-\begin{scheme}
-(define (make-mobile left right)
-  (list left right))
-\end{scheme}
+	  (cons x y)
 
-A branch is constructed from a \code{length} (which must be a number) together
-with a \code{structure}, which may be either a number (representing a simple
-weight) or another mobile:
+	  (list x y)
+	\end{scheme}
+\end{exercise}
 
-\begin{scheme}
-(define (make-branch length structure)
-  (list length structure))
-\end{scheme}
 
-\begin{enumerate}[a.]
 
-\item
-Write the corresponding selectors \code{left\-/branch} and \code{right\-/branch},
-which return the branches of a mobile, and \code{branch\-/length} and
-\code{branch\-/structure}, which return the components of a branch.
+\begin{exercise}
+	\label{Exercise 2.27}
+	Modify your \code{reverse} procedure of \link{Exercise 2.18} to produce a \code{deep-reverse} procedure that takes a list as argument and returns as its value the list with its elements reversed and with all sublists deep-reversed as well.
+	For example,
+	\begin{scheme}
+	  (define x (list (list 1 2) (list 3 4)))
 
-\item
-Using your selectors, define a procedure \code{total\-/weight} that returns the
-total weight of a mobile.
+	  x
+	  ~\outprint{((1 2) (3 4))}~
 
-\item
-A mobile is said to be \newterm{balanced} if the torque applied by its top-left
-branch is equal to that applied by its top-right branch (that is, if the length
-of the left rod multiplied by the weight hanging from that rod is equal to the
-corresponding product for the right side) and if each of the submobiles hanging
-off its branches is balanced. Design a predicate that tests whether a binary
-mobile is balanced.
+	  (reverse x)
+	  ~\outprint{((3 4) (1 2))}~
 
-\item
-Suppose we change the representation of mobiles so that the constructors are
+	  (deep-reverse x)
+	  ~\outprint{((4 3) (2 1))}~
+	\end{scheme}
+\end{exercise}
 
-\begin{scheme}
-(define (make-mobile left right) (cons left right))
-(define (make-branch length structure)
-  (cons length structure))
-\end{scheme}
 
-How much do you need to change your programs to convert to the new
-representation?
 
-\end{enumerate}
-\end{quote}
+\begin{exercise}
+	\label{Exercise 2.28}
+	Write a procedure \code{fringe} that takes as argument a tree (represented as a list) and returns a list whose elements are all the leaves of the tree arranged in left-to-right order.
+	For example,
+	\begin{scheme}
+	  (define x (list (list 1 2) (list 3 4)))
+
+	  (fringe x)
+	  ~\outprint{(1 2 3 4)}~
+
+	  (fringe (list x x))
+	  ~\outprint{(1 2 3 4 1 2 3 4)}~
+	\end{scheme}
+\end{exercise}
+
+
+
+\begin{exercise}
+	\label{Exercise 2.29}
+	A binary mobile consists of two branches, a left branch and a right branch.
+	Each branch is a rod of a certain length, from which hangs either a weight or another binary mobile.
+	We can represent a binary mobile using compound data by constructing it from two branches (for example, using \code{list}):
+	\begin{scheme}
+	  (define (make-mobile left right)
+	    (list left right))
+	\end{scheme}
+	A branch is constructed from a \code{length} (which must be a number) together with a \code{structure}, which may be either a number (representing a simple weight) or another mobile:
+	\begin{scheme}
+	  (define (make-branch length structure)
+	    (list length structure))
+	\end{scheme}
+	\begin{enumerate}[label = \alph*., leftmargin = *]
+
+		\item
+			Write the corresponding selectors \code{left-branch} and \code{right-branch}, which return the branches of a mobile, and \code{branch-length} and \code{branch-structure}, which return the components of a branch.
+
+		\item
+			Using your selectors, define a procedure \code{total-weight} that returns the total weight of a mobile.
+
+		\item
+			A mobile is said to be \newterm{balanced} if the torque applied by its top-left branch is equal to that applied by its top-right branch (that is, if the length of the left rod multiplied by the weight hanging from that rod is equal to the corresponding product for the right side) and if each of the submobiles hanging off its branches is balanced.
+			Design a predicate that tests whether a binary mobile is balanced.
+
+		\item
+			Suppose we change the representation of mobiles so that the constructors are
+			\begin{scheme}
+			  (define (make-mobile left right) (cons left right))
+
+			  (define (make-branch length structure)
+			    (cons length structure))
+			\end{scheme}
+			How much do you need to change your programs to convert to the new representation?
+
+	\end{enumerate}
+\end{exercise}
+
+
 
 \subsubsection*{Mapping over trees}
 
-Just as \code{map} is a powerful abstraction for dealing with sequences,
-\code{map} together with recursion is a powerful abstraction for dealing with
-trees.  For instance, the \code{scale\-/tree} procedure, analogous to
-\code{scale\-/list} of \link{Section 2.2.1}, takes as arguments a numeric factor
-and a tree whose leaves are numbers.  It returns a tree of the same shape,
-where each number is multiplied by the factor.  The recursive plan for
-\code{scale\-/tree} is similar to the one for \code{count\-/leaves}:
-
+Just as \code{map} is a powerful abstraction for dealing with sequences, \code{map} together with recursion is a powerful abstraction for dealing with trees.
+For instance, the \code{scale-tree} procedure, analogous to \code{scale-list} of \link{Section 2.2.1}, takes as arguments a numeric factor and a tree whose leaves are numbers.
+It returns a tree of the same shape, where each number is multiplied by the factor.
+The recursive plan for \code{scale-tree} is similar to the one for \code{count-leaves}:
 \begin{scheme}
-(define (scale-tree tree factor)
-  (cond ((null? tree) nil)
-        ((not (pair? tree)) (* tree factor))
-        (else (cons (scale-tree (car tree) factor)
-                    (scale-tree (cdr tree) factor)))))
-(scale-tree (list 1 (list 2 (list 3 4) 5) (list 6 7)) 10)
-~\textit{(10 (20 (30 40) 50) (60 70))}~
+  (define (scale-tree tree factor)
+    (cond ((null? tree) nil)
+          ((not (pair? tree)) (* tree factor))
+          (else (cons (scale-tree (car tree) factor)
+                      (scale-tree (cdr tree) factor)))))
+
+  (scale-tree (list 1 (list 2 (list 3 4) 5) (list 6 7)) 10)
+  ~\outprint{(10 (20 (30 40) 50) (60 70))}~
 \end{scheme}
 
-\noindent
-Another way to implement \code{scale\-/tree} is to regard the tree as a sequence
-of sub-trees and use \code{map}.  We map over the sequence, scaling each
-sub-tree in turn, and return the list of results.  In the base case, where the
-tree is a leaf, we simply multiply by the factor:
-
+Another way to implement \code{scale-tree} is to regard the tree as a sequence of sub-trees and use \code{map}.
+We map over the sequence, scaling each sub-tree in turn, and return the list of results.
+In the base case, where the tree is a leaf, we simply multiply by the factor:
 \begin{scheme}
-(define (scale-tree tree factor)
-  (map (lambda (sub-tree)
-         (if (pair? sub-tree)
-             (scale-tree sub-tree factor)
-             (* sub-tree factor)))
-       tree))
+  (define (scale-tree tree factor)
+    (map (lambda (sub-tree)
+           (if (pair? sub-tree)
+               (scale-tree sub-tree factor)
+               (* sub-tree factor)))
+         tree))
 \end{scheme}
-
-\noindent
 Many tree operations can be implemented by similar combinations of sequence
 operations and recursion.
 
-\begin{quote}
-\heading{\phantomsection\label{Exercise 2.30}Exercise 2.30:} Define a procedure
-\code{square\-/tree} analogous to the \code{square\-/list} procedure of
-\link{Exercise 2.21}.  That is, \code{square\-/tree} should behave as follows:
 
-\begin{scheme}
-(square-tree
- (list 1
-       (list 2 (list 3 4) 5)
-       (list 6 7)))
-~\textit{(1 (4 (9 16) 25) (36 49))}~
-\end{scheme}
 
-Define \code{square\-/tree} both directly (i.e., without using any higher-order
-procedures) and also by using \code{map} and recursion.
-\end{quote}
+\begin{exercise}
+	\label{Exercise 2.30}
+	Define a procedure \code{square-tree} analogous to the \code{square-list} procedure of \link{Exercise 2.21}.
+	That is, \code{square-tree} should behave as follows:
+	\begin{scheme}
+	  (square-tree
+	   (list 1
+	         (list 2 (list 3 4) 5)
+	         (list 6 7)))
+	  ~\outprint{(1 (4 (9 16) 25) (36 49))}~
+	\end{scheme}
+	Define \code{square-tree} both directly (i.e., without using any higher-order procedures) and also by using \code{map} and recursion.
+\end{exercise}
 
-\begin{quote}
-\heading{\phantomsection\label{Exercise 2.31}Exercise 2.31:} Abstract your answer to
-\link{Exercise 2.30} to produce a procedure \code{tree\-/map} with the property
-that \code{square\-/tree} could be defined as
 
-\begin{scheme}
-(define (square-tree tree) (tree-map square tree))
-\end{scheme}
-\end{quote}
 
-\begin{quote}
-\heading{\phantomsection\label{Exercise 2.32}Exercise 2.32:} We can represent a set as a list
-of distinct elements, and we can represent the set of all subsets of the set as
-a list of lists.  For example, if the set is \code{(1 2 3)}, then the set of
-all subsets is \code{(() (3) (2) (2 3) (1) (1 3) (1 2) (1 2 3))}.  Complete the
-following definition of a procedure that generates the set of subsets of a set
-and give a clear explanation of why it works:
+\begin{exercise}
+	\label{Exercise 2.31}
+	Abstract your answer to \link{Exercise 2.30} to produce a procedure \code{tree-map} with the property that \code{square-tree} could be defined as
+	\begin{scheme}
+	  (define (square-tree tree) (tree-map square tree))
+	\end{scheme}
+\end{exercise}
 
-\begin{scheme}
-(define (subsets s)
-  (if (null? s)
-      (list nil)
-      (let ((rest (subsets (cdr s))))
-        (append rest (map ~\( \dark \langle \)~??~\( \dark \rangle \)~ rest)))))
-\end{scheme}
-\end{quote}
+
+
+\begin{exercise}
+	\label{Exercise 2.32}
+	We can represent a set as a list of distinct elements, and we can represent the set of all subsets of the set as a list of lists.
+	For example, if the set is \code{(1 2 3)}, then the set of all subsets is \code{(() (3) (2) (2 3) (1) (1 3) (1 2) (1 2 3))}.
+	Complete the following definition of a procedure that generates the set of subsets of a set and give a clear explanation of why it works:
+	\begin{scheme}
+	  (define (subsets s)
+	    (if (null? s)
+	        (list nil)
+	        (let ((rest (subsets (cdr s))))
+	          (append rest (map ⟨??⟩ rest)))))
+	\end{scheme}
+\end{exercise}
+
+
 
 \subsection{Sequences as Conventional Interfaces}
 \label{Section 2.2.3}
 
-In working with compound data, we've stressed how data abstraction permits us
-to design programs without becoming enmeshed in the details of data
-representations, and how abstraction preserves for us the flexibility to
-experiment with alternative representations.  In this section, we introduce
-another powerful design principle for working with data structures---the use of
-\newterm{conventional interfaces}.
+In working with compound data, we’ve stressed how data abstraction permits us to design programs without becoming enmeshed in the details of data representations, and how abstraction preserves for us the flexibility to experiment with alternative representations.
+In this section, we introduce another powerful design principle for working with data structures---the use of \newterm{conventional interfaces}.
 
-In \link{Section 1.3} we saw how program abstractions, implemented as
-higher-order procedures, can capture common patterns in programs that deal with
-numerical data.  Our ability to formulate analogous operations for working with
-compound data depends crucially on the style in which we manipulate our data
-structures.  Consider, for example, the following procedure, analogous to the
-\code{count\-/leaves} procedure of \link{Section 2.2.2}, which takes a tree as
-argument and computes the sum of the squares of the leaves that are odd:
-
+In \link{Section 1.3} we saw how program abstractions, implemented as higher-order procedures, can capture common patterns in programs that deal with numerical data.
+Our ability to formulate analogous operations for working with compound data depends crucially on the style in which we manipulate our data structures.
+Consider, for example, the following procedure, analogous to the \code{count-leaves} procedure of \link{Section 2.2.2}, which takes a tree as argument and computes the sum of the squares of the leaves that are odd:
 \begin{scheme}
-(define (sum-odd-squares tree)
-  (cond ((null? tree) 0)
-        ((not (pair? tree))
-         (if (odd? tree) (square tree) 0))
-        (else (+ (sum-odd-squares (car tree))
-                 (sum-odd-squares (cdr tree))))))
+  (define (sum-odd-squares tree)
+    (cond ((null? tree) 0)
+          ((not (pair? tree))
+           (if (odd? tree) (square tree) 0))
+          (else (+ (sum-odd-squares (car tree))
+                   (sum-odd-squares (cdr tree))))))
+\end{scheme}
+On the surface, this procedure is very different from the following one, which constructs a list of all the even Fibonacci numbers \( \Fib(k) \), where \( k \) is less than or equal to a given integer \( n \):
+\begin{scheme}
+  (define (even-fibs n)
+    (define (next k)
+      (if (> k n)
+          nil
+          (let ((f (fib k)))
+            (if (even? f)
+                (cons f (next (+ k 1)))
+                (next (+ k 1))))))
+    (next 0))
 \end{scheme}
 
-\noindent
-On the surface, this procedure is very different from the following one, which
-constructs a list of all the even Fibonacci numbers \( {\rm Fib}(k) \), where
-\( k \) is less than or equal to a given integer \( n \):
-
-\begin{scheme}
-(define (even-fibs n)
-  (define (next k)
-    (if (> k n)
-        nil
-        (let ((f (fib k)))
-          (if (even? f)
-              (cons f (next (+ k 1)))
-              (next (+ k 1))))))
-  (next 0))
-\end{scheme}
-
-\noindent
-Despite the fact that these two procedures are structurally very different, a
-more abstract description of the two computations reveals a great deal of
-similarity.  The first program
-
+Despite the fact that these two procedures are structurally very different, a more abstract description of the two computations reveals a great deal of similarity.
+The first program
 \begin{itemize}
 
-\item
-enumerates the leaves of a tree;
+	\item
+		enumerates the leaves of a tree;
 
-\item
-filters them, selecting the odd ones;
+	\item
+		filters them, selecting the odd ones;
 
-\item
-squares each of the selected ones; and
+	\item
+		squares each of the selected ones; and
 
-\item
-accumulates the results using \code{+}, starting with 0.
+	\item
+		accumulates the results using \code{+}, starting with \( 0 \).
 
 \end{itemize}
-
-\noindent
 The second program
-
 \begin{itemize}
 
-\item
-enumerates the integers from 0 to \( n \);
+	\item
+		enumerates the integers from \( 0 \) to \( n \);
 
-\item
-computes the Fibonacci number for each integer;
+	\item
+		computes the Fibonacci number for each integer;
 
-\item
-filters them, selecting the even ones; and
+	\item
+		filters them, selecting the even ones; and
 
-\item
-accumulates the results using \code{cons},  starting with the
-empty list.
+	\item
+		accumulates the results using \code{cons}, starting with the empty list.
 
 \end{itemize}
+
+A signal-processing engineer would find it natural to conceptualize these processes in terms of signals flowing through a cascade of stages, each of which implements part of the program plan, as shown in \link{Figure 2.7}.
+In \code{sum-odd-squares}, we begin with an \newterm{enumerator}, which generates a “signal” consisting of the leaves of a given tree.
+This signal is passed through a \newterm{filter}, which eliminates all but the odd elements.
+The resulting signal is in turn passed through a \newterm{map}, which is a “transducer” that applies the \code{square} procedure to each element.
+The output of the map is then fed to an \newterm{accumulator}, which combines the elements using \code{+}, starting from an initial \( 0 \).
+The plan for \code{even-fibs} is analogous.
 
 \begin{figure}[tb]
-\phantomsection\label{Figure 2.7}
-\centering
-\begin{comment}
-\begin{quote}
-\heading{Figure 2.7:} The signal-flow plans for the
-procedures \code{sum\-/odd\-/squares} (top) and \code{even\-/fibs} (bottom) reveal
-the commonality between the two programs.
-
-\begin{example}
-+-------------+   +-------------+   +-------------+   +-------------+
-| enumerate:  |-->| filter:     |-->| map:        |-->| accumulate: |
-| tree leaves |   | odd?        |   | square      |   | +, 0        |
-+-------------+   +-------------+   +-------------+   +-------------+
-
-+-------------+   +-------------+   +-------------+   +-------------+
-| enumerate:  |-->| map:        |-->| filter:     |-->| accumulate: |
-| integers    |   | fib         |   | even?       |   | cons, ()    |
-+-------------+   +-------------+   +-------------+   +-------------+
-\end{example}
-\end{quote}
-\end{comment}
-\includesvg[width=111mm]{fig/chap2/Fig2.7d.svg}
-\begin{quote}
-\heading{Figure 2.7:} The signal-flow plans for the procedures \code{sum\-/odd\-/squares} (top) and \code{even\-/fibs} (bottom) reveal the commonality between the two programs.
-\end{quote}
+	\centering
+	\includesvg[width=111mm]{fig/chap2/Fig2.7d.svg}
+	\caption{
+		The signal-flow plans for the procedures \code{sum-odd-squares} (top) and \code{even-fibs} (bottom) reveal the commonality between the two programs.
+	}
+	\label{Figure 2.7}
 \end{figure}
 
-\noindent
-A signal-processing engineer would find it natural to conceptualize these
-processes in terms of signals flowing through a cascade of stages, each of
-which implements part of the program plan, as shown in \link{Figure 2.7}.  In
-\code{sum\-/odd\-/squares}, we begin with an \newterm{enumerator}, which generates
-a ``signal'' consisting of the leaves of a given tree.  This signal is passed
-through a \newterm{filter}, which eliminates all but the odd elements.  The
-resulting signal is in turn passed through a \newterm{map}, which is a
-``transducer'' that applies the \code{square} procedure to each element.  The
-output of the map is then fed to an \newterm{accumulator}, which combines the
-elements using \code{+}, starting from an initial 0.  The plan for
-\code{even\-/fibs} is analogous.
+Unfortunately, the two procedure definitions above fail to exhibit this signal-flow structure.
+For instance, if we examine the \code{sum-odd-squares} procedure, we find that the enumeration is implemented partly by the \code{null?} and \code{pair?} tests and partly by the tree-recursive structure of the procedure.
+Similarly, the accumulation is found partly in the tests and partly in the addition used in the recursion.
+In general, there are no distinct parts of either procedure that correspond to the elements in the signal-flow description.
+Our two procedures decompose the computations in a different way, spreading the enumeration over the program and mingling it with the map, the filter, and the accumulation.
+If we could organize our programs to make the signal-flow structure manifest in the procedures we write, this would increase the conceptual clarity of the resulting code.
 
-Unfortunately, the two procedure definitions above fail to exhibit this
-signal-flow structure.  For instance, if we examine the \code{sum\-/odd\-/squares}
-procedure, we find that the enumeration is implemented partly by the
-\code{null?} and \code{pair?} tests and partly by the tree-recursive structure
-of the procedure.  Similarly, the accumulation is found partly in the tests and
-partly in the addition used in the recursion.  In general, there are no
-distinct parts of either procedure that correspond to the elements in the
-signal-flow description.  Our two procedures decompose the computations in a
-different way, spreading the enumeration over the program and mingling it with
-the map, the filter, and the accumulation.  If we could organize our programs
-to make the signal-flow structure manifest in the procedures we write, this
-would increase the conceptual clarity of the resulting code.
+
 
 \subsubsection*{Sequence Operations}
 
-The key to organizing programs so as to more clearly reflect the signal-flow
-structure is to concentrate on the ``signals'' that flow from one stage in the
-process to the next.  If we represent these signals as lists, then we can use
-list operations to implement the processing at each of the stages.  For
-instance, we can implement the mapping stages of the signal-flow diagrams using
-the \code{map} procedure from \link{Section 2.2.1}:
-
+The key to organizing programs so as to more clearly reflect the signal-flow structure is to concentrate on the “signals” that flow from one stage in the process to the next.
+If we represent these signals as lists, then we can use list operations to implement the processing at each of the stages.
+For instance, we can implement the mapping stages of the signal-flow diagrams using the \code{map} procedure from \link{Section 2.2.1}:
 \begin{scheme}
-(map square (list 1 2 3 4 5))
-~\textit{(1 4 9 16 25)}~
+  (map square (list 1 2 3 4 5))
+  ~\outprint{(1 4 9 16 25)}~
 \end{scheme}
 
-\noindent
-Filtering a sequence to select only those elements that satisfy a given
-predicate is accomplished by
-
+Filtering a sequence to select only those elements that satisfy a given predicate is accomplished by
 \begin{scheme}
-(define (filter predicate sequence)
-  (cond ((null? sequence) nil)
-        ((predicate (car sequence))
-         (cons (car sequence)
-               (filter predicate (cdr sequence))))
-        (else (filter predicate (cdr sequence)))))
+  (define (filter predicate sequence)
+    (cond ((null? sequence) nil)
+          ((predicate (car sequence))
+           (cons (car sequence)
+                 (filter predicate (cdr sequence))))
+          (else (filter predicate (cdr sequence)))))
 \end{scheme}
-
-\noindent
 For example,
-
 \begin{scheme}
-(filter odd? (list 1 2 3 4 5))
-~\textit{(1 3 5)}~
+  (filter odd? (list 1 2 3 4 5))
+  ~\outprint{(1 3 5)}~
 \end{scheme}
 
-\noindent
 Accumulations can be implemented by
-
 \begin{scheme}
-(define (accumulate op initial sequence)
-  (if (null? sequence)
-      initial
-      (op (car sequence)
-          (accumulate op initial (cdr sequence)))))
-(accumulate + 0 (list 1 2 3 4 5))
-~\textit{15}~
-(accumulate * 1 (list 1 2 3 4 5))
-~\textit{120}~
-(accumulate cons nil (list 1 2 3 4 5))
-~\textit{(1 2 3 4 5)}~
+  (define (accumulate op initial sequence)
+    (if (null? sequence)
+        initial
+        (op (car sequence)
+            (accumulate op initial (cdr sequence)))))
+
+  (accumulate + 0 (list 1 2 3 4 5))
+  ~\outprint{15}~
+
+  (accumulate * 1 (list 1 2 3 4 5))
+  ~\outprint{120}~
+
+  (accumulate cons nil (list 1 2 3 4 5))
+  ~\outprint{(1 2 3 4 5)}~
 \end{scheme}
 
-\noindent
-All that remains to implement signal-flow diagrams is to enumerate the sequence
-of elements to be processed.  For \code{even\-/fibs}, we need to generate the
-sequence of integers in a given range, which we can do as follows:
-
+All that remains to implement signal-flow diagrams is to enumerate the sequence of elements to be processed.
+For \code{even-fibs}, we need to generate the sequence of integers in a given range, which we can do as follows:
 \begin{scheme}
-(define (enumerate-interval low high)
-  (if (> low high)
-      nil
-      (cons low (enumerate-interval (+ low 1) high))))
-(enumerate-interval 2 7)
-~\textit{(2 3 4 5 6 7)}~
+  (define (enumerate-interval low high)
+    (if (> low high)
+        nil
+        (cons low (enumerate-interval (+ low 1) high))))
+
+  (enumerate-interval 2 7)
+  ~\outprint{(2 3 4 5 6 7)}~
+\end{scheme}
+To enumerate the leaves of a tree, we can use%
+\footnote{
+	This is, in fact, precisely the \code{fringe} procedure from \link{Exercise 2.28}.
+	Here we’ve renamed it to emphasize that it is part of a family of general sequence-manipulation procedures.
+}
+\begin{scheme}
+  (define (enumerate-tree tree)
+    (cond ((null? tree) nil)
+          ((not (pair? tree)) (list tree))
+          (else (append (enumerate-tree (car tree))
+                        (enumerate-tree (cdr tree))))))
+
+  (enumerate-tree (list 1 (list 2 (list 3 4)) 5))
+  ~\outprint{(1 2 3 4 5)}~
 \end{scheme}
 
-\noindent
-To enumerate the leaves of a tree, we can use\footnote{This is, in fact,
-precisely the \code{fringe} procedure from \link{Exercise 2.28}.  Here we've
-renamed it to emphasize that it is part of a family of general
-sequence-manipulation procedures.}
-
+Now we can reformulate \code{sum-odd-squares} and \code{even-fibs} as in the signal-flow diagrams.
+For \code{sum-odd-squares}, we enumerate the sequence of leaves of the tree, filter this to keep only the odd numbers in the sequence, square each element, and sum the results:
 \begin{scheme}
-(define (enumerate-tree tree)
-  (cond ((null? tree) nil)
-        ((not (pair? tree)) (list tree))
-        (else (append (enumerate-tree (car tree))
-                      (enumerate-tree (cdr tree))))))
-(enumerate-tree (list 1 (list 2 (list 3 4)) 5))
-~\textit{(1 2 3 4 5)}~
+  (define (sum-odd-squares tree)
+    (accumulate
+     + 0 (map square (filter odd? (enumerate-tree tree)))))
+\end{scheme}
+For \code{even-fibs}, we enumerate the integers from \( 0 \) to \( n \), generate the Fibonacci number for each of these integers, filter the resulting sequence to keep only the even elements, and accumulate the results into a list:
+\begin{scheme}
+  (define (even-fibs n)
+    (accumulate
+     cons
+     nil
+     (filter even? (map fib (enumerate-interval 0 n)))))
 \end{scheme}
 
-\noindent
-Now we can reformulate \code{sum\-/odd\-/squares} and \code{even\-/fibs} as in the
-signal-flow diagrams.  For \code{sum\-/odd\-/squares}, we enumerate the sequence of
-leaves of the tree, filter this to keep only the odd numbers in the sequence,
-square each element, and sum the results:
+The value of expressing programs as sequence operations is that this helps us make program designs that are modular, that is, designs that are constructed by combining relatively independent pieces.
+We can encourage modular design by providing a library of standard components together with a conventional interface for connecting the components in flexible ways.
 
+Modular construction is a powerful strategy for controlling complexity in engineering design.
+In real signal-processing applications, for example, designers regularly build systems by cascading elements selected from standardized families of filters and transducers.
+Similarly, sequence operations provide a library of standard program elements that we can mix and match.
+For instance, we can reuse pieces from the \code{sum-odd-squares} and \code{even-fibs} procedures in a program that constructs a list of the squares of the first \( n + 1 \) Fibonacci numbers:
 \begin{scheme}
-(define (sum-odd-squares tree)
-  (accumulate
-   + 0 (map square (filter odd? (enumerate-tree tree)))))
+  (define (list-fib-squares n)
+    (accumulate
+     cons
+     nil
+     (map square (map fib (enumerate-interval 0 n)))))
+
+  (list-fib-squares 10)
+  ~\outprint{(0 1 1 4 9 25 64 169 441 1156 3025)}~
 \end{scheme}
-
-\noindent
-For \code{even\-/fibs}, we enumerate the integers from 0 to \( n \), generate the
-Fibonacci number for each of these integers, filter the resulting sequence to
-keep only the even elements, and accumulate the results into a list:
-
-\begin{scheme}
-(define (even-fibs n)
-  (accumulate
-   cons
-   nil
-   (filter even? (map fib (enumerate-interval 0 n)))))
-\end{scheme}
-
-\noindent
-The value of expressing programs as sequence operations is that this helps us
-make program designs that are modular, that is, designs that are constructed by
-combining relatively independent pieces.  We can encourage modular design by
-providing a library of standard components together with a conventional
-interface for connecting the components in flexible ways.
-
-Modular construction is a powerful strategy for controlling complexity in
-engineering design.  In real signal-processing applications, for example,
-designers regularly build systems by cascading elements selected from
-standardized families of filters and transducers.  Similarly, sequence
-operations provide a library of standard program elements that we can mix and
-match.  For instance, we can reuse pieces from the \code{sum\-/odd\-/squares} and
-\code{even\-/fibs} procedures in a program that constructs a list of the squares
-of the first \( n + 1 \) Fibonacci numbers:
-
-\begin{scheme}
-(define (list-fib-squares n)
-  (accumulate
-   cons
-   nil
-   (map square (map fib (enumerate-interval 0 n)))))
-(list-fib-squares 10)
-~\textit{(0 1 1 4 9 25 64 169 441 1156 3025)}~
-\end{scheme}
-
-\noindent
 We can rearrange the pieces and use them in computing the product of the squares of the odd
 integers in a sequence:
-
 \begin{scheme}
-(define (product-of-squares-of-odd-elements sequence)
-  (accumulate * 1 (map square (filter odd? sequence))))
-(product-of-squares-of-odd-elements (list 1 2 3 4 5))
-~\textit{225}~
+  (define (product-of-squares-of-odd-elements sequence)
+    (accumulate * 1 (map square (filter odd? sequence))))
+
+  (product-of-squares-of-odd-elements (list 1 2 3 4 5))
+  ~\outprint{225}~
 \end{scheme}
 
-\noindent
-We can also formulate conventional data-processing applications in terms of
-sequence operations.  Suppose we have a sequence of personnel records and we
-want to find the salary of the highest-paid programmer.  Assume that we have a
-selector \code{salary} that returns the salary of a record, and a predicate
-\code{programmer?} that tests if a record is for a programmer.  Then we can
-write
-
+We can also formulate conventional data-processing applications in terms of sequence operations.
+Suppose we have a sequence of personnel records and we want to find the salary of the highest-paid programmer.
+Assume that we have a selector \code{salary} that returns the salary of a record, and a predicate \code{programmer?} that tests if a record is for a programmer.
+Then we can write
 \begin{scheme}
-(define (salary-of-highest-paid-programmer records)
-  (accumulate max 0 (map salary (filter programmer? records))))
+  (define (salary-of-highest-paid-programmer records)
+    (accumulate max 0 (map salary (filter programmer? records))))
 \end{scheme}
+These examples give just a hint of the vast range of operations that can be expressed as sequence operations.%
+\footnote{
+	Richard \link{Waters (1979)} developed a  program that automatically analyzes traditional Fortran programs, viewing them in terms of maps, filters, and accumulations.
+	He found that fully 90 percent of the code in the Fortran Scientific Subroutine Package fits neatly into this paradigm.
+	One of the reasons for the success of Lisp as a programming language is that lists provide a standard medium for expressing ordered collections so that they can be manipulated using higher-order operations.
+	The programming language APL owes much of its power and appeal to a similar choice.
+	In APL all data are represented as arrays, and there is a universal and convenient set of generic operators for all sorts of array operations.
+}
 
-\noindent
-These examples give just a hint of the vast range of operations that can be
-expressed as sequence operations.\footnote{Richard \link{Waters (1979)} developed a
-program that automatically analyzes traditional Fortran programs, viewing them
-in terms of maps, filters, and accumulations.  He found that fully 90 percent
-of the code in the Fortran Scientific Subroutine Package fits neatly into this
-paradigm.  One of the reasons for the success of Lisp as a programming language
-is that lists provide a standard medium for expressing ordered collections so
-that they can be manipulated using higher-order operations.  The programming
-language APL owes much of its power and appeal to a similar choice. In APL all
-data are represented as arrays, and there is a universal and convenient set of
-generic operators for all sorts of array operations.}
+Sequences, implemented here as lists, serve as a conventional interface that permits us to combine processing modules.
+Additionally, when we uniformly represent structures as sequences, we have localized the data-structure dependencies in our programs to a small number of sequence operations.
+By changing these, we can experiment with alternative representations of sequences, while leaving the overall design of our programs intact.
+We will exploit this capability in \link{Section 3.5}, when we generalize the sequence-processing paradigm to admit infinite sequences.
 
-Sequences, implemented here as lists, serve as a conventional interface that
-permits us to combine processing modules.  Additionally, when we uniformly
-represent structures as sequences, we have localized the data-structure
-dependencies in our programs to a small number of sequence operations.  By
-changing these, we can experiment with alternative representations of
-sequences, while leaving the overall design of our programs intact.  We will
-exploit this capability in \link{Section 3.5}, when we generalize the
-sequence-processing paradigm to admit infinite sequences.
 
-\begin{quote}
-\heading{\phantomsection\label{Exercise 2.33}Exercise 2.33:} Fill in the missing expressions
-to complete the following definitions of some basic list-manipulation
-operations as accumulations:
 
-\begin{scheme}
-(define (map p sequence)
-  (accumulate (lambda (x y) ~\( \dark \langle \)~??~\( \dark \rangle \)~) nil sequence))
-(define (append seq1 seq2)
-  (accumulate cons ~\( \dark \langle \)~??~\( \dark \rangle \)~ ~\( \dark \langle \)~??~\( \dark \rangle \)~))
-(define (length sequence)
-  (accumulate ~\( \dark \langle \)~??~\( \dark \rangle \)~ 0 sequence))
-\end{scheme}
-\end{quote}
+\begin{exercise}
+	\label{Exercise 2.33}
+	Fill in the missing expressions to complete the following definitions of some basic list-manipulation operations as accumulations:
+	\begin{scheme}
+	  (define (map p sequence)
+	    (accumulate (lambda (x y) ⟨??⟩) nil sequence))
 
-\begin{quote}
-\heading{\phantomsection\label{Exercise 2.34}Exercise 2.34:} Evaluating a polynomial in \( x \)
-at a given value of \( x \) can be formulated as an accumulation.  We evaluate
-the polynomial
-\begin{comment}
+	  (define (append seq1 seq2)
+	    (accumulate cons ⟨??⟩ ⟨??⟩))
 
-\begin{example}
-a_n x^n + a_(n-1) x^(n-1) + ... + a_1 x + a_0
-\end{example}
+	  (define (length sequence)
+	    (accumulate ⟨??⟩ 0 sequence))
+	\end{scheme}
+\end{exercise}
 
-\end{comment}
 
-$$ a_n x^n + a_{n-1} x^{n-1} + \dots + a_1 x + a_0 $$
 
-\noindent
-using a well-known algorithm called \newterm{Horner's rule}, which structures
-the computation as
-\begin{comment}
+\begin{exercise}
+	\label{Exercise 2.34}
+	Evaluating a polynomial in \( x \) at a given value of \( x \) can be formulated as an accumulation.
+	We evaluate the polynomial
+	\[
+		a_n x^n + a_{n-1} x^{n-1} + \dotsb + a_1 x + a_0
+	\]
+	using a well-known algorithm called \newterm{Horner’s rule}, which structures
+	the computation as
+	\[
+		( \dotsm (a_n x + a_{n-1}) x + \dotsb + a_1) x + a_0 \,.
+	\]
+	In other words, we start with \( a_n \), multiply by \( x \), add
+	\( a_{n-1} \), multiply by \( x \), and so on, until we reach
+	\( a_0 \).%
+	\footnote{
+		According to \link{Knuth 1981}, this rule was formulated by W.~G.~Horner early in the nineteenth century, but the method was actually used by Newton over a hundred years earlier.
+		Horner’s rule evaluates the polynomial using fewer additions and multiplications than does the straightforward method of first computing \( a_n x^n \), then adding \( a_{n-1} x^{n-1} \), and so on.
+		In fact, it is possible to prove that any algorithm for evaluating arbitrary polynomials must use at least as many additions and multiplications as does Horner’s rule, and thus Horner’s rule is an optimal algorithm for polynomial evaluation.
+		This was proved (for the number of additions) by A.~M.~Ostrowski in a 1954 paper that essentially founded the modern study of optimal algorithms.
+		The analogous statement for multiplications was proved by V.~Y.~Pan in 1966.
+		The book by \link{Borodin and Munro (1975)} provides an overview of these and other results about optimal algorithms.
+	}
+	Fill in the following template to produce a procedure that evaluates a polynomial using Horner’s rule.
+	Assume that the coefficients of the polynomial are arranged in a sequence, from \( a_0 \) through \( a_n \).
+	\begin{scheme}
+	  (define (horner-eval x coefficient-sequence)
+	    (accumulate (lambda (this-coeff higher-terms) ⟨??⟩)
+	                0
+	                coefficient-sequence))
+	\end{scheme}
+	For example, to compute \( 1 + 3x + 5x^3 + x^5 \) at \( x = 2 \) you would evaluate
+	\begin{scheme}
+	  (horner-eval 2 (list 1 3 0 5 0 1))
+	\end{scheme}
+\end{exercise}
 
-\begin{example}
-(... (a_n x + a_(n-1)) x + ... + a_1) x + a_0
-\end{example}
 
-\end{comment}
 
-$$ (\dots (a_n x + a_{n-1}) x + \dots + a_1) x + a_0. $$
+\begin{exercise}
+	\label{Exercise 2.35}
+	Redefine \code{count-leaves} from \link{Section 2.2.2} as an accumulation:
+	\begin{scheme}
+	  (define (count-leaves t)
+	    (accumulate ⟨??⟩ ⟨??⟩ (map ⟨??⟩ ⟨??⟩)))
+	\end{scheme}
+\end{exercise}
 
-\noindent
-In other words, we start with \( a_n \), multiply by \( x \), add
-\( a_{n-1} \), multiply by \( x \), and so on, until we reach
-\( a_0 \).\footnote{According to \link{Knuth 1981}, this rule was formulated by
-W. G. Horner early in the nineteenth century, but the method was actually used
-by Newton over a hundred years earlier.  Horner's rule evaluates the polynomial
-using fewer additions and multiplications than does the straightforward method
-of first computing \( a_n x^n \), then adding
-\( a_{n-1}x^{n-1} \), and so on.  In fact, it is possible to prove
-that any algorithm for evaluating arbitrary polynomials must use at least as
-many additions and multiplications as does Horner's rule, and thus Horner's
-rule is an optimal algorithm for polynomial evaluation.  This was proved (for
-the number of additions) by A. M. Ostrowski in a 1954 paper that essentially
-founded the modern study of optimal algorithms.  The analogous statement for
-multiplications was proved by V. Y. Pan in 1966.  The book by \link{Borodin and Munro (1975)}
-provides an overview of these and other results about optimal
-algorithms.}
 
-Fill in the following template to produce a procedure that evaluates a
-polynomial using Horner's rule.  Assume that the coefficients of the polynomial
-are arranged in a sequence, from \( a_0 \) through \( a_n \).
 
-\begin{scheme}
-(define (horner-eval x coefficient-sequence)
-  (accumulate (lambda (this-coeff higher-terms) ~\( \dark \langle \)~??~\( \dark \rangle \)~)
-              0
-              coefficient-sequence))
-\end{scheme}
+\begin{exercise}
+	\label{Exercise 2.36}
+	The procedure \code{accumulate-n} is similar to \code{accumulate} except that it takes as its third argument a sequence of sequences, which are all assumed to have the same number of elements.
+	It applies the designated accumulation procedure to combine all the first elements of the sequences, all the second elements of the sequences, and so on, and returns a sequence of the results.
+	For instance, if \code{s} is a sequence containing four sequences, \code{((1 2 3) (4 5 6) (7 8 9) (10 11 12)),} then the value of \code{(accumulate-n + 0 s)} should be the sequence \code{(22 26 30)}.
+	Fill in the missing expressions in the following definition of \code{accumulate-n}:
+	\begin{scheme}
+	  (define (accumulate-n op init seqs)
+	    (if (null? (car seqs))
+	        nil
+	        (cons (accumulate op init ⟨??⟩)
+	              (accumulate-n op init ⟨??⟩))))
+	\end{scheme}
+\end{exercise}
 
-For example, to compute \( 1 + 3x + 5x^3 + x^5 \) at \( x = 2 \) you
-would evaluate
 
-\begin{scheme}
-(horner-eval 2 (list 1 3 0 5 0 1))
-\end{scheme}
-\end{quote}
 
-\begin{quote}
-\heading{\phantomsection\label{Exercise 2.35}Exercise 2.35:} Redefine \code{count\-/leaves} from
-\link{Section 2.2.2} as an accumulation:
+\begin{exercise}
+	\label{Exercise 2.37}
+	Suppose we represent vectors \( v = (v_i) \) as sequences of numbers, and matrices \( m = (m_{ij}) \) as sequences of vectors (the rows of the matrix).
+	For example, the matrix
+	\[
+	\begin{bmatrix}
+		1 & 2 & 3 & 4 \\
+		4 & 5 & 6 & 6 \\
+		6 & 7 & 8 & 9
+	\end{bmatrix}
+	\]
+	is represented as the sequence \code{((1 2 3 4) (4 5 6 6) (6 7 8 9))}.
+	With this representation, we can use sequence operations to concisely express the basic matrix and vector operations.
+	These operations (which are described in any book on matrix algebra) are the following:
+	\begin{center}
+	\begin{tabular}{ll}
+		\code{(dot-product v w)}
+		&
+		returns the sum $∑_i v_i w_i$;
+		\\
+		\code{(matrix-*-vector m v)}
+		&
+		returns the vector $t$, where $t_i = ∑_j m_{ij} v_j$;
+		\\
+		\code{(matrix-*-matrix m n)}
+		&
+		returns the matrix $p$ where $p_{ij} = ∑_k m_{ik} n_{kj}$
+		\\
+		\code{(transpose m)}
+		&
+		returns the matrix $n$, where $n_{ij} = m_{ji}$
+	\end{tabular}
+	\end{center}
+	We can define the dot product as%
+	\footnote{
+		This definition uses the extended version of \code{map} described in \link{Footnote 12}.
+	}
+	\begin{scheme}
+	  (define (dot-product v w)
+	    (accumulate + 0 (map * v w)))
+	\end{scheme}
+	Fill in the missing expressions in the following procedures for computing the other matrix operations.
+	(The procedure \code{accumulate-n} is defined in \link{Exercise 2.36}.)
+	\begin{scheme}
+	  (define (matrix-*-vector m v)
+	    (map ⟨??⟩ m))
 
-\begin{scheme}
-(define (count-leaves t)
-  (accumulate ~\( \dark \langle \)~??~\( \dark \rangle \)~ ~\( \dark \langle \)~??~\( \dark \rangle \)~ (map ~\( \dark \langle \)~??~\( \dark \rangle \)~ ~\( \dark \langle \)~??~\( \dark \rangle \)~)))
-\end{scheme}
-\end{quote}
+	  (define (transpose mat)
+	    (accumulate-n ⟨??⟩ ⟨??⟩ mat))
 
-\begin{quote}
-\heading{\phantomsection\label{Exercise 2.36}Exercise 2.36:} The procedure \code{accumulate\-/n}
-is similar to \code{accumulate} except that it takes as its third argument a
-sequence of sequences, which are all assumed to have the same number of
-elements.  It applies the designated accumulation procedure to combine all the
-first elements of the sequences, all the second elements of the sequences, and
-so on, and returns a sequence of the results.  For instance, if \code{s} is a
-sequence containing four sequences, \code{((1 2 3) (4 5 6) (7 8 9) (10 11
-12)),} then the value of \code{(accumulate\-/n + 0 s)} should be the sequence
-\code{(22 26 30)}.  Fill in the missing expressions in the following definition
-of \code{accumulate\-/n}:
+	  (define (matrix-*-matrix m n)
+	    (let ((cols (transpose n)))
+	      (map ⟨??⟩ m)))
+	\end{scheme}
+\end{exercise}
 
-\begin{scheme}
-(define (accumulate-n op init seqs)
-  (if (null? (car seqs))
-      nil
-      (cons (accumulate op init ~\( \dark \langle \)~??~\( \dark \rangle \)~)
-            (accumulate-n op init ~\( \dark \langle \)~??~\( \dark \rangle \)~))))
-\end{scheme}
-\end{quote}
 
-\begin{quote}
-\heading{\phantomsection\label{Exercise 2.37}Exercise 2.37:}
-Suppose we represent vectors \( \hbox{\bf v} = (v_i) \) as sequences of numbers, and
-matrices \( \hbox{\bf m} = (m_{i\!j}) \) as sequences of vectors (the rows of the
-matrix).  For example, the matrix
-\begin{comment}
 
-\begin{example}
-+-         -+
-|  1 2 3 4  |
-|  4 5 6 6  |
-|  6 7 8 9  |
-+-         -+
-\end{example}
+\begin{exercise}
+	\label{Exercise 2.38}
+	The \code{accumulate} procedure is also known as \code{fold-right}, because it combines the first element of the sequence with the result of combining all the elements to the right.
+	There is also a \code{fold-left}, which is similar to \code{fold-right}, except that it combines elements working in the opposite direction:
+	\begin{scheme}
+	  (define (fold-left op initial sequence)
+	    (define (iter result rest)
+	      (if (null? rest)
+	          result
+	          (iter (op result (car rest))
+	                (cdr rest))))
+	    (iter initial sequence))
+	\end{scheme}
+	What are the values of
+	\begin{scheme}
+	  (fold-right / 1 (list 1 2 3))
 
-\end{comment}
+	  (fold-left / 1 (list 1 2 3))
 
-$$
-\left(
-\begin{array}{cccc}
-  1 & 2 & 3 & 4 \\
-  4 & 5 & 6 & 6 \\
-  6 & 7 & 8 & 9
-\end{array}
-\right)
-$$
+	  (fold-right list nil (list 1 2 3))
 
-\noindent
-is represented as the sequence \code{((1 2 3 4) (4 5 6 6) (6 7 8 9))}.  With
-this representation, we can use sequence operations to concisely express the
-basic matrix and vector operations.  These operations (which are described in
-any book on matrix algebra) are the following:
-\begin{comment}
+	  (fold-left list nil (list 1 2 3))
+	\end{scheme}
+	Give a property that \code{op} should satisfy to guarantee that \code{fold-right} and \code{fold-left} will produce the same values for any sequence.
+\end{exercise}
 
-\begin{example}
-                                       __
-(dot-product v w)      returns the sum >_i v_i w_i
 
-(matrix-*-vector m v)  returns the vector t,
-                                   __
-                       where t_i = >_j m_(ij) v_j
 
-(matrix-*-matrix m n)  returns the matrix p,
-                                      __
-                       where p_(ij) = >_k m_(ik) n_(kj)
+\begin{exercise}
+	\label{Exercise 2.39}
+	Complete the following definitions of \code{reverse} (\link{Exercise 2.18}) in terms of \code{fold-right} and \code{fold-left} from \link{Exercise 2.38}:
+	\begin{scheme}
+	  (define (reverse sequence)
+	    (fold-right (lambda (x y) ⟨??⟩) nil sequence))
 
-(transpose m)          returns the matrix n,
-                       where n_(ij) = m_(ji)
-\end{example}
+	  (define (reverse sequence)
+	    (fold-left (lambda (x y) ⟨??⟩) nil sequence))
+	\end{scheme}
+\end{exercise}
 
-\end{comment}
 
-$$
-\begin{array}{rl}
-	\hbox{\tt (dot-product v w)} 		& {\rm returns\;the\;sum\;} \Sigma_i v_i w_i; \\
-	\hbox{\tt (matrix-*-vector m v)} 	& {\rm returns\;the\;vector\;} \hbox{\bf t},  \\
-		& {\rm where\;} t_i = \Sigma_{\kern-0.1em j} m_{i\!j} v_{\kern-0.1em j};      \\
-	\hbox{\tt (matrix-*-matrix m n)} 	& {\rm returns\;the\;matrix\;} \hbox{\bf p},  \\
-		& {\rm where\;} p_{i\!j} = \Sigma_k m_{ik} n_{k\!j};                          \\
-	\hbox{\tt (transpose m)} 		& {\rm returns\;the\;matrix\;} \hbox{\bf n},  \\
-		& {\rm where\;} n_{i\!j} = m_{\kern-0.1em ji}.
-\end{array}
-$$
-
-We can define the dot product as\footnote{This definition uses the extended
-version of \code{map} described in \link{Footnote 12}.}
-
-\begin{scheme}
-(define (dot-product v w)
-  (accumulate + 0 (map * v w)))
-\end{scheme}
-
-Fill in the missing expressions in the following procedures for computing the
-other matrix operations.  (The procedure \code{accumulate\-/n} is defined in
-\link{Exercise 2.36}.)
-
-\begin{scheme}
-(define (matrix-*-vector m v)
-  (map ~\( \dark \langle \)~??~\( \dark \rangle \)~ m))
-(define (transpose mat)
-  (accumulate-n ~\( \dark \langle \)~??~\( \dark \rangle \)~ ~\( \dark \langle \)~??~\( \dark \rangle \)~ mat))
-(define (matrix-*-matrix m n)
-  (let ((cols (transpose n)))
-    (map ~\( \dark \langle \)~??~\( \dark \rangle \)~ m)))
-\end{scheme}
-\end{quote}
-
-\begin{quote}
-\heading{\phantomsection\label{Exercise 2.38}Exercise 2.38:} The \code{accumulate} procedure
-is also known as \code{fold\-/right}, because it combines the first element of
-the sequence with the result of combining all the elements to the right.  There
-is also a \code{fold\-/left}, which is similar to \code{fold\-/right}, except that
-it combines elements working in the opposite direction:
-
-\begin{scheme}
-(define (fold-left op initial sequence)
-  (define (iter result rest)
-    (if (null? rest)
-        result
-        (iter (op result (car rest))
-              (cdr rest))))
-  (iter initial sequence))
-\end{scheme}
-
-What are the values of
-
-\begin{scheme}
-(fold-right / 1 (list 1 2 3))
-(fold-left / 1 (list 1 2 3))
-(fold-right list nil (list 1 2 3))
-(fold-left list nil (list 1 2 3))
-\end{scheme}
-
-Give a property that \code{op} should satisfy to guarantee that
-\code{fold\-/right} and \code{fold\-/left} will produce the same values for any
-sequence.
-\end{quote}
-
-\begin{quote}
-\heading{\phantomsection\label{Exercise 2.39}Exercise 2.39:} Complete the following
-definitions of \code{reverse} (\link{Exercise 2.18}) in terms of
-\code{fold\-/right} and \code{fold\-/left} from \link{Exercise 2.38}:
-
-\begin{scheme}
-(define (reverse sequence)
-  (fold-right (lambda (x y) ~\( \dark \langle \)~??~\( \dark \rangle \)~) nil sequence))
-(define (reverse sequence)
-  (fold-left (lambda (x y) ~\( \dark \langle \)~??~\( \dark \rangle \)~) nil sequence))
-\end{scheme}
-\end{quote}
 
 \subsubsection*{Nested Mappings}
 
-We can extend the sequence paradigm to include many computations that are
-commonly expressed using nested loops.\footnote{This approach to nested
-mappings was shown to us by David Turner, whose languages KRC and Miranda
-provide elegant formalisms for dealing with these constructs.  The examples in
-this section (see also \link{Exercise 2.42}) are adapted from \link{Turner 1981}.  In
-\link{Section 3.5.3}, we'll see how this approach generalizes to infinite
-sequences.} Consider this problem: Given a positive integer \( n \), find all
-ordered pairs of distinct positive integers \( i \) and \( j \), where
-\( 1 \le j < i \le n \), such that \( i + j \) is prime.  For example, if \( n \) is 6,
-then the pairs are the following:
-\begin{comment}
+We can extend the sequence paradigm to include many computations that are commonly expressed using nested loops.%
+\footnote{
+	This approach to nested mappings was shown to us by David Turner, whose languages KRC and Miranda provide elegant formalisms for dealing with these constructs.
+	The examples in this section (see also \link{Exercise 2.42}) are adapted from \link{Turner 1981}.
+	In \link{Section 3.5.3}, we’ll see how this approach generalizes to infinite sequences.
+}
+Consider this problem:
+Given a positive integer \( n \), find all ordered pairs of distinct positive integers \( i \) and \( j \), where \( 1 ≤ j < i ≤ n \), such that \( i + j \) is prime.
+For example, if \( n \) is \( 6 \), then the pairs are the following:
 
-\begin{example}
-  i   | 2 3 4 4 5 6 6
-  j   | 1 2 1 3 2 1 5
-------+---------------
-i + j | 3 5 5 7 7 7 11
-\end{example}
+\begin{center}
+	\begin{tabular}
+	{>{$}c<{$}>{$}c<{$}>{$}c<{$}>{$}c<{$}>{$}c<{$}>{$}c<{$}>{$}c<{$}>{$}c<{$}}
+		\toprule
+		  i   & 2 & 3 & 4 & 4 & 5 & 6 &  6 \\
+		  j   & 1 & 2 & 1 & 3 & 2 & 1 &  5 \\
+		\midrule
+		i + j & 3 & 5 & 5 & 7 & 7 & 7 & 11 \\
+		\bottomrule
+	\end{tabular}
+\end{center}
 
-\end{comment}
+A natural way to organize this computation is to generate the sequence of all ordered pairs of positive integers less than or equal to \( n \), filter to select those pairs whose sum is prime, and then, for each pair \( (i, j) \) that passes through the filter, produce the triple \( (i, j, i + j) \).
 
-$$\vbox{
-\offinterlineskip
-\halign{
-\strut \hfil \quad #\quad \hfil & \vrule
-	\hfil \quad #\quad \hfil &
-	\hfil \quad #\quad \hfil &
-	\hfil \quad #\quad \hfil &
-	\hfil \quad #\quad \hfil &
-	\hfil \quad #\quad \hfil &
-	\hfil \quad #\quad \hfil &
-	\hfil \quad #\quad \hfil \cr
-
-$i$ 	& 2 & 3 & 4 & 4 & 5 & 6 & 6 \cr
-$j$ 	& 1 & 2 & 1 & 3 & 2 & 1 & 5 \cr
-\noalign{\hrule}
-$i + j$	& 3 & 5 & 5 & 7 & 7 & 7 & 11 \cr}
-}$$
-
-A natural way to organize this computation is to generate the sequence of all
-ordered pairs of positive integers less than or equal to \( n \), filter to
-select those pairs whose sum is prime, and then, for each pair \( (i, j) \)
-that passes through the filter, produce the triple \( (i, j, i + j) \).
-
-Here is a way to generate the sequence of pairs: For each integer \( i \le n \),
-enumerate the integers \( j < i \), and for each such \( i \) and \( j \)
-generate the pair \( (i, j) \).  In terms of sequence operations, we map along
-the sequence \code{(enumerate\-/interval 1 n)}.  For each \( i \) in this sequence,
-we map along the sequence \code{(enumerate\-/interval 1 (- i 1))}.  For each
-\( j \) in this latter sequence, we generate the pair \code{(list i j)}.  This
-gives us a sequence of pairs for each \( i \).  Combining all the sequences for
-all the \( i \) (by accumulating with \code{append}) produces the required
-sequence of pairs:\footnote{We're representing a pair here as a list of two
-elements rather than as a Lisp pair.  Thus, the ``pair'' \( (i, j) \) is
-represented as \code{(list i j)}, not \code{(cons i j)}.}
-
+Here is a way to generate the sequence of pairs:
+For each integer \( i ≤ n \), enumerate the integers \( j < i \), and for each such \( i \) and \( j \) generate the pair \( (i, j) \).
+In terms of sequence operations, we map along the sequence \code{(enumerate-interval 1 n)}.
+For each \( i \) in this sequence, we map along the sequence \code{(enumerate-interval 1 (- i 1))}.
+For each \( j \) in this latter sequence, we generate the pair \code{(list i j)}.
+This gives us a sequence of pairs for each \( i \).
+Combining all the sequences for all the \( i \) (by accumulating with \code{append}) produces the required sequence of pairs:%
+\footnote{
+	We’re representing a pair here as a list of two elements rather than as a Lisp pair.
+	Thus, the “pair” \( (i, j) \) is represented as \code{(list i j)}, not \code{(cons i j)}.
+}
 \begin{scheme}
-(accumulate
- append nil (map (lambda (i)
-                   (map (lambda (j) (list i j))
-                        (enumerate-interval 1 (- i 1))))
-                 (enumerate-interval 1 n)))
+  (accumulate
+   append nil (map (lambda (i)
+                     (map (lambda (j) (list i j))
+                          (enumerate-interval 1 (- i 1))))
+                   (enumerate-interval 1 n)))
 \end{scheme}
-
-\noindent
-The combination of mapping and accumulating with \code{append} is so common in
-this sort of program that we will isolate it as a separate procedure:
-
+The combination of mapping and accumulating with \code{append} is so common in this sort of program that we will isolate it as a separate procedure:
 \begin{scheme}
-(define (flatmap proc seq)
-  (accumulate append nil (map proc seq)))
+  (define (flatmap proc seq)
+    (accumulate append nil (map proc seq)))
 \end{scheme}
-
-\noindent
-Now filter this sequence of pairs to find those whose sum is prime. The filter
-predicate is called for each element of the sequence; its argument is a pair
-and it must extract the integers from the pair.  Thus, the predicate to apply
-to each element in the sequence is
-
+Now filter this sequence of pairs to find those whose sum is prime.
+The filter  predicate is called for each element of the sequence;
+its argument is a pair and it must extract the integers from the pair.
+Thus, the predicate to apply to each element in the sequence is
 \begin{scheme}
-(define (prime-sum? pair)
-  (prime? (+ (car pair) (cadr pair))))
+  (define (prime-sum? pair)
+    (prime? (+ (car pair) (cadr pair))))
 \end{scheme}
-
-\noindent
 Finally, generate the sequence of results by mapping over the filtered pairs
 using the following procedure, which constructs a triple consisting of the two
 elements of the pair along with their sum:
-
 \begin{scheme}
-(define (make-pair-sum pair)
-  (list (car pair) (cadr pair) (+ (car pair) (cadr pair))))
+  (define (make-pair-sum pair)
+    (list (car pair) (cadr pair) (+ (car pair) (cadr pair))))
 \end{scheme}
-
-\noindent
 Combining all these steps yields the complete procedure:
-
 \begin{smallscheme}
-(define (prime-sum-pairs n)
-  (map make-pair-sum
-       (filter prime-sum? (flatmap
-                           (lambda (i)
-                             (map (lambda (j) (list i j))
-                                  (enumerate-interval 1 (- i 1))))
-                           (enumerate-interval 1 n)))))
+  (define (prime-sum-pairs n)
+    (map make-pair-sum
+         (filter prime-sum? (flatmap
+                             (lambda (i)
+                               (map (lambda (j) (list i j))
+                                    (enumerate-interval 1 (- i 1))))
+                             (enumerate-interval 1 n)))))
 \end{smallscheme}
 
-\noindent
-Nested mappings are also useful for sequences other than those that enumerate
-intervals.  Suppose we wish to generate all the permutations of a set \( S; \)
-that is, all the ways of ordering the items in the set.  For instance, the
-permutations of \( \{1, 2, 3\} \) are \( \{1, 2, 3\} \), \( \{1, 3, 2\} \), \( \{2, 1, 3\} \), \( \{2, 3, 1\} \),
-\( \{3, 1, 2\} \), and \( \{3, 2, 1\} \).  Here is a plan for generating the permutations of
-\( S \): For each item \( x \) in \( S \), recursively generate the sequence of
-permutations of \( S - x \),\footnote{The set \( S - x \) is the set of all
-elements of \( S \), excluding \( x \).} and adjoin \( x \) to the front of each one.
-This yields, for each \( x \) in \( S \), the sequence of permutations of \( S \)
-that begin with \( x \).  Combining these sequences for all \( x \) gives all the
-permutations of \( S \):\footnote{Semicolons in Scheme code are used to introduce
-\newterm{comments}.  Everything from the semicolon to the end of the line is
-ignored by the interpreter.  In this book we don't use many comments; we try to
-make our programs self-documenting by using descriptive names.}
-
+Nested mappings are also useful for sequences other than those that enumerate intervals.
+Suppose we wish to generate all the permutations of a set \( S \);
+that is, all the ways of ordering the items in the set.
+For instance, the permutations of \( \{1, 2, 3\} \) are \( \{1, 2, 3\} \), \( \{1, 3, 2\} \), \( \{2, 1, 3\} \), \( \{2, 3, 1\} \), \( \{3, 1, 2\} \), and \( \{3, 2, 1\} \).
+Here is a plan for generating the permutations of \( S \):
+For each item \( x \) in \( S \), recursively generate the sequence of permutations of \( S - x \),%
+\footnote{
+	The set \( S - x \) is the set of all elements of \( S \), excluding \( x \).
+}
+and adjoin \( x \) to the front of each one.
+This yields, for each \( x \) in \( S \), the sequence of permutations of \( S \) that begin with \( x \).
+Combining these sequences for all \( x \) gives all the permutations of \( S \):%
+\footnote{
+	Semicolons in Scheme code are used to introduce \newterm{comments}.
+	Everything from the semicolon to the end of the line is ignored by the interpreter.
+	In this book we don’t use many comments;
+	we try to make our programs self-documenting by using descriptive names.
+}
 \begin{scheme}
-(define (permutations s)
-  (if (null? s)              ~\textrm{; empty set?}~
-      (list nil)             ~\textrm{; sequence containing empty set}~
-      (flatmap (lambda (x)
-                 (map (lambda (p) (cons x p))
-                      (permutations (remove x s))))
-               s)))
+  (define (permutations s)
+    (if (null? s)              ~\textrm{; empty set?}~
+        (list nil)             ~\textrm{; sequence containing empty set}~
+        (flatmap (lambda (x)
+                   (map (lambda (p) (cons x p))
+                        (permutations (remove x s))))
+                 s)))
+\end{scheme}
+Notice how this strategy reduces the problem of generating permutations of \( S \) to the problem of generating the permutations of sets with fewer elements than \( S \).
+In the terminal case, we work our way down to the empty list, which represents a set of no elements.
+For this, we generate \code{(list nil)}, which is a sequence with one item, namely the set with no elements.
+The \code{remove} procedure used in \code{permutations} returns all the items in a given sequence except for a given item.
+This can be expressed as a simple filter:
+\begin{scheme}
+  (define (remove item sequence)
+    (filter (lambda (x) (not (= x item)))
+            sequence))
 \end{scheme}
 
-\noindent
-Notice how this strategy reduces the problem of generating permutations of
-\( S \) to the problem of generating the permutations of sets with fewer elements
-than \( S \).  In the terminal case, we work our way down to the empty list,
-which represents a set of no elements.  For this, we generate \code{(list
-nil)}, which is a sequence with one item, namely the set with no elements.  The
-\code{remove} procedure used in \code{permutations} returns all the items in a
-given sequence except for a given item.  This can be expressed as a simple
-filter:
 
-\begin{scheme}
-(define (remove item sequence)
-  (filter (lambda (x) (not (= x item)))
-          sequence))
-\end{scheme}
 
-\begin{quote}
-\heading{\phantomsection\label{Exercise 2.40}Exercise 2.40:} Define a procedure
-\code{unique\-/pairs} that, given an integer \( n \), generates the sequence of
-pairs \( (i, j) \) with \( 1 \le j < i \le n \).  Use \code{unique\-/pairs}
-to simplify the definition of \code{prime\-/sum\-/pairs} given above.
-\end{quote}
+\begin{exercise}
+	\label{Exercise 2.40}
+	Define a procedure \code{unique-pairs} that, given an integer \( n \), generates the sequence of pairs \( (i, j) \) with \( 1 ≤ j < i ≤ n \).
+	Use \code{unique-pairs} to simplify the definition of \code{prime-sum-pairs} given above.
+\end{exercise}
 
-\begin{quote}
-\heading{\phantomsection\label{Exercise 2.41}Exercise 2.41:} Write a procedure to find all
-ordered triples of distinct positive integers \( i \), \( j \), and \( k \) less than
-or equal to a given integer \( n \) that sum to a given integer \( s \).
-\end{quote}
 
-\begin{quote}
-\heading{\phantomsection\label{Exercise 2.42}Exercise 2.42:} The ``eight-queens puzzle'' asks
-how to place eight queens on a chessboard so that no queen is in check from any
-other (i.e., no two queens are in the same row, column, or diagonal).  One
-possible solution is shown in \link{Figure 2.8}.  One way to solve the puzzle is
-to work across the board, placing a queen in each column.  Once we have placed
-\( k - 1 \) queens, we must place the \( k^{\mathrm{th}} \) queen in a position where it does
-not check any of the queens already on the board.  We can formulate this
-approach recursively: Assume that we have already generated the sequence of all
-possible ways to place \( k - 1 \) queens in the first \( k - 1 \) columns of the
-board.  For each of these ways, generate an extended set of positions by
-placing a queen in each row of the \( k^{\mathrm{th}} \) column.  Now filter these, keeping
-only the positions for which the queen in the \( k^{\mathrm{th}} \) column is safe with
-respect to the other queens.  This produces the sequence of all ways to place
-\( k \) queens in the first \( k \) columns.  By continuing this process, we will
-produce not only one solution, but all solutions to the puzzle.
 
-\begin{figure}[tb]
-\phantomsection\label{Figure 2.8}
-\centering
-\begin{comment}
-\heading{Figure 2.8:} A solution to the eight-queens puzzle.
+\begin{exercise}
+	\label{Exercise 2.41}
+	Write a procedure to find all ordered triples of distinct positive integers \( i \), \( j \), and \( k \) less than or equal to a given integer \( n \) that sum to a given integer \( s \).
+\end{exercise}
 
-\begin{example}
-+---+---+---+---+---+---+---+---+
-|   |   |   |   |   | Q |   |   |
-+---+---+---+---+---+---+---+---+
-|   |   | Q |   |   |   |   |   |
-+---+---+---+---+---+---+---+---+
-| Q |   |   |   |   |   |   |   |
-+---+---+---+---+---+---+---+---+
-|   |   |   |   |   |   | Q |   |
-+---+---+---+---+---+---+---+---+
-|   |   |   |   | Q |   |   |   |
-+---+---+---+---+---+---+---+---+
-|   |   |   |   |   |   |   | Q |
-+---+---+---+---+---+---+---+---+
-|   | Q |   |   |   |   |   |   |
-+---+---+---+---+---+---+---+---+
-|   |   |   | Q |   |   |   |   |
-+---+---+---+---+---+---+---+---+
-\end{example}
-\end{comment}
-\includesvg[width=48mm]{fig/chap2/Fig2.8c.svg}      % 73mm
-\par\bigskip
-\noindent
-\heading{Figure 2.8:} A solution to the eight-queens puzzle.
-\end{figure}
 
-We implement this solution as a procedure \code{queens}, which returns a
-sequence of all solutions to the problem of placing \( n \) queens on an
-\( n \times n \) chessboard.  \code{queens} has an internal procedure
-\code{queen\-/cols} that returns the sequence of all ways to place queens in the
-first \( k \) columns of the board.
 
-\begin{scheme}
+\begin{exercise}
+	\label{Exercise 2.42}
+	The “eight-queens puzzle” asks how to place eight queens on a chessboard so that no queen is in check from any other (i.e., no two queens are in the same row, column, or diagonal).
+	One possible solution is shown in \link{Figure 2.8}.
+	One way to solve the puzzle is to work across the board, placing a queen in each column.
+	Once we have placed \( k - 1 \) queens, we must place the \( k \)\textsuperscript{th} queen in a position where it does not check any of the queens already on the board.
+	We can formulate this approach recursively:
+	Assume that we have already generated the sequence of all possible ways to place \( k - 1 \) queens in the first \( k - 1 \) columns of the board.
+	For each of these ways, generate an extended set of positions by placing a queen in each row of the \( k \)\textsuperscript{th} column.
+	Now filter these, keeping only the positions for which the queen in the \( k \)\textsuperscript{th} column is safe with respect to the other queens.
+	This produces the sequence of all ways to place \( k \) queens in the first \( k \) columns.
+	By continuing this process, we will produce not only one solution, but all solutions to the puzzle.
 
-(define (queens board-size)
-  (define (queen-cols k)
-    (if (= k 0)
-        (list empty-board)
-        (filter
-         (lambda (positions) (safe? k positions))
-         (flatmap
-          (lambda (rest-of-queens)
-            (map (lambda (new-row)
-                   (adjoin-position
-                    new-row k rest-of-queens))
-                 (enumerate-interval 1 board-size)))
-          (queen-cols (- k 1))))))
-  (queen-cols board-size))
-\end{scheme}
+	\begin{figure}[tb]
+		\centering
+		\includesvg[width=48mm]{fig/chap2/Fig2.8c.svg}
+		\caption{
+			A solution to the eight-queens puzzle.
+		}
+		\label{Figure 2.8}
+	\end{figure}
 
-In this procedure \code{rest\-/of\-/queens} is a way to place \( k - 1 \) queens in
-the first \( k - 1 \) columns, and \code{new\-/row} is a proposed row in which to
-place the queen for the \( k^{\mathrm{th}} \) column.  Complete the program by implementing
-the representation for sets of board positions, including the procedure
-\code{adjoin\-/position}, which adjoins a new row-column position to a set of
-positions, and \code{empty\-/board}, which represents an empty set of positions.
-You must also write the procedure \code{safe?}, which determines for a set of
-positions, whether the queen in the \( k^{\mathrm{th}} \) column is safe with respect to the
-others.  (Note that we need only check whether the new queen is safe---the
-other queens are already guaranteed safe with respect to each other.)
-\end{quote}
+	We implement this solution as a procedure \code{queens}, which returns a sequence of all solutions to the problem of placing \( n \) queens on an \( n × n \) chessboard.
+	\code{queens} has an internal procedure \code{queen-cols} that returns the sequence of all ways to place queens in the first \( k \) columns of the board.
+	\begin{scheme}
+	  (define (queens board-size)
+	    (define (queen-cols k)
+	      (if (= k 0)
+	          (list empty-board)
+	          (filter
+	           (lambda (positions) (safe? k positions))
+	           (flatmap
+	            (lambda (rest-of-queens)
+	              (map (lambda (new-row)
+	                     (adjoin-position
+	                      new-row k rest-of-queens))
+	                   (enumerate-interval 1 board-size)))
+	            (queen-cols (- k 1))))))
+	    (queen-cols board-size))
+	\end{scheme}
 
-\begin{quote}
-\heading{\phantomsection\label{Exercise 2.43}Exercise 2.43:} Louis Reasoner is having a
-terrible time doing \link{Exercise 2.42}.  His \code{queens} procedure seems to
-work, but it runs extremely slowly.  (Louis never does manage to wait long
-enough for it to solve even the \( 6\times6 \) case.)  When Louis asks Eva Lu Ator for
-help, she points out that he has interchanged the order of the nested mappings
-in the \code{flatmap}, writing it as
+	In this procedure \code{rest-of-queens} is a way to place \( k - 1 \) queens in the first \( k - 1 \) columns, and \code{new-row} is a proposed row in which to place the queen for the \( k \)\textsuperscript{th} column.
+	Complete the program by implementing the representation for sets of board positions, including the procedure \code{adjoin-position}, which adjoins a new row-column position to a set of positions, and \code{empty-board}, which represents an empty set of positions.
+	You must also write the procedure \code{safe?}, which determines for a set of positions, whether the queen in the \( k \)\textsuperscript{th} column is safe with respect to the others.
+	(Note that we need only check whether the new queen is safe---the other queens are already guaranteed safe with respect to each other.)
+\end{exercise}
 
-\begin{scheme}
-(flatmap
- (lambda (new-row)
-   (map (lambda (rest-of-queens)
-          (adjoin-position new-row k rest-of-queens))
-        (queen-cols (- k 1))))
- (enumerate-interval 1 board-size))
-\end{scheme}
 
-Explain why this interchange makes the program run slowly.  Estimate how long
-it will take Louis's program to solve the eight-queens puzzle, assuming that
-the program in \link{Exercise 2.42} solves the puzzle in time \( T \).
-\end{quote}
+
+\begin{exercise}
+	\label{Exercise 2.43}
+	Louis Reasoner is having a terrible time doing \link{Exercise 2.42}.
+	His \code{queens} procedure seems to work, but it runs extremely slowly.
+	(Louis never does manage to wait long enough for it to solve even the \( 6 × 6 \) case.)
+	When Louis asks Eva Lu Ator for help, she points out that he has interchanged the order of the nested mappings in the \code{flatmap}, writing it as
+	\begin{scheme}
+	  (flatmap
+	   (lambda (new-row)
+	     (map (lambda (rest-of-queens)
+	            (adjoin-position new-row k rest-of-queens))
+	          (queen-cols (- k 1))))
+	   (enumerate-interval 1 board-size))
+	\end{scheme}
+	Explain why this interchange makes the program run slowly.
+	Estimate how long it will take Louis’s program to solve the eight-queens puzzle, assuming that the program in \link{Exercise 2.42} solves the puzzle in time \( T \).
+\end{exercise}
+
+
 
 \subsection{Example: A Picture Language}
 \label{Section 2.2.4}
 
-This section presents a simple language for drawing pictures that illustrates
-the power of data abstraction and closure, and also exploits higher-order
-procedures in an essential way.  The language is designed to make it easy to
-experiment with patterns such as the ones in \link{Figure 2.9}, which are
-composed of repeated elements that are shifted and scaled.\footnote{The picture
-language is based on the language Peter Henderson created to construct images
-like M.C. Escher's ``Square Limit'' woodcut (see \link{Henderson 1982}).  The woodcut
-incorporates a repeated scaled pattern, similar to the arrangements drawn using
-the \code{square\-/limit} procedure in this section.} In this language, the data
-objects being combined are represented as procedures rather than as list
-structure.  Just as \code{cons}, which satisfies the closure property, allowed
-us to easily build arbitrarily complicated list structure, the operations in
-this language, which also satisfy the closure property, allow us to easily
-build arbitrarily complicated patterns.
+This section presents a simple language for drawing pictures that illustrates the power of data abstraction and closure, and also exploits higher-order procedures in an essential way.
+The language is designed to make it easy to experiment with patterns such as the ones in \link{Figure 2.9}, which are composed of repeated elements that are shifted and scaled.%
+\footnote{
+	The picture language is based on the language Peter Henderson created to construct images like M.~C.~Escher’s “Square Limit” woodcut (see \link{Henderson 1982}).
+	The woodcut incorporates a repeated scaled pattern, similar to the arrangements drawn using the \code{square-limit} procedure in this section.
+}
+In this language, the data objects being combined are represented as procedures rather than as list structure.
+Just as \code{cons}, which satisfies the closure property, allowed us to easily build arbitrarily complicated list structure, the operations in this language, which also satisfy the closure property, allow us to easily build arbitrarily complicated patterns.
+
 
 
 \subsubsection*{The picture language}
 
-When we began our study of programming in \link{Section 1.1}, we emphasized the
-importance of describing a language by focusing on the language's primitives,
-its means of combination, and its means of abstraction.  We'll follow that
-framework here.
+When we began our study of programming in \link{Section 1.1}, we emphasized the importance of describing a language by focusing on the language’s primitives, its means of combination, and its means of abstraction.
+We’ll follow that framework here.
 
 \begin{figure}[tb]
-\phantomsection\label{Figure 2.9}
-\centering
-\begin{comment}
-\heading{Figure 2.9:} Designs generated with the picture language.
-
-[two graphic images not included]
-\end{comment}
-\includegraphics[width=111mm]{fig/chap2/Fig2.9-bigger.png}
-\par\bigskip
-\noindent
-\heading{Figure 2.9:} Designs generated with the picture language.
+	\centering
+	\includegraphics[width=111mm]{fig/chap2/Fig2.9-bigger.png}
+	\caption{
+		Designs generated with the picture language.
+	}
+	\label{Figure 2.9}
 \end{figure}
 
 \begin{figure}[tb]
-\phantomsection\label{Figure 2.10}
-\centering
-\begin{comment}
-\heading{Figure 2.10:} Images produced by the \code{wave}
-painter, with respect to four different frames.  The frames, shown with dotted
-lines, are not part of the images.
-
-[four graphic images not included]
-\end{comment}
-\includesvg[width=50mm]{fig/chap2/Fig2.10.svg}
-\begin{quote}
-\heading{Figure 2.10:} Images produced by the \code{wave} painter, with respect to four different frames.  The frames, shown with dotted lines, are not part of the images.
-\end{quote}
+	\centering
+	\includesvg[width=50mm]{fig/chap2/Fig2.10.svg}
+	\caption{
+		Images produced by the \code{wave} painter, with respect to four different frames.
+		The frames, shown with dotted lines, are not part of the images.
+	}
+	\label{Figure 2.10}
 \end{figure}
 
-Part of the elegance of this picture language is that there is only one kind of
-element, called a \newterm{painter}.  A painter draws an image that is shifted
-and scaled to fit within a designated parallelogram-shaped frame.  For example,
-there's a primitive painter we'll call \code{wave} that makes a crude line
-drawing, as shown in \link{Figure 2.10}.  The actual shape of the drawing
-depends on the frame---all four images in figure 2.10 are produced by the
-same \code{wave} painter, but with respect to four different frames.  Painters
-can be more elaborate than this: The primitive painter called \code{rogers}
-paints a picture of \acronym{MIT}'s founder, William Barton Rogers, as shown in
-\link{Figure 2.11}.\footnote{William Barton Rogers (1804-1882) was the founder
-and first president of \acronym{MIT}.  A geologist and talented teacher, he
-taught at William and Mary College and at the University of Virginia.  In 1859
-he moved to Boston, where he had more time for research, worked on a plan for
-establishing a ``polytechnic institute,'' and served as Massachusetts's first
-State Inspector of Gas Meters.
+Part of the elegance of this picture language is that there is only one kind of element, called a \newterm{painter}.
+A painter draws an image that is shifted and scaled to fit within a designated parallelogram-shaped frame.
+For example, there’s a primitive painter we’ll call \code{wave} that makes a crude line drawing, as shown in \link{Figure 2.10}.
+The actual shape of the drawing depends on the frame---all four images in figure 2.10 are produced by the same \code{wave} painter, but with respect to four different frames.
+Painters can be more elaborate than this:
+The primitive painter called \code{rogers} paints a picture of \acronym{MIT}’s founder, William Barton Rogers, as shown in \link{Figure 2.11}.%
+\footnote{
+	William Barton Rogers (1804--1882) was the founder and first president of \acronym{MIT}.
+	A geologist and talented teacher, he taught at William and Mary College and at the University of Virginia.
+	In 1859 he moved to Boston, where he had more time for research, worked on a plan for establishing a “polytechnic institute,” and served as Massachusetts’s first State Inspector of Gas Meters.
 
-When \acronym{MIT} was established in 1861, Rogers was elected its first
-president.  Rogers espoused an ideal of ``useful learning'' that was different
-from the university education of the time, with its overemphasis on the
-classics, which, as he wrote, ``stand in the way of the broader, higher and
-more practical instruction and discipline of the natural and social sciences.''
-This education was likewise to be different from narrow trade-school education.
-In Rogers's words:
+	When \acronym{MIT} was established in 1861, Rogers was elected its first president.
+	Rogers espoused an ideal of “useful learning” that was different from the university education of the time, with its overemphasis on the classics, which, as he wrote, “stand in the way of the broader, higher and more practical instruction and discipline of the natural and social sciences.”
+	This education was likewise to be different from narrow trade-school education.
+	In Rogers’s words:
 
-\begin{quote}
-The world-enforced distinction between the practical and the scientific worker
-is utterly futile, and the whole experience of modern times has demonstrated
-its utter worthlessness.
-\end{quote}
+	\begin{quote}
+		The world-enforced distinction between the practical and the scientific worker
+		is utterly futile, and the whole experience of modern times has demonstrated
+		its utter worthlessness.
+	\end{quote}
 
-Rogers served as president of \acronym{MIT} until 1870, when he resigned due to
-ill health.  In 1878 the second president of \acronym{MIT}, John Runkle,
-resigned under the pressure of a financial crisis brought on by the Panic of
-1873 and strain of fighting off attempts by Harvard to take over \acronym{MIT}.
-Rogers returned to hold the office of president until 1881.
+	Rogers served as president of \acronym{MIT} until 1870, when he resigned due to ill health.
+	In 1878 the second president of \acronym{MIT}, John Runkle, resigned under the pressure of a financial crisis brought on by the Panic of 1873 and strain of fighting off attempts by Harvard to take over \acronym{MIT}.
+	Rogers returned to hold the office of president until 1881.
 
-Rogers collapsed and died while addressing \acronym{MIT}'s graduating class at
-the commencement exercises of 1882.  Runkle quoted Rogers's last words in a
-memorial address delivered that same year:
+	Rogers collapsed and died while addressing \acronym{MIT}’s graduating class at the commencement exercises of 1882.
+	Runkle quoted Rogers’s last words in a memorial address delivered that same year:
 
-\begin{quote}
-``As I stand here today and see what the Institute is, \( \dots \) I call to mind
-the beginnings of science.  I remember one hundred and fifty years ago Stephen
-Hales published a pamphlet on the subject of illuminating gas, in which he
-stated that his researches had demonstrated that 128 grains of bituminous coal
--- '' ``Bituminous coal,'' these were his last words on earth.  Here he bent
-forward, as if consulting some notes on the table before him, then slowly
-regaining an erect position, threw up his hands, and was translated from the
-scene of his earthly labors and triumphs to ``the tomorrow of death,'' where
-the mysteries of life are solved, and the disembodied spirit finds unending
-satisfaction in contemplating the new and still unfathomable mysteries of the
-infinite future.
-\end{quote}
+	\begin{quote}
+		“As I stand here today and see what the Institute is, … I call to mind the beginnings of science.
+		I remember one hundred and fifty years ago Stephen Hales published a pamphlet on the subject of illuminating gas, in which he stated that his researches had demonstrated that 128 grains of bituminous coal -- ” “Bituminous coal,” these were his last words on earth.
+		Here he bent forward, as if consulting some notes on the table before him, then slowly regaining an erect position, threw up his hands, and was translated from the scene of his earthly labors and triumphs to “the tomorrow of death,” where the mysteries of life are solved, and the disembodied spirit finds unending satisfaction in contemplating the new and still unfathomable mysteries of the infinite future.
+	\end{quote}
 
-In the words of Francis A. Walker (\acronym{MIT}'s third president):
+	In the words of Francis A. Walker (\acronym{MIT}’s third president):
 
-\begin{quote}
-All his life he had borne himself most faithfully and heroically, and he died
-as so good a knight would surely have wished, in harness, at his post, and in
-the very part and act of public duty.
-\end{quote}
-} The four images in figure 2.11 are drawn with respect to the same four
-frames as the \code{wave} images in figure 2.10.
+	\begin{quote}
+		All his life he had borne himself most faithfully and heroically, and he died  as so good a knight would surely have wished, in harness, at his post, and in the very part and act of public duty.
+	\end{quote}
+}
+The four images in figure 2.11 are drawn with respect to the same four frames as the \code{wave} images in figure 2.10.
 
 \begin{figure}[tb]
-\phantomsection\label{Figure 2.11}
-\centering
-\begin{comment}
-\heading{Figure 2.11:} Images of William Barton Rogers,
-founder and first president of \acronym{MIT}, painted with respect to the same
-four frames as in \link{Figure 2.10} (original image reprinted with the
-permission of the \acronym{MIT} Museum).
-
-[four graphic images not included]
-\end{comment}
-\includesvg[width=48mm]{fig/chap2/Fig2.11.svg}
-\begin{quote}
-\heading{Figure 2.11:} Images of William Barton Rogers, founder and first president of \acronym{MIT}, painted with respect to the same four frames as in \link{Figure 2.10} (original image from Wikimedia Commons).
-\end{quote}
+	\centering
+	\includesvg[width=48mm]{fig/chap2/Fig2.11.svg}
+	\caption{
+		Images of William Barton Rogers, founder and first president of \acronym{MIT}, painted with respect to the same four frames as in \link{Figure 2.10} (original image from Wikimedia Commons).
+	}
+	\label{Figure 2.11}
 \end{figure}
 
-To combine images, we use various operations that construct new painters from
-given painters.  For example, the \code{beside} operation takes two painters
-and produces a new, compound painter that draws the first painter's image in
-the left half of the frame and the second painter's image in the right half of
-the frame.  Similarly, \code{below} takes two painters and produces a compound
-painter that draws the first painter's image below the second painter's image.
-Some operations transform a single painter to produce a new painter.  For
-example, \code{flip\-/vert} takes a painter and produces a painter that draws its
-image upside-down, and \code{flip\-/horiz} produces a painter that draws the
-original painter's image left-to-right reversed.
+To combine images, we use various operations that construct new painters from given painters.
+For example, the \code{beside} operation takes two painters and produces a new, compound painter that draws the first painter’s image in the left half of the frame and the second painter’s image in the right half of the frame.
+Similarly, \code{below} takes two painters and produces a compound painter that draws the first painter’s image below the second painter’s image.
+Some operations transform a single painter to produce a new painter.
+For example, \code{flip-vert} takes a painter and produces a painter that draws its image upside-down, and \code{flip-horiz} produces a painter that draws the original painter’s image left-to-right reversed.
 
 \link{Figure 2.12} shows the drawing of a painter called
 \code{wave4} that is built up in two stages starting from \code{wave}:
-
 \begin{scheme}
-(define wave2 (beside wave (flip-vert wave)))
-(define wave4 (below wave2 wave2))
+  (define wave2 (beside wave (flip-vert wave)))
+  (define wave4 (below wave2 wave2))
 \end{scheme}
-
 \begin{figure}[tb]
-\phantomsection\label{Figure 2.12}
-\centering
-\begin{comment}
-\heading{Figure 2.12:} Creating a complex figure, starting
-from the \code{wave} painter of \link{Figure 2.10}.
-
-[two graphic images not included]
-
-\begin{scheme}
-(define wave2                      (define wave4
-  (beside wave (flip-vert wave)))    (below wave2 wave2))
-\end{scheme}
-\end{comment}
-\includesvg[width=50mm]{fig/chap2/Fig2.12.svg}
-\begin{quote}
-\heading{Figure 2.12:} Creating a complex figure, starting from the \code{wave} painter of \link{Figure 2.10}.
-\end{quote}
+	\centering
+	\includesvg[width=50mm]{fig/chap2/Fig2.12.svg}
+	\caption{
+		Creating a complex figure, starting from the \code{wave} painter of \link{Figure 2.10}.
+	}
+	\label{Figure 2.12}
 \end{figure}
+In building up a complex image in this manner we are exploiting the fact that painters are closed under the language’s means of combination.
+The \code{beside} or \code{below} of two painters is itself a painter;
+therefore, we can use it as an element in making more complex painters.
+As with building up list structure using \code{cons}, the closure of our data under the means of combination is crucial to the ability to create complex structures while using only a few operations.
 
-In building up a complex image in this manner we are exploiting the fact that
-painters are closed under the language's means of combination.  The
-\code{beside} or \code{below} of two painters is itself a painter; therefore,
-we can use it as an element in making more complex painters.  As with building
-up list structure using \code{cons}, the closure of our data under the means of
-combination is crucial to the ability to create complex structures while using
-only a few operations.
-
-Once we can combine painters, we would like to be able to abstract typical
-patterns of combining painters.  We will implement the painter operations as
-Scheme procedures.  This means that we don't need a special abstraction
-mechanism in the picture language: Since the means of combination are ordinary
-Scheme procedures, we automatically have the capability to do anything with
-painter operations that we can do with procedures.  For example, we can
-abstract the pattern in \code{wave4} as
-
+Once we can combine painters, we would like to be able to abstract typical  patterns of combining painters.
+We will implement the painter operations as Scheme procedures.
+This means that we don’t need a special abstraction mechanism in the picture language:
+Since the means of combination are ordinary Scheme procedures, we automatically have the capability to do anything with painter operations that we can do with procedures.
+For example, we can abstract the pattern in \code{wave4} as 
 \begin{scheme}
-(define (flipped-pairs painter)
-  (let ((painter2 (beside painter (flip-vert painter))))
-    (below painter2 painter2)))
+  (define (flipped-pairs painter)
+    (let ((painter2 (beside painter (flip-vert painter))))
+      (below painter2 painter2)))
 \end{scheme}
-
-\noindent
 and define \code{wave4} as an instance of this pattern:
-
 \begin{scheme}
-(define wave4 (flipped-pairs wave))
+  (define wave4 (flipped-pairs wave))
 \end{scheme}
 
 \begin{figure}[tb]
-\phantomsection\label{Figure 2.13}
-\centering
-\begin{comment}
-\begin{quote}
-\heading{Figure 2.13:} Recursive plans for \code{right\-/split} and \code{corner\-/split}.
-
-\begin{example}
-+-------------+-------------+    +------+------+-------------+
-|             |             |    | up-  | up-  |             |
-|             | right-split |    | split| split| corner-split|
-|             |             |    |      |      |             |
-|             |     n-1     |    |  n-1 |  n-1 |     n-1     |
-|             |             |    |      |      |             |
-|  identity   +-------------+    +------+------+-------------+
-|             |             |    |             | right-split |
-|             | right-split |    |             |     n-1     |
-|             |             |    |  identity   +-------------+
-|             |     n-1     |    |             | right-split |
-|             |             |    |             |     n-1     |
-+-------------+-------------+    +-------------+-------------+
-
-       right-split n                    corner-split n
-\end{example}
-\end{quote}
-\end{comment}
-\includesvg[width=111mm]{fig/chap2/Fig2.13a.svg}
-\par\bigskip
-\noindent
-\heading{Figure 2.13:} Recursive plans for \code{right\-/split} and \code{corner\-/split}. 
+	\centering
+	\includesvg[width=111mm]{fig/chap2/Fig2.13a.svg}
+	\caption{
+		Recursive plans for \code{right-split} and \code{corner-split}.
+	}
+	\label{Figure 2.13}
 \end{figure}
 
-\noindent
-We can also define recursive operations.  Here's one that makes painters split
+We can also define recursive operations.  Here’s one that makes painters split
 and branch towards the right as shown in \link{Figure 2.13}
 and \link{Figure 2.14}:
-
 \begin{scheme}
-(define (right-split painter n)
-  (if (= n 0)
-      painter
-      (let ((smaller (right-split painter (- n 1))))
-        (beside painter (below smaller smaller)))))
+  (define (right-split painter n)
+    (if (= n 0)
+        painter
+        (let ((smaller (right-split painter (- n 1))))
+          (beside painter (below smaller smaller)))))
+\end{scheme}
+We can produce balanced patterns by branching upwards as well as towards the right (see exercise \link{Exercise 2.44} and figures \link{Figure 2.13} and \link{Figure 2.14}):
+\begin{scheme}
+  (define (corner-split painter n)
+    (if (= n 0)
+        painter
+        (let ((up (up-split painter (- n 1)))
+              (right (right-split painter (- n 1))))
+          (let ((top-left (beside up up))
+                (bottom-right (below right right))
+                (corner (corner-split painter (- n 1))))
+            (beside (below painter top-left)
+                    (below bottom-right corner))))))
 \end{scheme}
 
-\noindent
-We can produce balanced patterns by branching upwards as well as towards the
-right (see exercise \link{Exercise 2.44} and figures \link{Figure 2.13} and \link{Figure 2.14}):
-
+By placing four copies of a \code{corner-split} appropriately, we obtain a pattern called \code{square-limit}, whose application to \code{wave} and \code{rogers} is shown in \link{Figure 2.9}:
 \begin{scheme}
-(define (corner-split painter n)
-  (if (= n 0)
-      painter
-      (let ((up (up-split painter (- n 1)))
-            (right (right-split painter (- n 1))))
-        (let ((top-left (beside up up))
-              (bottom-right (below right right))
-              (corner (corner-split painter (- n 1))))
-          (beside (below painter top-left)
-                  (below bottom-right corner))))))
+  (define (square-limit painter n)
+    (let ((quarter (corner-split painter n)))
+      (let ((half (beside (flip-horiz quarter) quarter)))
+        (below (flip-vert half) half))))
 \end{scheme}
 
-\noindent
-By placing four copies of a \code{corner\-/split} appropriately, we obtain a
-pattern called \code{square\-/limit}, whose application to \code{wave} and
-\code{rogers} is shown in \link{Figure 2.9}:
 
-\begin{scheme}
-(define (square-limit painter n)
-  (let ((quarter (corner-split painter n)))
-    (let ((half (beside (flip-horiz quarter) quarter)))
-      (below (flip-vert half) half))))
-\end{scheme}
 
-\begin{quote}
-\heading{\phantomsection\label{Exercise 2.44}Exercise 2.44:} Define the procedure
-\code{up\-/split} used by \code{corner\-/split}.  It is similar to
-\code{right\-/split}, except that it switches the roles of \code{below} and
-\code{beside}.
-\end{quote}
+\begin{exercise}
+	\label{Exercise 2.44}
+	Define the procedure \code{up-split} used by \code{corner-split}.
+	It is similar to \code{right-split}, except that it switches the roles of \code{below} and \code{beside}.
+\end{exercise}
+
+
 
 \begin{figure}[tbp]
-\phantomsection\label{Figure 2.14}
-\centering
-\begin{comment}
-\heading{Figure 2.14:} The recursive operations \code{right\-/split} and \code{corner\-/split} applied to the painters \code{wave} and \code{rogers}.  Combining four \code{corner\-/split} figures produces symmetric \code{square\-/limit} designs as shown in \link{Figure 2.9}.
-
-[two graphic images not included]
-
-\begin{scheme}
-(right-split wave 4)         (right-split rogers 4)
-\end{scheme}
-
-[two graphic images not included]
-
-\begin{scheme}
-(corner-split wave 4)        (corner-split rogers 4)
-\end{scheme}
-\end{comment}
-\includesvg[width=91mm]{fig/chap2/Fig2.14b.svg}
-\begin{quote}
-\heading{Figure 2.14:} The recursive operations \code{right\-/split} and \code{corner\-/split} applied to the painters \code{wave} and \code{rogers}.  Combining four \code{corner\-/split} figures produces symmetric \code{square\-/limit} designs as shown in \link{Figure 2.9}.
-\end{quote}
+	\centering
+	\includesvg[width=91mm]{fig/chap2/Fig2.14b.svg}
+	\caption{
+		The recursive operations \code{right-split} and \code{corner-split} applied to the painters \code{wave} and \code{rogers}.
+		Combining four \code{corner-split} figures produces symmetric \code{square-limit} designs as shown in \link{Figure 2.9}.
+	}
+	\label{Figure 2.14}
 \end{figure}
+
+
 
 \subsubsection*{Higher-order operations}
 
-In addition to abstracting patterns of combining painters, we can work at a
-higher level, abstracting patterns of combining painter operations.  That is,
-we can view the painter operations as elements to manipulate and can write
-means of combination for these elements---procedures that take painter
-operations as arguments and create new painter operations.
+In addition to abstracting patterns of combining painters, we can work at a higher level, abstracting patterns of combining painter operations.
+That is, we can view the painter operations as elements to manipulate and can write means of combination for these elements---procedures that take painter operations as arguments and create new painter operations.
 
-For example, \code{flipped\-/pairs} and \code{square\-/limit} each arrange four
-copies of a painter's image in a square pattern; they differ only in how they
-orient the copies.  One way to abstract this pattern of painter combination is
-with the following procedure, which takes four one-argument painter operations
-and produces a painter operation that transforms a given painter with those
-four operations and arranges the results in a square.  \code{tl}, \code{tr},
-\code{bl}, and \code{br} are the transformations to apply to the top left copy,
-the top right copy, the bottom left copy, and the bottom right copy,
-respectively.
-
+For example, \code{flipped-pairs} and \code{square-limit} each arrange four copies of a painter’s image in a square pattern;
+they differ only in how they orient the copies.
+One way to abstract this pattern of painter combination is with the following procedure, which takes four one-argument painter operations and produces a painter operation that transforms a given painter with those four operations and arranges the results in a square.
+\code{tl}, \code{tr}, \code{bl}, and \code{br} are the transformations to apply to the top left copy, the top right copy, the bottom left copy, and the bottom right copy, respectively.
 \begin{scheme}
-(define (square-of-four tl tr bl br)
-  (lambda (painter)
-    (let ((top (beside (tl painter) (tr painter)))
-          (bottom (beside (bl painter) (br painter))))
-      (below bottom top))))
+  (define (square-of-four tl tr bl br)
+    (lambda (painter)
+      (let ((top (beside (tl painter) (tr painter)))
+            (bottom (beside (bl painter) (br painter))))
+        (below bottom top))))
 \end{scheme}
-
-\noindent
-Then \code{flipped\-/pairs} can be defined in terms of \code{square\-/of\-/four} as
-follows:\footnote{Equivalently, we could write
-
-\begin{smallscheme}
-(define flipped-pairs
-  (square-of-four identity flip-vert identity flip-vert))
-\end{smallscheme}
+Then \code{flipped-pairs} can be defined in terms of \code{square-of-four} as
+follows:%
+\footnote{
+	Equivalently, we could write
+	\begin{smallscheme}
+	  (define flipped-pairs
+	    (square-of-four identity flip-vert identity flip-vert))
+	\end{smallscheme}
 }
-
 \begin{scheme}
-(define (flipped-pairs painter)
-  (let ((combine4 (square-of-four identity flip-vert
-                                  identity flip-vert)))
-    (combine4 painter)))
+  (define (flipped-pairs painter)
+    (let ((combine4 (square-of-four identity flip-vert
+                                    identity flip-vert)))
+      (combine4 painter)))
+\end{scheme}
+and \code{square-limit} can be expressed as%
+\footnote{
+	\code{rotate180} rotates a painter by \( 180 \) degrees (see \link{Exercise 2.50}).
+	Instead of \code{rotate180} we could say \code{(compose flip-vert flip-horiz)}, using the \code{compose} procedure from \link{Exercise 1.42}.
+}
+\begin{scheme}
+  (define (square-limit painter n)
+    (let ((combine4 (square-of-four flip-horiz identity
+                                    rotate180 flip-vert)))
+      (combine4 (corner-split painter n))))
 \end{scheme}
 
-\noindent
-and \code{square\-/limit} can be expressed as\footnote{\code{rotate180} rotates a
-painter by 180 degrees (see \link{Exercise 2.50}).  Instead of \code{rotate180}
-we could say \code{(compose flip\-/vert flip\-/horiz)}, using the \code{compose}
-procedure from \link{Exercise 1.42}.}
 
-\begin{scheme}
-(define (square-limit painter n)
-  (let ((combine4 (square-of-four flip-horiz identity
-                                  rotate180 flip-vert)))
-    (combine4 (corner-split painter n))))
-\end{scheme}
 
-\begin{quote}
-\heading{\phantomsection\label{Exercise 2.45}Exercise 2.45:} \code{right\-/split} and
-\code{up\-/split} can be expressed as instances of a general splitting operation.
-Define a procedure \code{split} with the property that evaluating
+\begin{exercise}
+	\label{Exercise 2.45}
+	\code{right-split} and \code{up-split} can be expressed as instances of a general splitting operation.
+	Define a procedure \code{split} with the property that evaluating
+	\begin{scheme}
+	  (define right-split (split beside below))
+	  (define up-split (split below beside))
+	\end{scheme}
+	produces procedures \code{right-split} and \code{up-split} with the same behaviors as the ones already defined.
+\end{exercise}
 
-\begin{scheme}
-(define right-split (split beside below))
-(define up-split (split below beside))
-\end{scheme}
 
-\noindent
-produces procedures \code{right\-/split} and \code{up\-/split} with the same
-behaviors as the ones already defined.
-\end{quote}
 
 \subsubsection*{Frames}
 
-Before we can show how to implement painters and their means of combination, we
-must first consider frames.  A frame can be described by three vectors---an
-origin vector and two edge vectors.  The origin vector specifies the offset of
-the frame's origin from some absolute origin in the plane, and the edge vectors
-specify the offsets of the frame's corners from its origin.  If the edges are
-perpendicular, the frame will be rectangular.  Otherwise the frame will be a
-more general parallelogram.
+Before we can show how to implement painters and their means of combination, we must first consider frames.
+A frame can be described by three vectors---an origin vector and two edge vectors.
+The origin vector specifies the offset of the frame’s origin from some absolute origin in the plane, and the edge vectors specify the offsets of the frame’s corners from its origin.
+If the edges are perpendicular, the frame will be rectangular.
+Otherwise the frame will be a more general parallelogram.
 
 \link{Figure 2.15} shows a frame and its associated vectors.
-In accordance with data abstraction, we need not be specific yet about how
-frames are represented, other than to say that there is a constructor
-\code{make\-/frame}, which takes three vectors and produces a frame, and three
-corresponding selectors \code{origin\-/frame}, \code{edge1\-/frame}, and
-\code{edge2\-/frame} (see \link{Exercise 2.47}).
+In accordance with data abstraction, we need not be specific yet about how frames are represented, other than to say that there is a constructor \code{make-frame}, which takes three vectors and produces a frame, and three corresponding selectors \code{origin-frame}, \code{edge1-frame}, and \code{edge2-frame} (see \link{Exercise 2.47}).
 
 \begin{figure}[tb]
-\phantomsection\label{Figure 2.15}
-\centering
-\begin{comment}
-\heading{Figure 2.15:} A frame is described by three vectors
--- an origin and two edges.
-
-\begin{example}
-                         __
-                     __--  \
-                 __--       \
-      __     __--            \   __
-     |\  __--                 \__-|
-       \-                  __--
-frame   \              __--
-edge2    \         __--    frame
-vector    \    __--        edge1
-           \_--            vector
-            -   <--+
-          frame    |
-          origin   +-- (0, 0) point
-          vector       on display screen
-\end{example}
-\end{comment}
-\includesvg[width=51mm]{fig/chap2/Fig2.15a.svg}
-\begin{quote}
-\heading{Figure 2.15:} A frame is described by three vectors --- an origin and two edges.
-\end{quote}
+	\centering
+	\includesvg[width=51mm]{fig/chap2/Fig2.15a.svg}
+	\caption{
+		A frame is described by three vectors --- an origin and two edges.
+	}
+	\label{Figure 2.15}
 \end{figure}
 
-We will use coordinates in the unit square \( (0 \le x, y \le 1) \) to specify
-images.  With each frame, we associate a \newterm{frame coordinate map}, which
-will be used to shift and scale images to fit the frame.  The map transforms
-the unit square into the frame by mapping the vector \( \hbox{\bf v} = (x, y) \) to
-the vector sum
-\begin{comment}
-
-\begin{example}
-Origin(Frame) + x * Edge_1(Frame) + y * Edge_2(Frame)
-\end{example}
-
-\end{comment}
-
-$$ {\rm Origin(Frame)} + x \cdot {\rm Edge_1(Frame)} + y \cdot {\rm Edge_2(Frame)}. $$
-
-\noindent
-For example, (0, 0) is mapped to the origin of the frame, (1, 1) to the vertex
-diagonally opposite the origin, and (0.5, 0.5) to the center of the frame.  We
-can create a frame's coordinate map with the following
-procedure:\footnote{\code{frame\-/coord\-/map} uses the vector operations described
-in \link{Exercise 2.46} below, which we assume have been implemented using some
-representation for vectors.  Because of data abstraction, it doesn't matter
-what this vector representation is, so long as the vector operations behave
-correctly.}
-
+We will use coordinates in the unit square \( (0 ≤ x, y ≤ 1) \) to specify images.
+With each frame, we associate a \newterm{frame coordinate map}, which will be used to shift and scale images to fit the frame.
+The map transforms the unit square into the frame by mapping the vector \( v = (x, y) \) to the vector sum
+\[
+	\operatorname{Origin}(\mathrm{Frame})
+	+ x ⋅ \operatorname{Edge}_1(\mathrm{Frame})
+	+ y ⋅ \operatorname{Edge}_2(\mathrm{Frame}) \,.
+\]
+For example, \( (0, 0) \) is mapped to the origin of the frame, \( (1, 1) \) to the vertex  diagonally opposite the origin, and \( (0.5, 0.5) \) to the center of the frame.
+We can create a frame’s coordinate map with the following procedure:%
+\footnote{
+	\code{frame-coord-map} uses the vector operations described in \link{Exercise 2.46} below, which we assume have been implemented using some representation for vectors.
+	Because of data abstraction, it doesn’t matter what this vector representation is, so long as the vector operations behave correctly.
+}
 \begin{scheme}
-(define (frame-coord-map frame)
-  (lambda (v)
-    (add-vect
-     (origin-frame frame)
-     (add-vect (scale-vect (xcor-vect v) (edge1-frame frame))
-               (scale-vect (ycor-vect v) (edge2-frame frame))))))
+  (define (frame-coord-map frame)
+    (lambda (v)
+      (add-vect
+       (origin-frame frame)
+       (add-vect (scale-vect (xcor-vect v) (edge1-frame frame))
+                 (scale-vect (ycor-vect v) (edge2-frame frame))))))
 \end{scheme}
-
-\noindent
-Observe that applying \code{frame\-/coord\-/map} to a frame returns a procedure
-that, given a vector, returns a vector.  If the argument vector is in the unit
-square, the result vector will be in the frame.  For example,
-
+Observe that applying \code{frame-coord-map} to a frame returns a procedure that, given a vector, returns a vector.
+If the argument vector is in the unit square, the result vector will be in the frame.
+For example,
 \begin{scheme}
-((frame-coord-map a-frame) (make-vect 0 0))
+  ((frame-coord-map a-frame) (make-vect 0 0))
 \end{scheme}
-
-\noindent
 returns the same vector as
-
 \begin{scheme}
-(origin-frame a-frame)
+  (origin-frame a-frame)
 \end{scheme}
 
-\begin{quote}
-\heading{\phantomsection\label{Exercise 2.46}Exercise 2.46:} A two-dimensional vector \( \hbox{\bf v} \)
-running from the origin to a point can be represented as a pair consisting of
-an \( x \)-coordinate and a \( y \)-coordinate.  Implement a data abstraction for
-vectors by giving a constructor \code{make\-/vect} and corresponding selectors
-\code{xcor\-/vect} and \code{ycor\-/vect}.  In terms of your selectors and
-constructor, implement procedures \code{add\-/vect}, \code{sub\-/vect}, and
-\code{scale\-/vect} that perform the operations vector addition, vector
-subtraction, and multiplying a vector by a scalar:
-\begin{comment}
 
-\begin{example}
-(x_1, y_1) + (x_2, y_2) = (x_1 + x_2, y_1 + y_2)
-(x_1, y_1) - (x_2, y_2) = (x_1 - x_2, y_1 - y_2)
-             s * (x, y) = (sx, sy)
-\end{example}
-\end{comment}
 
-$$
-\begin{array}{r@{{}={}}l}
-	(x_1, y_1) + (x_2, y_2) 	& (x_1 + x_2, y_1 + y_2), \\
-	(x_1, y_1) - (x_2, y_2) 	& (x_1 - x_2, y_1 - y_2), \\
-	s \cdot (x, y) 			& (sx, sy).
-\end{array}
-$$
+\begin{exercise}
+	\label{Exercise 2.46}
+	A two-dimensional vector \( v \) running from the origin to a point can be represented as a pair consisting of an \( x \)-coordinate and a \( y \)-coordinate.
+	Implement a data abstraction for vectors by giving a constructor \code{make-vect} and corresponding selectors \code{xcor-vect} and \code{ycor-vect}.
+	In terms of your selectors and constructor, implement procedures \code{add-vect}, \code{sub-vect}, and \code{scale-vect} that perform the operations vector addition, vector subtraction, and multiplying a vector by a scalar:
+	\begin{align*}
+		(x_1, y_1) + (x_2, y_2) &= (x_1 + x_2, y_1 + y_2) \,, \\
+		(x_1, y_1) - (x_2, y_2) &= (x_1 - x_2, y_1 - y_2) \,, \\
+		s ⋅ (x, y)              &= (s x, s y) \,.
+	\end{align*}
+\end{exercise}
 
-\end{quote}
 
-\begin{quote}
-\heading{\phantomsection\label{Exercise 2.47}Exercise 2.47:} Here are two possible
-constructors for frames:
 
-\begin{scheme}
-(define (make-frame origin edge1 edge2)
-  (list origin edge1 edge2))
-(define (make-frame origin edge1 edge2)
-  (cons origin (cons edge1 edge2)))
-\end{scheme}
+\begin{exercise}
+	\label{Exercise 2.47}
+	Here are two possible constructors for frames:
+	\begin{scheme}
+	  (define (make-frame origin edge1 edge2)
+	    (list origin edge1 edge2))
 
-For each constructor supply the appropriate selectors to produce an
-implementation for frames.
-\end{quote}
+	  (define (make-frame origin edge1 edge2)
+	    (cons origin (cons edge1 edge2)))
+	\end{scheme}
+	For each constructor supply the appropriate selectors to produce an implementation for frames.
+\end{exercise}
+
+
 
 \subsubsection*{Painters}
 
-A painter is represented as a procedure that, given a frame as argument, draws
-a particular image shifted and scaled to fit the frame.  That is to say, if
-\code{p} is a painter and \code{f} is a frame, then we produce \code{p}'s image
-in \code{f} by calling \code{p} with \code{f} as argument.
+A painter is represented as a procedure that, given a frame as argument, draws a particular image shifted and scaled to fit the frame.
+That is to say, if \code{p} is a painter and \code{f} is a frame, then we produce \code{p}’s image in \code{f} by calling \code{p} with \code{f} as argument.
 
-The details of how primitive painters are implemented depend on the particular
-characteristics of the graphics system and the type of image to be drawn.  For
-instance, suppose we have a procedure \code{draw\-/line} that draws a line on the
-screen between two specified points.  Then we can create painters for line
-drawings, such as the \code{wave} painter in \link{Figure 2.10}, from lists of
-line segments as follows:\footnote{\code{segments\-/>painter} uses the
-representation for line segments described in \link{Exercise 2.48} below.  It
-also uses the \code{for\-/each} procedure described in \link{Exercise 2.23}.}
-
+The details of how primitive painters are implemented depend on the particular characteristics of the graphics system and the type of image to be drawn.
+For instance, suppose we have a procedure \code{draw-line} that draws a line on the screen between two specified points.
+Then we can create painters for line drawings, such as the \code{wave} painter in \link{Figure 2.10}, from lists of line segments as follows:%
+\footnote{
+	\code{segments->painter} uses the representation for line segments described in \link{Exercise 2.48} below.
+	It also uses the \code{for-each} procedure described in \link{Exercise 2.23}.
+}
 \begin{scheme}
-(define (segments->painter segment-list)
-  (lambda (frame)
-    (for-each
-     (lambda (segment)
-       (draw-line
-        ((frame-coord-map frame)
-         (start-segment segment))
-        ((frame-coord-map frame)
-         (end-segment segment))))
-     segment-list)))
+  (define (segments->painter segment-list)
+    (lambda (frame)
+      (for-each
+       (lambda (segment)
+         (draw-line
+          ((frame-coord-map frame)
+           (start-segment segment))
+          ((frame-coord-map frame)
+           (end-segment segment))))
+       segment-list)))
 \end{scheme}
+The segments are given using coordinates with respect to the unit square.
+For each segment in the list, the painter transforms the segment endpoints with the frame coordinate map and draws a line between the transformed points.
 
-\noindent
-The segments are given using coordinates with respect to the unit square.  For
-each segment in the list, the painter transforms the segment endpoints with the
-frame coordinate map and draws a line between the transformed points.
+Representing painters as procedures erects a powerful abstraction barrier in the picture language.
+We can create and intermix all sorts of primitive painters, based on a variety of graphics capabilities.
+The details of their implementation do not matter.
+Any procedure can serve as a painter, provided that it takes a frame as argument and draws something scaled to fit the frame.%
+\footnote{
+	For example, the \code{rogers} painter of \link{Figure 2.11} was constructed from a gray-level image.
+	For each point in a given frame, the \code{rogers} painter determines the point in the image that is mapped to it under the frame coordinate map, and shades it accordingly.
+	By allowing different types of painters, we are capitalizing on the abstract data idea discussed in \link{Section 2.1.3}, where we argued that a rational-number representation could be anything at all that satisfies an appropriate condition.
+	Here we’re using the fact that a painter can be implemented in any way at all, so long as it draws something in the designated frame.
+	\link{Section 2.1.3} also showed how pairs could be implemented as procedures.
+	Painters are our second example of a procedural representation for data.
+}
 
-Representing painters as procedures erects a powerful abstraction barrier in
-the picture language.  We can create and intermix all sorts of primitive
-painters, based on a variety of graphics capabilities. The details of their
-implementation do not matter.  Any procedure can serve as a painter, provided
-that it takes a frame as argument and draws something scaled to fit the
-frame.\footnote{For example, the \code{rogers} painter of \link{Figure 2.11} was
-constructed from a gray-level image.  For each point in a given frame, the
-\code{rogers} painter determines the point in the image that is mapped to it
-under the frame coordinate map, and shades it accordingly.  By allowing
-different types of painters, we are capitalizing on the abstract data idea
-discussed in \link{Section 2.1.3}, where we argued that a rational-number
-representation could be anything at all that satisfies an appropriate
-condition.  Here we're using the fact that a painter can be implemented in any
-way at all, so long as it draws something in the designated frame.
-\link{Section 2.1.3} also showed how pairs could be implemented as procedures.  Painters
-are our second example of a procedural representation for data.}
 
-\begin{quote}
-\heading{\phantomsection\label{Exercise 2.48}Exercise 2.48:} A directed line segment in the
-plane can be represented as a pair of vectors---the vector running from the
-origin to the start-point of the segment, and the vector running from the
-origin to the end-point of the segment.  Use your vector representation from
-\link{Exercise 2.46} to define a representation for segments with a constructor
-\code{make\-/segment} and selectors \code{start\-/segment} and \code{end\-/segment}.
-\end{quote}
 
-\begin{quote}
-\heading{\phantomsection\label{Exercise 2.49}Exercise 2.49:} Use \code{segments\-/>painter}
-to define the following primitive painters:
+\begin{exercise}
+	\label{Exercise 2.48}
+	A directed line segment in the plane can be represented as a pair of vectors---the vector running from the origin to the start-point of the segment, and the vector running from the origin to the end-point of the segment.
+	Use your vector representation from \link{Exercise 2.46} to define a representation for segments with a constructor \code{make-segment} and selectors \code{start-segment} and \code{end-segment}.
+\end{exercise}
 
-\begin{enumerate}[a.]
 
-\item
-The painter that draws the outline of the designated frame.
 
-\item
-The painter that draws an ``X'' by connecting opposite corners of the frame.
+\begin{exercise}
+	\label{Exercise 2.49}
+	Use \code{segments->painter} to define the following primitive painters:
+	\begin{enumerate}[label = \alph*., leftmargin = *]
 
-\item
-The painter that draws a diamond shape by connecting the midpoints of the sides
-of the frame.
+		\item
+			The painter that draws the outline of the designated frame.
 
-\item
-The \code{wave} painter.
+		\item
+			The painter that draws an “X” by connecting opposite corners of the frame.
 
-\end{enumerate}
-\end{quote}
+		\item
+			The painter that draws a diamond shape by connecting the midpoints of the sides of the frame.
+
+		\item
+			The \code{wave} painter.
+
+	\end{enumerate}
+\end{exercise}
+
+
 
 \subsubsection*{Transforming and combining painters}
 
-An operation on painters (such as \code{flip\-/vert} or \code{beside}) works by
-creating a painter that invokes the original painters with respect to frames
-derived from the argument frame.  Thus, for example, \code{flip\-/vert} doesn't
-have to know how a painter works in order to flip it---it just has to know how
-to turn a frame upside down: The flipped painter just uses the original
-painter, but in the inverted frame.
+An operation on painters (such as \code{flip-vert} or \code{beside}) works by creating a painter that invokes the original painters with respect to frames derived from the argument frame.
+Thus, for example, \code{flip-vert} doesn’t have to know how a painter works in order to flip it---it just has to know how to turn a frame upside down:
+The flipped painter just uses the original painter, but in the inverted frame.
 
-Painter operations are based on the procedure \code{transform\-/painter}, which
-takes as arguments a painter and information on how to transform a frame and
-produces a new painter.  The transformed painter, when called on a frame,
-transforms the frame and calls the original painter on the transformed frame.
-The arguments to \code{transform\-/painter} are points (represented as vectors)
-that specify the corners of the new frame: When mapped into the frame, the
-first point specifies the new frame's origin and the other two specify the ends
-of its edge vectors.  Thus, arguments within the unit square specify a frame
-contained within the original frame.
-
+Painter operations are based on the procedure \code{transform-painter}, which takes as arguments a painter and information on how to transform a frame and produces a new painter.
+The transformed painter, when called on a frame, transforms the frame and calls the original painter on the transformed frame.
+The arguments to \code{transform-painter} are points (represented as vectors) that specify the corners of the new frame:
+When mapped into the frame, the first point specifies the new frame’s origin and the other two specify the ends of its edge vectors.
+Thus, arguments within the unit square specify a frame contained within the original frame.
 \begin{scheme}
-(define (transform-painter painter origin corner1 corner2)
-  (lambda (frame)
-    (let ((m (frame-coord-map frame)))
-      (let ((new-origin (m origin)))
-        (painter (make-frame
-                  new-origin
-                  (sub-vect (m corner1) new-origin)
-                  (sub-vect (m corner2) new-origin)))))))
+  (define (transform-painter painter origin corner1 corner2)
+    (lambda (frame)
+      (let ((m (frame-coord-map frame)))
+        (let ((new-origin (m origin)))
+          (painter (make-frame
+                    new-origin
+                    (sub-vect (m corner1) new-origin)
+                    (sub-vect (m corner2) new-origin)))))))
 \end{scheme}
 
-\noindent
-Here's how to flip painter images vertically:
-
+Here’s how to flip painter images vertically:
 \begin{scheme}
-(define (flip-vert painter)
-  (transform-painter painter
-                     (make-vect 0.0 1.0)   ~\textrm{; new \code{origin}}~
-                     (make-vect 1.0 1.0)   ~\textrm{; new end of \code{edge1}}~
-                     (make-vect 0.0 0.0))) ~\textrm{; new end of \code{edge2}}~
+  (define (flip-vert painter)
+    (transform-painter painter
+                       (make-vect 0.0 1.0)   ~\textrm{; new \code{origin}}~
+                       (make-vect 1.0 1.0)   ~\textrm{; new end of \code{edge1}}~
+                       (make-vect 0.0 0.0))) ~\textrm{; new end of \code{edge2}}~
+\end{scheme}
+Using \code{transform-painter}, we can easily define new transformations.
+For example, we can define a painter that shrinks its image to the upper-right quarter of the frame it is given:
+\begin{scheme}
+  (define (shrink-to-upper-right painter)
+    (transform-painter
+     painter (make-vect 0.5 0.5)
+     (make-vect 1.0 0.5) (make-vect 0.5 1.0)))
+\end{scheme}
+Other transformations rotate images counterclockwise by 90 degrees%
+\footnote{
+	\code{rotate90} is a pure rotation only for square frames, because it also stretches and shrinks the image to fit into the rotated frame.
+}
+\begin{scheme}
+  (define (rotate90 painter)
+    (transform-painter painter
+                       (make-vect 1.0 0.0)
+                       (make-vect 1.0 1.0)
+                       (make-vect 0.0 0.0)))
+\end{scheme}
+or squash images towards the center of the frame:%
+\footnote{
+	The diamond-shaped images in \link{Figure 2.10} and \link{Figure 2.11} were created with \code{squash-inwards} applied to \code{wave} and \code{rogers}.
+}
+\begin{scheme}
+  (define (squash-inwards painter)
+    (transform-painter painter
+                       (make-vect 0.0 0.0)
+                       (make-vect 0.65 0.35)
+                       (make-vect 0.35 0.65)))
 \end{scheme}
 
-\noindent
-Using \code{transform\-/painter}, we can easily define new transformations.
-For example, we can define a painter that shrinks its image to the
-upper-right quarter of the frame it is given:
-
+Frame transformation is also the key to defining means of combining two or more painters.
+The \code{beside} procedure, for example, takes two painters, transforms them to paint in the left and right halves of an argument frame respectively, and produces a new, compound painter.
+When the compound painter is given a frame, it calls the first transformed painter to paint in the left half of the frame and calls the second transformed painter to paint in the right half of the frame:
 \begin{scheme}
-(define (shrink-to-upper-right painter)
-  (transform-painter
-   painter (make-vect 0.5 0.5)
-   (make-vect 1.0 0.5) (make-vect 0.5 1.0)))
+  (define (beside painter1 painter2)
+    (let ((split-point (make-vect 0.5 0.0)))
+      (let ((paint-left
+             (transform-painter
+              painter1
+              (make-vect 0.0 0.0)
+              split-point
+              (make-vect 0.0 1.0)))
+            (paint-right
+             (transform-painter
+              painter2
+              split-point
+              (make-vect 1.0 0.0)
+              (make-vect 0.5 1.0))))
+        (lambda (frame)
+          (paint-left frame)
+          (paint-right frame)))))
 \end{scheme}
 
-\noindent
-Other transformations rotate images counterclockwise by 90
-degrees\footnote{\code{rotate90} is a pure rotation only for square frames,
-because it also stretches and shrinks the image to fit into the rotated frame.}
+Observe how the painter data abstraction, and in particular the representation of painters as procedures, makes \code{beside} easy to implement.
+The \code{beside} procedure need not know anything about the details of the component painters other than that each painter will draw something in its designated frame.
 
-\begin{scheme}
-(define (rotate90 painter)
-  (transform-painter painter
-                     (make-vect 1.0 0.0)
-                     (make-vect 1.0 1.0)
-                     (make-vect 0.0 0.0)))
-\end{scheme}
+\begin{exercise}
+\label{Exercise 2.50}
+Define the transformation \code{flip-horiz}, which flips painters horizontally, and transformations that rotate painters counterclockwise by \( 180 \) degrees and \( 270 \) degrees.
+\end{exercise}
 
-\noindent
-or squash images towards the center of the frame:\footnote{The diamond-shaped
-images in \link{Figure 2.10} and \link{Figure 2.11} were created with
-\code{squash\-/inwards} applied to \code{wave} and \code{rogers}.}
 
-\begin{scheme}
-(define (squash-inwards painter)
-  (transform-painter painter
-                     (make-vect 0.0 0.0)
-                     (make-vect 0.65 0.35)
-                     (make-vect 0.35 0.65)))
-\end{scheme}
 
-\noindent
-Frame transformation is also the key to defining means of combining two or more
-painters.  The \code{beside} procedure, for example, takes two painters,
-transforms them to paint in the left and right halves of an argument frame
-respectively, and produces a new, compound painter.  When the compound painter
-is given a frame, it calls the first transformed painter to paint in the left
-half of the frame and calls the second transformed painter to paint in the
-right half of the frame:
+\begin{exercise}
+\label{Exercise 2.51}
+Define the \code{below} operation for painters.
+\code{below} takes two painters as arguments.
+The resulting painter, given a frame, draws with the first painter in the bottom of the frame and with the second painter in the top.
+Define \code{below} in two different ways---first by writing a procedure that is analogous to the \code{beside} procedure given above, and again in terms of \code{beside} and suitable rotation operations (from \link{Exercise 2.50}).
+\end{exercise}
 
-\begin{scheme}
-(define (beside painter1 painter2)
-  (let ((split-point (make-vect 0.5 0.0)))
-    (let ((paint-left
-           (transform-painter
-            painter1
-            (make-vect 0.0 0.0)
-            split-point
-            (make-vect 0.0 1.0)))
-          (paint-right
-           (transform-painter
-            painter2
-            split-point
-            (make-vect 1.0 0.0)
-            (make-vect 0.5 1.0))))
-      (lambda (frame)
-        (paint-left frame)
-        (paint-right frame)))))
-\end{scheme}
 
-\noindent
-Observe how the painter data abstraction, and in particular the representation
-of painters as procedures, makes \code{beside} easy to implement.  The
-\code{beside} procedure need not know anything about the details of the
-component painters other than that each painter will draw something in its
-designated frame.
-
-\begin{quote}
-\heading{\phantomsection\label{Exercise 2.50}Exercise 2.50:} Define the transformation
-\code{flip\-/horiz}, which flips painters horizontally, and transformations that
-rotate painters counterclockwise by 180 degrees and 270 degrees.
-\end{quote}
-
-\begin{quote}
-\heading{\phantomsection\label{Exercise 2.51}Exercise 2.51:} Define the \code{below} operation
-for painters.  \code{below} takes two painters as arguments.  The resulting
-painter, given a frame, draws with the first painter in the bottom of the frame
-and with the second painter in the top.  Define \code{below} in two different
-ways---first by writing a procedure that is analogous to the \code{beside}
-procedure given above, and again in terms of \code{beside} and suitable
-rotation operations (from \link{Exercise 2.50}).
-\end{quote}
 
 \subsubsection*{Levels of language for robust design}
 
-The picture language exercises some of the critical ideas we've introduced
-about abstraction with procedures and data.  The fundamental data abstractions,
-painters, are implemented using procedural representations, which enables the
-language to handle different basic drawing capabilities in a uniform way.  The
-means of combination satisfy the closure property, which permits us to easily
-build up complex designs.  Finally, all the tools for abstracting procedures
-are available to us for abstracting means of combination for painters.
+The picture language exercises some of the critical ideas we’ve introduced about abstraction with procedures and data.
+The fundamental data abstractions, painters, are implemented using procedural representations, which enables the language to handle different basic drawing capabilities in a uniform way.
+The means of combination satisfy the closure property, which permits us to easily build up complex designs.
+Finally, all the tools for abstracting procedures are available to us for abstracting means of combination for painters.
 
-We have also obtained a glimpse of another crucial idea about languages and
-program design.  This is the approach of \newterm{stratified design}, the
-notion that a complex system should be structured as a sequence of levels that
-are described using a sequence of languages.  Each level is constructed by
-combining parts that are regarded as primitive at that level, and the parts
-constructed at each level are used as primitives at the next level.  The
-language used at each level of a stratified design has primitives, means of
-combination, and means of abstraction appropriate to that level of detail.
+We have also obtained a glimpse of another crucial idea about languages and program design.
+This is the approach of \newterm{stratified design}, the notion that a complex system should be structured as a sequence of levels that are described using a sequence of languages.
+Each level is constructed by combining parts that are regarded as primitive at that level, and the parts constructed at each level are used as primitives at the next level.
+The language used at each level of a stratified design has primitives, means of combination, and means of abstraction appropriate to that level of detail.
 
-Stratified design pervades the engineering of complex systems.  For example, in
-computer engineering, resistors and transistors are combined (and described
-using a language of analog circuits) to produce parts such as and-gates and
-or-gates, which form the primitives of a language for digital-circuit
-design.\footnote{\link{Section 3.3.4} describes one such language.} These parts
-are combined to build processors, bus structures, and memory systems, which are
-in turn combined to form computers, using languages appropriate to computer
-architecture.  Computers are combined to form distributed systems, using
-languages appropriate for describing network interconnections, and so on.
+Stratified design pervades the engineering of complex systems.
+For example, in computer engineering, resistors and transistors are combined (and described using a language of analog circuits) to produce parts such as and-gates and or-gates, which form the primitives of a language for digital-circuit design.%
+\footnote{
+	\link{Section 3.3.4} describes one such language.
+}
+These parts are combined to build processors, bus structures, and memory systems, which are in turn combined to form computers, using languages appropriate to computer architecture.
+Computers are combined to form distributed systems, using languages appropriate for describing network interconnections, and so on.
 
-As a tiny example of stratification, our picture language uses primitive
-elements (primitive painters) that are created using a language that specifies
-points and lines to provide the lists of line segments for
-\code{segments\-/>painter}, or the shading details for a painter like
-\code{rogers}.  The bulk of our description of the picture language focused on
-combining these primitives, using geometric combiners such as \code{beside} and
-\code{below}.  We also worked at a higher level, regarding \code{beside} and
-\code{below} as primitives to be manipulated in a language whose operations,
-such as \code{square\-/of\-/four}, capture common patterns of combining geometric
-combiners.
+As a tiny example of stratification, our picture language uses primitive elements (primitive painters) that are created using a language that specifies points and lines to provide the lists of line segments for \code{segments->painter}, or the shading details for a painter like \code{rogers}.
+The bulk of our description of the picture language focused on combining these primitives, using geometric combiners such as \code{beside} and \code{below}.
+We also worked at a higher level, regarding \code{beside} and \code{below} as primitives to be manipulated in a language whose operations, such as \code{square-of-four}, capture common patterns of combining geometric combiners.
 
-Stratified design helps make programs \newterm{robust}, that is, it makes it
-likely that small changes in a specification will require correspondingly small
-changes in the program.  For instance, suppose we wanted to change the image
-based on \code{wave} shown in \link{Figure 2.9}.  We could work at the lowest
-level to change the detailed appearance of the \code{wave} element; we could
-work at the middle level to change the way \code{corner\-/split} replicates the
-\code{wave}; we could work at the highest level to change how
-\code{square\-/limit} arranges the four copies of the corner.  In general, each
-level of a stratified design provides a different vocabulary for expressing the
-characteristics of the system, and a different kind of ability to change it.
+Stratified design helps make programs \newterm{robust}, that is, it makes it likely that small changes in a specification will require correspondingly small changes in the program.
+For instance, suppose we wanted to change the image based on \code{wave} shown in \link{Figure 2.9}.
+We could work at the lowest level to change the detailed appearance of the \code{wave} element;
+we could work at the middle level to change the way \code{corner-split} replicates the \code{wave};
+we could work at the highest level to change how \code{square-limit} arranges the four copies of the corner.
+In general, each level of a stratified design provides a different vocabulary for expressing the characteristics of the system, and a different kind of ability to change it.
 
-\begin{quote}
-\heading{\phantomsection\label{Exercise 2.52}Exercise 2.52:} Make changes to the square limit
-of \code{wave} shown in \link{Figure 2.9} by working at each of the levels
-described above.  In particular:
 
-\begin{enumerate}[a.]
 
-\item
-Add some segments to the primitive \code{wave} painter of \link{Exercise 2.49}
-(to add a smile, for example).
+\begin{exercise}
+	\label{Exercise 2.52}
+	Make changes to the square limit of \code{wave} shown in \link{Figure 2.9} by working at each of the levels described above.
+	In particular:
+	\begin{enumerate}[label = \alph*., leftmargin = *]
 
-\item
-Change the pattern constructed by \code{corner\-/split} (for example, by using
-only one copy of the \code{up\-/split} and \code{right\-/split} images instead of
-two).
+		\item
+			Add some segments to the primitive \code{wave} painter of \link{Exercise 2.49} (to add a smile, for example).
 
-\item
-Modify the version of \code{square\-/limit} that uses \code{square\-/of\-/four} so as
-to assemble the corners in a different pattern.  (For example, you might make
-the big Mr. Rogers look outward from each corner of the square.)
+		\item
+			Change the pattern constructed by \code{corner-split} (for example, by using only one copy of the \code{up-split} and \code{right-split} images instead of two).
 
-\end{enumerate}
-\end{quote}
+		\item
+			Modify the version of \code{square-limit} that uses \code{square-of-four} so as to assemble the corners in a different pattern.
+			(For example, you might make the big Mr.~Rogers look outward from each corner of the square.)
+
+	\end{enumerate}
+\end{exercise}

@@ -12,6 +12,6 @@ $pdf_mode = 5;
 # %O is a placeholder for additional options passed to latexmk
 # %S is the name of the source file(s?)
 # shell-escape needs to be enabled so that the package "svg" can execute inkscape
-$xelatex = 'xelatex %O -shell-escape -synctex=1 -interaction=nonstopmode -file-line-error %S';
+$xelatex = 'xelatex %O -shell-escape -synctex=1 -interaction=nonstopmode -file-line-error -8bit %S';
 
 @default_files = ('sicp.tex');

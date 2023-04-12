@@ -49,11 +49,19 @@
 \usepackage{imakeidx}
 \usepackage[totoc,font=footnotesize]{idxlayout}
 \usepackage[final]{pdfpages} % inserts pages from a pdf file
-
-\usepackage{listings}  % for syntax highlighted code listings
+\usepackage[use-files = {true}]{xsim} % to typeset exercises
+\usepackage{listings, lstautogobble}  % for syntax highlighted code listings
 \usepackage{verbatim}  % for simple verbatim and comment environments
+\usepackage{booktabs}
 \usepackage{enumitem}  % allows customized labels in enumerations
 \usepackage{hyperref}  % makes cross references and URLs clickable
+
+\xsimsetup{
+	path = {exercises},
+	exercise/within = {chapter},
+	exercise/the-counter = {\thechapter.\arabic{exercise}}
+}
+
 \definecolor{LinkRed}{HTML}{80171F}
 \hypersetup{
 	pdfauthor  = {Harold Abelson, Gerald Jay Sussman, Julie Sussman},
@@ -64,7 +72,8 @@
 	urlcolor   = LinkRed,
 }
 
-\renewcommand{\dictumwidth}{0.666\linewidth}
+% Quotes at the beginning of chapters
+\renewcommand{\dictumwidth}{0.7\linewidth}
 \renewcommand{\dictumrule}{\vspace{0.5em}}
 \renewcommand{\dictumauthorformat}[1]{#1}
 \renewcommand{\raggeddictumauthor}{\raggedright}
@@ -95,13 +104,15 @@
 
 \lstset{
 	xleftmargin = \parindent,
+	autogobble,
 	% Scheme syntax highlighter
-	columns          = fixed,
-	extendedchars    = true,
-	upquote          = true,
-	showstringspaces = false,
-	sensitive        = false,
-	mathescape       = true,
+	columns           = fixed,
+	extendedchars     = true,
+	upquote           = true,
+	showstringspaces  = false,
+	sensitive         = false,
+	mathescape        = true,
+	tabsize           = 2,
 	escapechar  = {~},
 	alsodigit   = {>, <, /, -, =, !, ?, *},
 	alsoletter  = {'},
@@ -392,15 +403,17 @@
 \endgroup
 
 \newcommand{\acronym}[1]{\textsc{\fontspec[Numbers={OldStyle}]{Libertinus Serif}\MakeLowercase{#1}}}
-\newcommand{\uppersc}[1]{{\fontspec[Letters=UppercaseSmallCaps]{Libertinus Serif}#1}}
-\newcommand{\newterm}[1]{\index{#1}\emph{#1}}
-\newcommand{\var}[1]{\textsl{#1}}
-\newcommand{\code}[1]{\texttt{#1}}
-\newcommand{\link}[1]{\hyperref[#1]{#1}}
-\newcommand{\heading}[1]{{\sffamily\bfseries #1}}
+\newcommand{\code}[1]{\textup{\texttt{#1}}}
 \newcommand{\dark}{\color{SchemeDark}}
+\newcommand{\heading}[1]{{\sffamily\bfseries #1}}
+\newcommand{\ind}[1]{\textsubscript{\( #1 \)}}
+\newcommand{\link}[1]{\hyperref[#1]{#1}}
 \newcommand{\mono}[1]{\hbox{\ttfamily\scriptsize #1}}
 \newcommand{\monoit}[1]{\hbox{\ttfamily\itshape\scriptsize #1}}
+\newcommand{\newterm}[1]{\index{#1}\emph{#1}}
+\newcommand{\outprint}{\textit}
+\newcommand{\uppersc}[1]{{\fontspec[Letters=UppercaseSmallCaps]{Libertinus Serif}#1}}
+\newcommand{\var}{\textsl}
 
 \newenvironment{example}%
   {\verbatim\small}%
@@ -428,5 +441,11 @@
 	leftmargin = *,
 	labelsep = 0pt
 }
+
+\DeclareMathOperator{\Angle}{Angle}
+\DeclareMathOperator{\Imagpart}{Imaginary-part}
+\DeclareMathOperator{\Magnitude}{Magnitude}
+\DeclareMathOperator{\Fib}{Fib}
+\DeclareMathOperator{\Realpart}{Real-part}
 
 \DeclarePairedDelimiter{\abs}{\lvert}{\rvert}
