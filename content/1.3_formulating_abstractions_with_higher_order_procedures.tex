@@ -586,12 +586,12 @@ the equation \( x^3 - 2x - 3 = 0 \) between \( 1 \) and \( 2 \):
 
 A number \( x \) is called a \newterm{fixed point} of a function \( f \) if \( x \) satisfies the equation \( f(x) = x \).
 For some functions \( f \) we can locate a fixed point by beginning with an initial guess and applying \( f \) repeatedly,
-$$
+\[
 	f(x)       \,, \quad
 	f(f(x))    \,, \quad
 	f(f(f(x))) \,, \quad
 	\dotsc
-$$
+\]
 until the value does not change very much.
 Using this idea, we can devise a procedure \code{fixed-point} that takes as inputs a function and an initial guess and produces an approximation to a fixed point of the function.
 We apply the function repeatedly until we find two successive values whose difference is less than some prescribed tolerance:
