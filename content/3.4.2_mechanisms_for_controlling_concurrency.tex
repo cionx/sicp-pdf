@@ -377,9 +377,9 @@ Once a mutex has been acquired, no other acquire operations on that mutex may pr
 \footnote{
 	The term “mutex” is an abbreviation for \newterm{mutual exclusion}.
 	The general problem of arranging a mechanism that permits concurrent processes to safely share resources is called the mutual exclusion problem.
-	Our mutex is a simple variant of the \newterm{semaphore} mechanism (see \link{Exercise 3.47}), which was introduced in the “THE” Multiprogramming System developed at the Technological University of Eindhoven and named for the university’s initials in Dutch (\link{Dijkstra 1968a}).
+	Our mutex is a simple variant of the \newterm{semaphore} mechanism (see \link{Exercise 3.47}), which was introduced in the “THE” Multiprogramming System developed at the Technological University of Eindhoven and named for the university’s initials in Dutch (\autocite{dijkstra_THE_multiprogramming_system}).
 	The acquire and release operations were originally called P and V, from the Dutch words \emph{passeren} (to pass) and \emph{vrijgeven} (to release), in reference to the semaphores used on railroad systems.
-	Dijkstra’s classic exposition (\link{Dijkstra 1968b}) was one of the first to clearly present the issues of concurrency control, and showed how to use semaphores to handle a variety of concurrency problems.
+	Dijkstra’s classic exposition (\autocite{dijkstra_cooperating_sequential_processes}) was one of the first to clearly present the issues of concurrency control, and showed how to use semaphores to handle a variety of concurrency problems.
 }
 In our implementation, each serializer has an associated mutex.
 Given a procedure \code{p}, the serializer returns a procedure that acquires the mutex, runs \code{p}, and then releases the mutex.

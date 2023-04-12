@@ -49,7 +49,7 @@ When this is full, we can copy the useful pairs into the new free memory (which 
 	An alternative commonly used garbage-collection technique is the \newterm{mark-sweep} method.
 	This consists of tracing all the structure accessible from the machine registers and marking each pair we reach.
 	We then scan all of memory, and any location that is unmarked is “swept up” as garbage and made available for reuse.
-	A full discussion of the mark-sweep method can be found in \link{Allen 1978}.
+	A full discussion of the mark-sweep method can be found in \autocite{allen_anatomy_of_lisp}.
 
 	The Minsky-Fenichel-Yochelson algorithm is the dominant algorithm in use for large-memory systems because it examines only the useful part of memory.
 	This is in contrast to mark-sweep, in which the sweep phase must check all of memory.

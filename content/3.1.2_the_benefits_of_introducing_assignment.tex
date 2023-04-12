@@ -23,7 +23,7 @@ desired statistical properties.%
 	Therefore, the number sequence produced by \code{rand-update} certainly is not “random,”  if by  “random” we insist that each number in the sequence is unrelated to the preceding number.
 	The relation between “real randomness” and so-called \newterm{pseudo-random} sequences, which are produced by well-determined computations and yet have suitable statistical properties, is a complex question involving difficult issues in mathematics and philosophy.
 	Kolmogorov, Solomonoff, and Chaitin have made great progress in clarifying these issues;
-	a discussion can be found in \link{Chaitin 1975}.
+	a discussion can be found in \autocite{chaitin_randomness_proof}.
 }
 
 We can implement \code{rand} as a procedure with a local state variable \code{x} that is initialized to some fixed value \code{random-init}.

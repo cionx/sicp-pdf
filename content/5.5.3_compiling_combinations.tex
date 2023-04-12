@@ -217,7 +217,7 @@ These extra saves would accumulate during a nest of procedure calls.%
 	Sophisticated Lisp compilers can, in fact, use the stack for arguments without destroying tail recursion.
 	(See \link{Hanson 1990} for a description.)
 	There is also some debate about whether stack allocation is actually more efficient than garbage collection in the first place, but the details seem to hinge on fine points of computer architecture.
-	(See \link{Appel 1987} and \link{Miller and Rozas 1994} for opposing views on this issue.)
+	(See \autocite{appel_garbage_faster_than_stack} and \link{Miller and Rozas 1994} for opposing views on this issue.)
 }
 
 \code{compile-proc-appl} generates the above procedure-application code by considering four cases, depending on whether the target for the call is \code{val} and whether the linkage is \code{return}.
