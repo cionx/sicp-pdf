@@ -1,6 +1,9 @@
 exercises/*
 
 *.aux
+*.bbl
+*.bcf
+*.blg
 *.fdb_latexmk
 *.fls
 *.idx
@@ -9,6 +12,7 @@ exercises/*
 *.log
 *.out
 *.pdf
+*.run.xml
 *.synctex.gz
 *.toc
 *.xdv
