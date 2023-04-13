@@ -1,5 +1,7 @@
 \usepackage{microtype}
 
+\usepackage{xstring}
+
 \usepackage[automark]{scrlayer-scrpage}
 
 % Font settings
@@ -47,13 +49,13 @@
 	inkscapelatex = false
 }
 
+\usepackage{minted}
+
 \usepackage{fancyvrb}
 \usepackage{imakeidx}
 \usepackage[totoc,font=footnotesize]{idxlayout}
 \usepackage[final]{pdfpages} % inserts pages from a pdf file
 \usepackage[use-files = {true}]{xsim} % to typeset exercises
-\usepackage{listings, lstautogobble}  % for syntax highlighted code listings
-\usepackage{verbatim}  % for simple verbatim and comment environments
 \usepackage{booktabs}
 \usepackage{enumitem}  % allows customized labels in enumerations
 \usepackage{hyperref}  % makes cross references and URLs clickable
@@ -100,18 +102,16 @@
 \addtokomafont{dictumauthor}{\upshape}
 
 % Document colors
-\definecolor{SchemeLight}   {HTML} {686868}
-\definecolor{SchemeSteel}   {HTML} {888888}
-\definecolor{SchemeDark}    {HTML} {262626}
-\definecolor{SchemeBlue}    {HTML} {4172A3}
-\definecolor{SchemeGreen}   {HTML} {487818}
-\definecolor{SchemeBrown}   {HTML} {A07040}
-\definecolor{SchemeRed}     {HTML} {AD4D3A}
-\definecolor{SchemeViolet}  {HTML} {7040A0}
-\definecolor{DropCapGray}   {HTML} {B8B8B8}
-\definecolor{ChapterGray}   {HTML} {C8C8C8}
-\definecolor{ChapterViolet} {HTML} {AEAECE}
-\definecolor{DropCapViolet} {HTML} {9090C0}
+\definecolor{DropCapViolet}{HTML}{9090C0}
+
+\usemintedstyle{default}
+\newminted[scheme]{scheme}{autogobble, escapeinside=~~}
+\newminted[smallscheme]{scheme}{autogobble, escapeinside=~~}
+\newminted[example]{text}{}
+\newminted[smallexample]{text}{}
+% some of the colors included in the style
+% extracted with a color picker
+\definecolor{DefaultVariable}{HTML}{19177D}
 
 \usepackage{lettrine}  % adds commands that make drop capitals
 \renewcommand{\LettrineFontHook}{\rmfamily\mdseries\color{DropCapViolet}}
@@ -121,337 +121,25 @@
 \setlength{\DefaultFindent}{1pt}
 \setlength{\DefaultNindent}{0em}
 
-\lstset{
-	xleftmargin = \parindent,
-	autogobble,
-	% Scheme syntax highlighter
-	columns           = fixed,
-	extendedchars     = true,
-	upquote           = true,
-	showstringspaces  = false,
-	sensitive         = false,
-	mathescape        = true,
-	tabsize           = 2,
-	escapechar  = {~},
-	alsodigit   = {>, <, /, -, =, !, ?, *},
-	alsoletter  = {'},
-	morestring  = [b]",
-	morecomment = [l];,
-	% Keyword list taken form functional.py in Pygments package:
-	morekeywords = {
-		=>,
-		and,
-		begin,
-		case,
-		cond,
-		define,
-		define-syntax,
-		delay,
-		do,
-		else,
-		if,
-		lambda,
-		let*,
-		let,
-		letrec,
-		letrec-syntax,
-		let-syntax,
-		or,
-		quasiquote,
-		quote,
-		set!,
-		syntax-rules
-		unquote,
-		unquote-splicing,
-	},
-	% If keywords are quoted, they must not be highlighted:
-	emph = {
-		'=>,
-		'and,
-		'begin,
-		'case,
-		'cond,
-		'define,
-		'define-syntax,
-		'delay,
-		'do,
-		'else,
-		'if,
-		'lambda,
-		'let*,
-		'let,
-		'letrec,
-		'letrec-syntax,
-		'let-syntax,
-		'or,
-		'quasiquote,
-		'quote,
-		'set!,
-		'syntax-rules
-		'unquote,
-		'unquote-splicing,
-	},
-	emphstyle = \color{SchemeDark},
-	% Paint error red:
-	emph = { [2]error },
-	emphstyle = [2]\color{SchemeRed},
-	% Builtins taken from functional.py:
-	emph = {
-		[3]*,
-		+,
-		-,
-		/,
-		<,
-		<=,
-		=,
-		>,
-		>=,
-		abs,
-		acos,
-		angle,
-		append,
-		apply,
-		asin,
-		assoc,
-		assq,
-		assv,
-		atan,
-		boolean?,
-		caaaar,
-		caaadr,
-		caaar,
-		caadar,
-		caaddr,
-		caadr,
-		caar,
-		cadaar,
-		cadadr,
-		cadar,
-		caddar,
-		cadddr,
-		caddr,
-		cadr,
-		call-with-current-continuation,
-		call-with-input-file,
-		call-with-output-file,
-		call-with-values,
-		call/cc,
-		car,
-		cdaaar,
-		cdaadr,
-		cdaar,
-		cdadar,
-		cdaddr,
-		cdadr,
-		cdar,
-		cddaar,
-		cddadr,
-		cddar,
-		cdddar,
-		cddddr,
-		cdddr,
-		cddr,
-		cdr,
-		ceiling,
-		char->integer,
-		char-alphabetic?,
-		char-ci<=?,
-		char-ci<?,
-		char-ci=?,
-		char-ci>=?,
-		char-ci>?,
-		char-downcase,
-		char-lower-case?,
-		char-numeric?,
-		char-ready?,
-		char-upcase,
-		char-upper-case?,
-		char-whitespace?,
-		char<=?,
-		char<?,
-		char=?,
-		char>=?,
-		char>?,
-		char?,
-		close-input-port,
-		close-output-port,
-		complex?,
-		cons,
-		cos,
-		current-input-port,
-		current-output-port,
-		denominator,
-		display,
-		dynamic-wind,
-		eof-object?,
-		eq?,
-		equal?,
-		eqv?,
-		eval,
-		even?,
-		exact->inexact,
-		exact?,
-		exp,
-		expt,
-		floor,
-		for-each,
-		force,
-		gcd,
-		imag-part,
-		inexact->exact,
-		inexact?,
-		input-port?,
-		integer->char,
-		integer?,
-		interaction-environment,
-		lcm,
-		length,
-		list,
-		list->string,
-		list->vector,
-		list-ref,
-		list-tail,
-		list?,
-		load,
-		log,
-		magnitude,
-		make-polar,
-		make-rectangular,
-		make-string,
-		make-vector,
-		map,
-		max,
-		member,
-		memq,
-		memv,
-		min,
-		modulo,
-		negative?,
-		newline,
-		not,
-		null-environment,
-		null?,
-		number->string,
-		number?,
-		numerator,
-		odd?,
-		open-input-file,
-		open-output-file,
-		output-port?,
-		pair?,
-		peek-char,
-		port?,
-		positive?,
-		procedure?,
-		quotient,
-		rational?,
-		rationalize,
-		read,
-		read-char,
-		real-part,
-		real?,
-		remainder,
-		reverse,
-		round,
-		scheme-report-environment,
-		set-car!,
-		set-cdr!,
-		sin,
-		sqrt,
-		string,
-		string->list,
-		string->number,
-		string->symbol,
-		string-append,
-		string-ci<=?,
-		string-ci<?,
-		string-ci=?,
-		string-ci>=?,
-		string-ci>?,
-		string-copy,
-		string-fill!,
-		string-length,
-		string-ref,
-		string-set!,
-		string<=?,
-		string<?,
-		string=?,
-		string>=?,
-		string>?,
-		string?,
-		substring,
-		symbol->string,
-		symbol?,
-		tan,
-		transcript-off,
-		transcript-on,
-		truncate,
-		values,
-		vector,
-		vector->list,
-		vector-fill!,
-		vector-length,
-		vector-ref,
-		vector-set!,
-		vector?,
-		with-input-from-file,
-		with-output-to-file,
-		write,
-		write-char,
-		zero?
-		},
-	emphstyle=[3]\color{SchemeViolet},%
-	%
-	basicstyle      = \color{SchemeLight}\ttfamily,
-	keywordstyle    = \color{SchemeBlue}\bfseries,
-	identifierstyle = \color{SchemeDark},
-	stringstyle     = \color{SchemeGreen},
-	commentstyle    = \color{SchemeLight}\itshape
-}
-
-% the following is taken from https://tex.stackexchange.com/a/81722/108717
-% because listings apparently can’t deal with unicode (???)
-\begingroup
-  \catcode0=12 %
-  \makeatletter
-  \g@addto@macro\lst@DefEC{%
-    \lst@CCECUse\lst@ProcessLetter
-    ⟨⟩⋮↑% *** add Unicode characters ***
-    ^^00% end marker
-  }%
-\endgroup
 
 \newcommand{\acronym}[1]{\textsc{\fontspec[Numbers={OldStyle}]{Libertinus Serif}\MakeLowercase{#1}}}
 \newcommand{\booktitle}{\emph}
-\newcommand{\code}[1]{\textup{\texttt{#1}}}
-\newcommand{\dark}{\color{SchemeDark}}
 \newcommand{\dollar}[1]{\$#1}
 \newcommand{\heading}[1]{{\sffamily\bfseries #1}}
-\newcommand{\ind}[1]{\textsubscript{\( #1 \)}}
 \newcommand{\link}[1]{\hyperref[#1]{#1}}
 \newcommand{\mono}[1]{\hbox{\ttfamily\scriptsize #1}}
 \newcommand{\monoit}[1]{\hbox{\ttfamily\itshape\scriptsize #1}}
 \newcommand{\newterm}[1]{\index{#1}\emph{#1}}
 \newcommand{\nth}[1]{#1}
-\newcommand{\outprint}{\textit}
+\newcommand{\outprint}{\textsl}
 \newcommand{\uppersc}[1]{{\fontspec[Letters=UppercaseSmallCaps]{Libertinus Serif}#1}}
-\newcommand{\var}{\textsl}
 
-\newenvironment{example}%
-  {\verbatim\small}%
-  {\endverbatim}
-
-\newenvironment{smallexample}%
-  {\verbatim\footnotesize}%
-  {\endverbatim}
-
-\lstnewenvironment{scheme}[1][]
-{\lstset{basicstyle=\ttfamily\small\color{SchemeLight},#1}}
-{}
-
-\lstnewenvironment{smallscheme}[1][]
-{\lstset{basicstyle=\ttfamily\footnotesize\color{SchemeLight},#1}}
-{}
+\newcommand{\code}{\texttt}
+\newcommand{\dark}[1]{#1}
+\newcommand{\var}[1]{\textsl{\texttt{#1}}}
+\newcommand{\cvar}{\color{DefaultVariable}\var}
+\newcommand{\ind}[1]{\textsubscript{\ttfamily \indint{#1}}}
+\newcommand{\indint}[1]{\IfInteger{#1}{\textup{#1}}{#1}}
 
 \setcounter{secnumdepth}{3}
 \setcounter{tocdepth}{3}

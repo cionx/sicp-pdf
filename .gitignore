@@ -1,4 +1,5 @@
 exercises/*
+_minted-sicp/*
 
 *.aux
 *.bbl
