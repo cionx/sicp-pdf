@@ -11,21 +11,38 @@
 	partial = upright
 ]{unicode-math}
 
-\defaultfontfeatures{%
-	Scale=MatchLowercase, % needed here ...
-}
-\setmonofont{JuliaMono}
-
-\defaultfontfeatures{%
-	Scale=MatchLowercase, % ... and here again
-	Mapping=tex-text,
-	SmallCapsFeatures={LetterSpace=2.5,WordSpace=1.05},
-}
 \setmainfont[
-	Numbers = OldStyle
+	Numbers           = OldStyle,
+	Mapping           = tex-text,
+	SmallCapsFeatures = {LetterSpace=2.5,WordSpace=1.05},
+	UprightFont =      {*},
+	ItalicFont =       {* Italic},
+	BoldFont =         {* Bold},
+	BoldItalicFont =   {* Bold Italic},
+	FontFace = {sb}{n} {* Semibold},
+	FontFace = {sb}{it}{* Semibold Italic}
 ]{Libertinus Serif}
-\setsansfont{Libertinus Sans}
+\setsansfont[
+	Numbers = OldStyle,
+]{Libertinus Sans}
 \setmathfont{Libertinus Math}
+\setmonofont[
+	UprightFont =      {* Regular},
+	ItalicFont =       {* RegularItalic},
+	BoldFont =         {* Bold},
+	BoldItalicFont =   {* BoldItalic},
+	FontFace = {l}{n}  {* Light},
+	FontFace = {l}{it} {* LightItalic},
+	% I don’t know where to fit JuliaMono Medium
+	FontFace = {sb}{n} {* SemiBold},
+	FontFace = {sb}{it}{* SemiBoldItalic},
+	FontFace = {eb}{n} {* ExtraBold},
+	FontFace = {eb}{it}{* ExtraBoldItalic},
+	FontFace = {ub}{n} {* Black},
+	FontFace = {ub}{it}{* BlackItalic},
+	Scale = MatchLowercase
+]
+{JuliaMono}
 
 \usepackage{polyglossia}
 \setdefaultlanguage[variant=american]{english}
@@ -109,6 +126,7 @@
 \newminted[smallscheme]{scheme}{autogobble, escapeinside=~~}
 \newminted[example]{text}{}
 \newminted[smallexample]{text}{}
+\newmintinline[inlinescheme]{scheme}{escapeinside=~~}
 % some of the colors included in the style
 % extracted with a color picker
 \definecolor{DefaultVariable}{HTML}{19177D}
@@ -131,7 +149,7 @@
 \newcommand{\monoit}[1]{\hbox{\ttfamily\itshape\scriptsize #1}}
 \newcommand{\newterm}[1]{\index{#1}\emph{#1}}
 \newcommand{\nth}[1]{#1}
-\newcommand{\outprint}{\textsl}
+\newcommand{\outprint}[1]{{\fontseries{l}\selectfont\textsl{#1}}}
 \newcommand{\uppersc}[1]{{\fontspec[Letters=UppercaseSmallCaps]{Libertinus Serif}#1}}
 
 \newcommand{\code}{\texttt}
