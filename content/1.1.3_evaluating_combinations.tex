@@ -3,17 +3,20 @@
 
 One of our goals in this chapter is to isolate issues about thinking procedurally.
 As a case in point, let us consider that, in evaluating combinations, the interpreter is itself following a procedure.
-
-To evaluate a combination, do the following:
-\begin{enumerate}
+\begin{itemize}
 
 	\item
-		Evaluate the subexpressions of the combination.
+		To evaluate a combination, do the following:
+		\begin{enumerate}[leftmargin = *]
 
-	\item
-		Apply the procedure that is the value of the leftmost subexpression (the operator) to the arguments that are the values of the other subexpressions (the operands).
+			\item
+				Evaluate the subexpressions of the combination.
 
-\end{enumerate}
+			\item
+				Apply the procedure that is the value of the leftmost subexpression (the operator) to the arguments that are the values of the other subexpressions (the operands).
+
+		\end{enumerate}
+\end{itemize}
 Even this simple rule illustrates some important points about processes in general.
 First, observe that the first step dictates that in order to accomplish the evaluation process for a combination we must first perform the evaluation process on each element of the combination.
 Thus, the evaluation rule is \newterm{recursive} in nature;
@@ -68,11 +71,11 @@ In an interactive language such as Lisp, it is meaningless to speak of the value
 As we shall see in \link{Chapter 3}, the general notion of the environment as providing a context in which evaluation takes place will play an important role in our understanding of program execution.
 
 Notice that the evaluation rule given above does not handle definitions.
-For instance, evaluating \code{(define x 3)} does not apply \code{define} to two arguments, one of which is the value of the symbol \code{x} and the other of which is 3, since the purpose of the \code{define} is precisely to associate \code{x} with a value.
+For instance, evaluating \code{(define x 3)} does not apply \code{define} to two arguments, one of which is the value of the symbol \code{x} and the other of which is \( 3 \), since the purpose of the \code{define} is precisely to associate \code{x} with a value.
 (That is, \code{(define x 3)} is not a combination.)
 
 Such exceptions to the general evaluation rule are called \newterm{special forms}.
-\code{Define} is the only example of a special form that we have seen so far, but we will meet others shortly.
+\code{define} is the only example of a special form that we have seen so far, but we will meet others shortly.
 Each special form has its own evaluation rule.
 The various kinds of expressions (each with its associated evaluation rule) constitute the syntax of the programming language.
 In comparison with most other programming languages, Lisp has a very simple syntax;

@@ -29,7 +29,6 @@ The contrast between function and procedure is a reflection of the general disti
 In mathematics we are usually concerned with declarative (what is) descriptions, whereas in computer science we are usually concerned with imperative (how to) descriptions.%
 \footnote{
 	Declarative and imperative descriptions are intimately related, as indeed are mathematics and computer science.
-	For instance, to say that the answer produced by a program is “correct” is to make a declarative statement about the program.
 	There is a large amount of research aimed at establishing techniques for proving that programs are correct, and much of the technical difficulty of this subject has to do with negotiating the transition between imperative statements (from which programs are constructed) and declarative statements (which can be used to deduce things).
 	In a related vein, an important current area in programming-language design is the exploration of so-called very high-level languages, in which one actually programs in terms of declarative statements.
 	The idea is to make interpreters sophisticated enough so that, given “what is” knowledge specified by the programmer, they can generate “how to” knowledge automatically.
@@ -38,8 +37,7 @@ In mathematics we are usually concerned with declarative (what is) descriptions,
 }
 
 How does one compute square roots?
-The most common way is to use Newton’s method of successive approximations, which says that whenever we have a guess \( y \) for the value of the square root of a number \( x \), we can perform a simple manipulation to get a better guess (one closer to the actual square
-root) by averaging \( y \) with \( x / y \).%
+The most common way is to use Newton’s method of successive approximations, which says that whenever we have a guess \( y \) for the value of the square root of a number \( x \), we can perform a simple manipulation to get a better guess (one closer to the actual square root) by averaging \( y \) with \( x / y \).%
 \footnote{
 	This square-root algorithm is actually a special case of Newton’s method, which is a general technique for finding roots of equations.
 	The square-root algorithm itself was developed by Heron of Alexandria in the first century \acronym{A.D}.
@@ -48,16 +46,17 @@ root) by averaging \( y \) with \( x / y \).%
 For example, we can compute the square root of \( 2 \) as follows.
 Suppose our initial guess is \( 1 \):
 \begin{center}
+	\begingroup
+	\renewcommand{\arraystretch}{2}
 	\begin{tabular}{l>{\quad}l>{\quad}l}
-		\toprule
 		Guess        & Quotient                        & Average                                  \\
 		\midrule
-		\( 1 \)      & \( \frac{2}{1} = 2 \)           & \( \frac{2 + 1}{2} = 1.5 \)              \\[1em]
-		\( 1.5 \)    & \( \frac{2}{1.5} = 1.3333 \)    & \( \frac{1.3333 + 1.5}{2} = 1.4167 \)    \\[1em]
-		\( 1.4167 \) & \( \frac{2}{1.4167} = 1.4118 \) & \( \frac{1.4167 + 1.4118}{2} = 1.4142 \) \\[1em]
-		\( 1.4142 \) & …                           & …                                            \\
-		\bottomrule
+		\( 1 \)      & \( \frac{2}{1} = 2 \)           & \( \frac{2 + 1}{2} = 1.5 \)              \\
+		\( 1.5 \)    & \( \frac{2}{1.5} = 1.3333 \)    & \( \frac{1.3333 + 1.5}{2} = 1.4167 \)    \\
+		\( 1.4167 \) & \( \frac{2}{1.4167} = 1.4118 \) & \( \frac{1.4167 + 1.4118}{2} = 1.4142 \) \\
+		\( 1.4142 \) & …                           & …
 	\end{tabular}
+	\endgroup
 \end{center}
 Continuing this process, we obtain better and better approximations to the square root.
 
@@ -127,7 +126,7 @@ If we type these definitions to the interpreter, we can use \code{sqrt} just as 
 
 The \code{sqrt} program also illustrates that the simple procedural language we have introduced so far is sufficient for writing any purely numerical program that one could write in, say, C or Pascal.
 This might seem surprising, since we have not included in our language any iterative (looping) constructs that direct the computer to do something over and over again.
-\code{Sqrt-iter}, on the other hand, demonstrates how iteration can be accomplished using no special construct other than the ordinary ability to call a procedure.%
+\code{sqrt-iter}, on the other hand, demonstrates how iteration can be accomplished using no special construct other than the ordinary ability to call a procedure.%
 \footnote{
 	Readers who are worried about the efficiency issues involved in using procedure calls to implement iteration should note the remarks on “tail recursion” in \link{Section 1.2.1}.
 }
@@ -138,8 +137,7 @@ This might seem surprising, since we have not included in our language any itera
 	\label{Exercise 1.6}
 	Alyssa P. Hacker doesn’t see why \code{if} needs to be provided as a special form.
 	“Why can’t I just define it as an ordinary procedure in terms of \code{cond}?” she asks.
-	Alyssa’s friend Eva Lu Ator claims this can indeed be done, and she defines a new version of
-	\code{if}:
+	Alyssa’s friend Eva Lu Ator claims this can indeed be done, and she defines a new version of \code{if}:
 	\begin{scheme}
 	  (define (new-if predicate then-clause else-clause)
 	    (cond (predicate then-clause)

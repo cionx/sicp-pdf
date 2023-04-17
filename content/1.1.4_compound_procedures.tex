@@ -23,11 +23,12 @@ This is expressed in our language as
 \begin{scheme}
   (define (square x) (* x x))
 \end{scheme}
+
 We can understand this in the following way:
 \begin{scheme}
-  (define (square    x)        (*       x        x))
-    |        |       |          |       |        |
-   To     square  something,  multiply  it  by  itself.
+  (define (square    x)        (*       x      x))
+~    |       |        |          |       |      |~
+~   To     square  something,  multiply  it by  itself.~
 \end{scheme}
 We have here a \newterm{compound procedure}, which has been given the name \code{square}.
 The procedure represents the operation of multiplying something by itself.
@@ -37,28 +38,25 @@ Evaluating the definition creates this compound procedure and associates it with
 \footnote{
 	Observe that there are two different operations being combined here:
 	we are creating the procedure, and we are giving it the name \code{square}.
-	It is possible, indeed important, to be able to separate these two notions---%
-	to create procedures without naming them, and to give names to procedures that have already been created.
+	It is possible, indeed important, to be able to separate these two notions---to create procedures without naming them, and to give names to procedures that have already been created.
 	We will see how to do this in \link{Section 1.3.2}.
 }
 
 The general form of a procedure definition is
 \begin{scheme}
-  (define (⟨~\var{name}~⟩ ⟨~\var{formal parameters}~⟩) ⟨~\var{body}~⟩)
+  (define (~\cvar{⟨name}⟩~ ~\cvar{⟨formal parameters⟩}~) ~\cvar{⟨body}⟩~)
 \end{scheme}
-The \code{⟨\var{name}⟩} is a symbol to be associated with the procedure definition in
-the environment.%
+The \code{⟨\var{name}⟩} is a symbol to be associated with the procedure definition in the environment.%
 \footnote{
-	Throughout this book, we will describe the general syntax of expressions by using italic symbols delimited by angle brackets---e.g., \code{⟨\var{name}⟩}---to denote the “slots” in the expression to be filled in when such an expression is actually used.
+	Throughout this book, we will describe the general syntax of expressions by using italic symbols delimited by angle brackets---e.g., \code{\var{⟨name⟩}}---to denote the “slots” in the expression to be filled in when such an expression is actually used.
 }
-The \code{⟨\var{formal parameters}⟩} are the names used within the body of the procedure to refer to the corresponding arguments of the procedure.
-The \code{⟨\var{body}⟩} is an expression that will yield the value of the procedure application when the formal parameters are replaced by the actual arguments to which the procedure
-is applied.%
+The \code{\var{⟨formal parameters⟩}} are the names used within the body of the procedure to refer to the corresponding arguments of the procedure.
+The \code{\var{⟨body⟩}} is an expression that will yield the value of the procedure application when the formal parameters are replaced by the actual arguments to which the procedure is applied.%
 \footnote{
 	More generally, the body of the procedure can be a sequence of expressions.
 In this case, the interpreter evaluates each expression in the sequence in turn and returns the value of the final expression as the value of the procedure application.
 }
-The \code{⟨\var{name}⟩} and the \code{⟨\var{formal parameters}⟩} are grouped within parentheses, just as they would be in an actual call to the procedure being defined.
+The \code{\var{⟨name⟩}} and the \code{\var{⟨formal parameters⟩}} are grouped within parentheses, just as they would be in an actual call to the procedure being defined.
 
 Having defined \code{square}, we can now use it:
 \begin{scheme}

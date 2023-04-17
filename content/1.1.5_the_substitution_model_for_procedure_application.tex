@@ -1,14 +1,29 @@
 \subsection{The Substitution Model for Procedure Application}
 \label{Section 1.1.5}
 
+\begin{scheme}
+(define (half-interval-method f a b)
+  (let (a-value (f a))
+       (b-value (f b)))
+    (cond ((and (negative? a-value) (positive? b-value))
+           (search f a b))
+          ((and (negative? b-value) (positive? a-value))
+            (search f b a))
+          (else
+           (error "Values are not of opposite sign" a b))))
+\end{scheme}
+
 To evaluate a combination whose operator names a compound procedure, the interpreter follows much the same process as for combinations whose operators name primitive procedures, which we described in \link{Section 1.1.3}.
 That is, the interpreter evaluates the elements of the combination and applies the procedure (which is the value of the operator of the combination) to the arguments (which are the values of the operands of the combination).
 
 We can assume that the mechanism for applying primitive procedures to arguments is built into the interpreter.
 For compound procedures, the application process is as follows:
-\begin{quote}
-	To apply a compound procedure to arguments, evaluate the body of the procedure with each formal parameter replaced by the corresponding argument.
-\end{quote}
+\begin{itemize}
+
+	\item
+		To apply a compound procedure to arguments, evaluate the body of the procedure with each formal parameter replaced by the corresponding argument.
+
+\end{itemize}
 To illustrate this process, let’s evaluate the combination
 \begin{scheme}
   (f 5)
@@ -49,26 +64,25 @@ However, there are two points that should be stressed:
 \begin{itemize}
 
 	\item
-	The purpose of the substitution is to help us think about procedure application, not to provide a description of how the interpreter really works.
-	Typical interpreters do not evaluate procedure applications by manipulating the
-	text of a procedure to substitute values for the formal parameters.
-	In practice, the “substitution” is accomplished by using a local environment for the formal parameters.
-	We will discuss this more fully in \link{Chapter 3} and \link{Chapter 4} when we examine the implementation of an interpreter in detail.
+		The purpose of the substitution is to help us think about procedure application, not to provide a description of how the interpreter really works.
+		Typical interpreters do not evaluate procedure applications by manipulating the
+		text of a procedure to substitute values for the formal parameters.
+		In practice, the “substitution” is accomplished by using a local environment for the formal parameters.
+		We will discuss this more fully in \link{Chapter 3} and \link{Chapter 4} when we examine the implementation of an interpreter in detail.
 
 	\item
-	Over the course of this book, we will present a sequence of increasingly elaborate models of how interpreters work, culminating with a complete implementation of an interpreter and compiler in \link{Chapter 5}.
-	The substitution model is only the first of these models---%
-	a way to get started thinking formally about the evaluation process.
-	In general, when modeling phenomena in science and engineering, we begin with simplified, incomplete models.
-	As we examine things in greater detail, these simple models become inadequate and must be replaced by more refined models.
-	The substitution model is no exception.
-	In particular, when we address in \link{Chapter 3} the use of procedures with “mutable data,” we will see that the substitution model breaks down and must be replaced by a more complicated model of procedure application.%
-	\footnote{
-		Despite the simplicity of the substitution idea, it turns out to be surprisingly complicated to give a rigorous mathematical definition of the substitution process.
-		The problem arises from the possibility of confusion between the names used for the formal parameters of a procedure and the (possibly identical) names used in the expressions to which the procedure may be applied.
-		Indeed, there is a long history of erroneous definitions of \newterm{substitution} in the literature of logic and programming semantics.
-		See \link{Stoy 1977} for a careful discussion of substitution.
-	}
+		Over the course of this book, we will present a sequence of increasingly elaborate models of how interpreters work, culminating with a complete implementation of an interpreter and compiler in \link{Chapter 5}.
+		The substitution model is only the first of these models---a way to get started thinking formally about the evaluation process.
+		In general, when modeling phenomena in science and engineering, we begin with simplified, incomplete models.
+		As we examine things in greater detail, these simple models become inadequate and must be replaced by more refined models.
+		The substitution model is no exception.
+		In particular, when we address in \link{Chapter 3} the use of procedures with “mutable data,” we will see that the substitution model breaks down and must be replaced by a more complicated model of procedure application.%
+		\footnote{
+			Despite the simplicity of the substitution idea, it turns out to be surprisingly complicated to give a rigorous mathematical definition of the substitution process.
+			The problem arises from the possibility of confusion between the names used for the formal parameters of a procedure and the (possibly identical) names used in the expressions to which the procedure may be applied.
+			Indeed, there is a long history of erroneous definitions of \newterm{substitution} in the literature of logic and programming semantics.
+			See \link{Stoy 1977} for a careful discussion of substitution.
+		}
 
 \end{itemize}
 
@@ -94,7 +108,7 @@ followed by the reductions
 
   (+           36                   100)
 
-                      136
+                         136
 \end{scheme}
 This gives the same answer as our previous evaluation model, but the process is different.
 In particular, the evaluations of \code{(+ 5 1)} and \code{(* 5 2)} are each performed twice here, corresponding to the reduction of the expression

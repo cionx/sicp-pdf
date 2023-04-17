@@ -1,7 +1,7 @@
 \subsection{Procedures as Black-Box Abstractions}
 \label{Section 1.1.8}
 
-\code{Sqrt} is our first example of a process defined by a set of mutually defined procedures.
+\code{sqrt} is our first example of a process defined by a set of mutually defined procedures.
 Notice that the definition of \code{sqrt-iter} is \newterm{recursive};
 that is, the procedure is defined in terms of itself.
 The idea of being able to define a procedure in terms of itself may be disturbing;
@@ -24,8 +24,7 @@ The entire \code{sqrt} program can be viewed as a cluster of procedures (shown i
 \end{figure}
 
 The importance of this decomposition strategy is not simply that one is dividing the program into parts.
-After all, we could take any large program and divide it into parts---%
-the first ten lines, the next ten lines, the next ten lines, and so on.
+After all, we could take any large program and divide it into parts---the first ten lines, the next ten lines, the next ten lines, and so on.
 Rather, it is crucial that each procedure accomplishes an identifiable task that can be used as a module in defining other procedures.
 For example, when we define the \code{good-enough?} procedure in terms of \code{square}, we are able to regard the \code{square} procedure as a “black box.”
 We are not at that moment concerned with \emph{how} the procedure computes its result, only with the fact that it computes the square.
@@ -39,8 +38,7 @@ Each takes a numerical argument and produces the square of that number as the va
 	It is not even clear which of these procedures is a more efficient implementation.
 	This depends upon the hardware available.
 	There are machines for which the “obvious” implementation is the less efficient one.
-	Consider a machine that has extensive tables of logarithms and antilogarithms stored in a very
-efficient manner.
+	Consider a machine that has extensive tables of logarithms and antilogarithms stored in a very efficient manner.
 }
 \begin{scheme}
   (define (square x) (* x x))
@@ -49,9 +47,9 @@ efficient manner.
 
   (define (double x) (+ x x))
 \end{scheme}
+
 So a procedure definition should be able to suppress detail.
-The users of the procedure may not have written the procedure themselves, but may have obtained
-it from another programmer as a black box.
+The users of the procedure may not have written the procedure themselves, but may have obtained it from another programmer as a black box.
 A user should not need to know how the procedure is implemented in order to use it.
 
 
@@ -98,7 +96,7 @@ The meaning of \code{good-enough?} should be independent of the names we choose 
 It would have changed from free to bound.)
 The meaning of \code{good-enough?} is not independent of the names of its free variables, however.
 It surely depends upon the fact (external to this definition) that the symbol \code{abs} names a procedure for computing the absolute value of a number.
-\code{Good-enough?} will compute a different function if we substitute \code{cos} for \code{abs} in its definition.
+\code{good-enough?} will compute a different function if we substitute \code{cos} for \code{abs} in its definition.
 
 
 
@@ -122,6 +120,7 @@ The existing program consists of separate procedures:
   (define (improve guess x)
     (average guess (/ x guess)))
 \end{scheme}
+
 The problem with this program is that the only procedure that is important to users of \code{sqrt} is \code{sqrt}.
 The other procedures (\code{sqrt-iter}, \code{good-enough?}, and \code{improve}) only clutter up their minds.
 They may not define any other procedure called \code{good-enough?} as part of another program to work together with the square-root program, because \code{sqrt} needs it.
@@ -141,6 +140,7 @@ For example, in the square-root problem we can write
           (sqrt-iter (improve guess x) x)))
     (sqrt-iter 1.0 x))
 \end{scheme}
+
 Such nesting of definitions, called \newterm{block structure}, is basically the right solution to the simplest name-packaging problem.
 But there is a better idea lurking here.
 In addition to internalizing the definitions of the auxiliary procedures, we can simplify them.

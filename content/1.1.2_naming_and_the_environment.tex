@@ -13,8 +13,7 @@ causes the interpreter to associate the value~\( 2 \) with the name \code{size}.
 \footnote{
 	In this book, we do not show the interpreter’s response to evaluating definitions, since this is highly implementation-dependent.
 }
-Once the name \code{size} has been associated with the number~\( 2 \), we can refer to the
-value~\( 2 \) by name:
+Once the name \code{size} has been associated with the number~\( 2 \), we can refer to the value~\( 2 \) by name:
 \begin{scheme}
   size
   ~\outprint{2}~
@@ -33,19 +32,19 @@ Here are further examples of the use of \code{define}:
   ~\outprint{314.159}~
 
   (define circumference (* 2 pi radius))
+
   circumference
   ~\outprint{62.8318}~
 \end{scheme}
 
-\code{Define} is our language’s simplest means of abstraction, for it allows us to use simple names to refer to the results of compound operations, such as the \code{circumference} computed above.
+\code{define} is our language’s simplest means of abstraction, for it allows us to use simple names to refer to the results of compound operations, such as the \code{circumference} computed above.
 In general, computational objects may have very complex structures, and it would be extremely inconvenient to have to remember and repeat their details each time we want to use them.
 Indeed, complex programs are constructed by building, step by step, computational objects of increasing complexity.
 The interpreter makes this step-by-step program construction particularly convenient because name-object associations can be created incrementally in successive interactions.
 This feature encourages the incremental development and testing of programs and is largely responsible for the fact that a Lisp program usually consists of a large number of relatively simple procedures.
 
 It should be clear that the possibility of associating values with symbols and later retrieving them means that the interpreter must maintain some sort of memory that keeps track of the name-object pairs.
-This memory is called the \newterm{environment} (more precisely the \newterm{global environment}, since we will see later that a computation may involve a number of different
-environments).%
+This memory is called the \newterm{environment} (more precisely the \newterm{global environment}, since we will see later that a computation may involve a number of different environments).%
 \footnote{
 	\link{Chapter 3} will show that this notion of environment is crucial, both for understanding how the interpreter works and for implementing interpreters.
 }
