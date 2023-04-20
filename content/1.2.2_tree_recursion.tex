@@ -25,8 +25,7 @@ In general, the Fibonacci numbers can be defined by the rule
 		\Fib(n - 1) + \Fib(n - 2) & otherwise.
 	\end{cases*}
 \]
-We can immediately translate this definition into a recursive procedure for
-computing Fibonacci numbers:
+We can immediately translate this definition into a recursive procedure for computing Fibonacci numbers:
 \begin{scheme}
   (define (fib n)
     (cond ((= n 0) 0)
@@ -46,7 +45,7 @@ this reflects the fact that the \code{fib} procedure calls itself twice each tim
 	\centering
 	\includesvg[width=90mm]{fig/chap1/Fig1.5c.svg}
 	\caption{
-		The tree-recursive process generated in computing \code{(fib 5)}.
+		The tree-recursive process generated in computing \code{(fib 5)}.
 	}
 	\label{Figure 1.5}
 \end{figure}
@@ -110,16 +109,18 @@ This problem has a simple solution as a recursive procedure.
 Suppose we think of the types of coins available as arranged in some order.
 Then the following relation holds:
 
-The number of ways to change amount \( a \) using \( n \) kinds of coins equals
-\begin{itemize}
+\begin{quote}
+	The number of ways to change amount \( a \) using \( n \) kinds of coins equals
+	\begin{itemize}[leftmargin = *]
 
-	\item
-		the number of ways to change amount \( a \) using all but the first kind of coin, plus
+		\item
+			the number of ways to change amount \( a \) using all but the first kind of coin, plus
 
-	\item
-		the number of ways to change amount \( a - d \) using all \( n \) kinds of coins, where \( d \) is the denomination of the first kind of coin.
+		\item
+			the number of ways to change amount \( a - d \) using all \( n \) kinds of coins, where \( d \) is the denomination of the first kind of coin.
 
-\end{itemize}
+	\end{itemize}
+\end{quote}
 
 To see why this is true, observe that the ways to make change can be divided into two groups:
 those that do not use any of the first kind of coin, and those that do.
@@ -146,14 +147,14 @@ Consider this reduction rule carefully, and convince yourself that we can use it
 We can easily translate this description into a recursive procedure:
 \begin{scheme}
   (define (count-change amount) (cc amount 5))
+
   (define (cc amount kinds-of-coins)
     (cond ((= amount 0) 1)
           ((or (< amount 0) (= kinds-of-coins 0)) 0)
           (else (+ (cc amount
                        (- kinds-of-coins 1))
                    (cc (- amount
-                          (first-denomination
-                           kinds-of-coins))
+                          (first-denomination kinds-of-coins))
                        kinds-of-coins)))))
 
   (define (first-denomination kinds-of-coins)
@@ -216,8 +217,8 @@ The observation that a tree-recursive process may be highly inefficient but ofte
 	The numbers at the edge of the triangle are all \( 1 \), and each number inside the triangle is the sum of the two numbers above it.%
 	\footnote{
 		The elements of Pascal’s triangle are called the \newterm{binomial coefficients}, because the \( n \)\nth{th} row consists of the coefficients of the terms in the expansion of \( (x + y)^n \).
-		This pattern for computing the coefficients appeared in Blaise Pascal’s 1653 seminal work on probability theory, \textit{Traité du triangle arithmétique}.
-		According to \link{Knuth (1973)}, the same pattern appears in the \textit{Szu-yuen Yü-chien} (“The Precious Mirror of the Four Elements”), published by the Chinese mathematician Chu Shih-chieh in 1303, in the works of the twelfth-century Persian poet and mathematician Omar Khayyam, and in the works of the twelfth-century Hindu mathematician Bháscara Áchárya.
+		This pattern for computing the coefficients appeared in Blaise Pascal’s 1653 seminal work on probability theory, \booktitle{Traité du triangle arithmétique}.
+		According to \link{Knuth (1973)}, the same pattern appears in the \booktitle{Szu-yuen Yü-chien} (“The Precious Mirror of the Four Elements”), published by the Chinese mathematician Chu Shih-chieh in 1303, in the works of the twelfth-century Persian poet and mathematician Omar Khayyam, and in the works of the twelfth-century Hindu mathematician Bháscara Áchárya.
 	}
 	Write a procedure that computes elements of Pascal’s triangle by means of a recursive process.
 \end{exercise}

@@ -35,10 +35,10 @@ Now let’s take a different perspective on computing factorials.
 We could describe a rule for computing \( n! \) by specifying that we first multiply \( 1 \) by \( 2 \), then multiply the result by \( 3 \), then by \( 4 \), and so on until we reach \( n \).
 More formally, we maintain a running product, together with a counter that counts from \( 1 \) up to \( n \).
 We can describe the computation by saying that the counter and the product simultaneously change from one step to the next according to the rule
-\begin{scheme}
-  product ~\( \dark \gets \)~ counter * product
-  counter ~\( \dark \gets \)~ counter + 1
-\end{scheme}
+\begin{align*}
+	\text{product} &\gets \text{counter} ⋅ \text{product} \,, \\
+	\text{counter} &\gets \text{counter} + 1 \,,
+\end{align*}
 and stipulating that \( n! \) is the value of the product when the counter exceeds \( n \).
 
 \begin{figure}[tb]

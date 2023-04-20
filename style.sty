@@ -60,6 +60,7 @@
 
 \usepackage[usenames,dvipsnames,x11names]{xcolor}
 \usepackage{mathtools}
+\usepackage{amsthm}
 
 \usepackage{svg}
 \svgsetup{
@@ -124,12 +125,14 @@
 \usemintedstyle{default}
 \newminted[scheme]{scheme}{autogobble, escapeinside=~~}
 \newminted[smallscheme]{scheme}{autogobble, escapeinside=~~}
-\newminted[example]{text}{}
-\newminted[smallexample]{text}{}
+\newminted[example]{text}{autogobble}
+\newminted[smallexample]{text}{autogobble}
 \newmintinline[inlinescheme]{scheme}{escapeinside=~~}
 % some of the colors included in the style
 % extracted with a color picker
 \definecolor{DefaultVariable}{HTML}{19177D}
+
+\newtheorem*{theorem}{Theorem}
 
 \usepackage{lettrine}  % adds commands that make drop capitals
 \renewcommand{\LettrineFontHook}{\rmfamily\mdseries\color{DropCapViolet}}
@@ -163,6 +166,9 @@
 \setcounter{tocdepth}{3}
 
 \frenchspacing
+\binoppenalty = \maxdimen % breaking of binary operators
+\relpenalty   = \maxdimen % breaking of relation symbols
+
 \makeindex
 
 \setlist[description, 1]{

@@ -67,7 +67,7 @@ where the predicate to test whether an integer is even is defined in terms of th
 The process evolved by \code{fast-expt} grows logarithmically with \( n \) in both space and number of steps.
 To see this, observe that computing \( b^{2 n} \) using \code{fast-expt} requires only one more multiplication than computing \( b^n \).
 The size of the exponent we can compute therefore doubles (approximately) with every new multiplication we are allowed.
-Thus, the number of multiplications required for an exponent of \( n \) grows about as fast as the logarithm of \( n \) to the base \( 2 \).
+Thus, the number of multiplications required for an exponent of \( n \) grows about as fast as \( \log_2 n \).
 The process has \( Θ(\log n) \) growth.%
 \footnote{
 	More precisely, the number of multiplications required is equal to \( 1 \) less than \( \log_2 n \) plus the number of ones in the binary representation of \( n \).
@@ -84,8 +84,8 @@ For example, \code{fast-expt} for \( n = 1000 \) requires only 14 multiplication
 It is also possible to use the idea of successive squaring to devise an iterative algorithm that computes exponentials with a logarithmic number of steps (see \link{Exercise 1.16}), although, as is often the case with iterative algorithms, this is not written down so straightforwardly as the recursive algorithm.%
 \footnote{
 	This iterative algorithm is ancient.
-	It appears in the \textit{Chandah-sutra} by Áchárya Pingala, written before 200~\acronym{B.C.}
-	See \link{Knuth 1981}, section 4.6.3, for a full discussion and analysis of this and other methods of exponentiation.
+	It appears in the \booktitle{Chandah-sutra} by Áchárya Pingala, written before 200~\acronym{B.C.}
+	See \link{Knuth 1981}, Section 4.6.3, for a full discussion and analysis of this and other methods of exponentiation.
 }
 
 
@@ -113,7 +113,7 @@ It is also possible to use the idea of successive squaring to devise an iterativ
 	        (+ a (* a (- b 1)))))
 	\end{scheme}
 	This algorithm takes a number of steps that is linear in \code{b}.
-	Now suppose we include, together with addition, operations \code{double}, which doubles an integer, and \code{halve}, which divides an (even) integer by 2.
+	Now suppose we include, together with addition, operations \code{double}, which doubles an integer, and \code{halve}, which divides an (even) integer by \( 2 \).
 	Using these, design a multiplication procedure analogous to \code{fast-expt} that uses a logarithmic number of steps.
 \end{exercise}
 
@@ -153,8 +153,8 @@ It is also possible to use the idea of successive squaring to devise an iterativ
 	          ((even? count)
 	           (fib-iter a
 	                     b
-	                     ⟨??⟩   ~\textrm{; compute \( p' \)}~
-	                     ⟨??⟩   ~\textrm{; compute \( q' \)}~
+	                     ~\cvar{⟨??⟩}~   ; compute ~\( p' \)~
+	                     ~\cvar{⟨??⟩}~   ; compute ~\( q' \)~
 	                     (/ count 2)))
 	          (else (fib-iter (+ (* b q) (* a q) (* a p))
 	                          (+ (* b p) (* a q))
