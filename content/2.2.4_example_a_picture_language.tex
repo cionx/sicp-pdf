@@ -117,7 +117,7 @@ Once we can combine painters, we would like to be able to abstract typical  patt
 We will implement the painter operations as Scheme procedures.
 This means that we don’t need a special abstraction mechanism in the picture language:
 Since the means of combination are ordinary Scheme procedures, we automatically have the capability to do anything with painter operations that we can do with procedures.
-For example, we can abstract the pattern in \code{wave4} as 
+For example, we can abstract the pattern in \code{wave4} as
 \begin{scheme}
   (define (flipped-pairs painter)
     (let ((painter2 (beside painter (flip-vert painter))))
