@@ -27,6 +27,7 @@ Applying this resulting procedure to \( 10 \) returns the average of \( 10 \) an
   ((average-damp square) 10)
   ~\outprint{55}~
 \end{scheme}
+
 Using \code{average-damp}, we can reformulate the square-root procedure as follows:
 \begin{scheme}
   (define (sqrt x)
@@ -58,8 +59,6 @@ If \( x \mapsto g(x) \) is a differentiable function, then a solution of the equ
 \[
 	f(x) = x - \frac{g(x)}{Dg(x)}
 \]
-
-\noindent
 and \( Dg(x) \) is the derivative of \( g \) evaluated at \( x \).
 Newton’s method is the use of the fixed-point method we saw above to approximate a solution of the equation by finding a fixed point of the function \( f \).%
 \footnote{
@@ -75,10 +74,10 @@ Newton’s method converges very rapidly to a solution of \( g(x) = 0 \).%
 
 In order to implement Newton’s method as a procedure, we must first express the idea of derivative.
 Note that “derivative,” like average damping, is something that transforms a function into another function.
-For instance, the derivative of the function \( x \mapsto x^3 \) is the function \( x \mapsto 3x^2\!.
-\) In general, if \( g \) is a function and \( dx \) is a small number, then the derivative \( Dg \) of \( g \) is the function whose value at any number \( x \) is given (in the limit of small \( dx \)) by
+For instance, the derivative of the function \( x \mapsto x^3 \) is the function \( x \mapsto 3x^2 \).
+In general, if \( g \) is a function and \( dx \) is a small number, then the derivative \( Dg \) of \( g \) is the function whose value at any number \( x \) is given (in the limit of small \( dx \)) by
 \[
-	Dg(x) = \frac{g(x + dx) - g(x)}{dx}\,.
+	Dg(x) ≈ \frac{g(x + dx) - g(x)}{dx}\,.
 \]
 Thus, we can express the idea of derivative (taking \( dx \) to be, say,
 \( 0.00001 \)) as the procedure
@@ -99,8 +98,7 @@ For example, to approximate the derivative of \( x \mapsto x^3 \) at \( 5 \) (wh
   ~\outprint{75.00014999664018}~
 \end{scheme}
 
-With the aid of \code{deriv}, we can express Newton’s method as a fixed-point
-process:
+With the aid of \code{deriv}, we can express Newton’s method as a fixed-point process:
 \begin{scheme}
   (define (newton-transform g)
     (lambda (x) (- x (/ (g x) ((deriv g) x)))))
@@ -117,8 +115,8 @@ For instance, to find the square root of \( x \), we can use Newton’s method t
 This provides yet another form of the square-root procedure:
 \begin{scheme}
   (define (sqrt x)
-    (newtons-method
-     (lambda (y) (- (square y) x)) 1.0))
+    (newtons-method (lambda (y) (- (square y) x))
+                    1.0))
 \end{scheme}
 
 
@@ -193,7 +191,7 @@ This poses challenges for efficient implementation, but the resulting gain in ex
 
 \begin{exercise}
 	\label{Exercise 1.40}
-	Define a procedure \code{cubic}  that can be used together with the \code{newtons-method} procedure in expressions of the form
+	Define a procedure \code{cubic} that can be used together with the \code{newtons-method} procedure in expressions of the form
 	\begin{scheme}
 	  (newtons-method (cubic a b c) 1)
 	\end{scheme}
@@ -226,12 +224,14 @@ This poses challenges for efficient implementation, but the resulting gain in ex
 	\end{scheme}
 \end{exercise}
 
+
+
 \begin{exercise}
 	\label{Exercise 1.43}
-	If \( f \) is a numerical function and \( n \) is a positive integer, then we can form the \( n \)\nth{th} repeated application of \( f \), which is defined to be the function whose value at \( x \) is \( f(f( \dotsm f(x) \dotsm )) \).
+	If \( f \) is a numerical function and \( n \) is a positive integer, then we can form the \( n \)\nth{th} repeated application of \( f \), which is defined to be the function whose value at \( x \) is \( f(f( \dotsb f(x) \dotsb )) \).
 	For example, if \( f \) is the function \( x \mapsto x + 1 \), then the \( n \)\nth{th} repeated application of \( f \) is the function \( x \mapsto x + n \).
 	If \( f \) is the operation of squaring a number, then the \( n \)\nth{th} repeated application of \( f \) is the function that raises its argument to the (\( 2^n \))\nth{th} power.
-	Write a procedure that takes as inputs a procedure that computes \( f \) and a positive integer \( n \) and returns the procedure that computes the \( n \)\nth{th} repeated application of \( f \).
+	Write a procedure \code{repeated} that takes as inputs a procedure that computes \( f \) and a positive integer \( n \) and returns the procedure that computes the \( n \)\nth{th} repeated application of \( f \).
 	Your procedure should be able to be used as follows:
 	\begin{scheme}
 	  ((repeated square 2) 5)
@@ -248,8 +248,8 @@ This poses challenges for efficient implementation, but the resulting gain in ex
 	The idea of \newterm{smoothing} a function is an important concept in signal processing.
 	If \( f \) is a function and \( dx \) is some small number, then the smoothed version of \( f \) is the function whose value at a point \( x \) is the average of \( f(x - dx) \), \( f(x) \), and \( f(x + dx) \).
 	Write a procedure \code{smooth} that takes as input a procedure that computes \( f \) and returns a procedure that computes the smoothed \( f \).
-	It is sometimes valuable to repeatedly smooth a function (that is, smooth the smoothed function, and so on) to obtain the \newterm{\textit{n}-fold smoothed function}.
-	Show how to generate the \textit{n}-fold smoothed function of any given function using \code{smooth} and \code{repeated} from \link{Exercise 1.43}.
+	It is sometimes valuable to repeatedly smooth a function (that is, smooth the smoothed function, and so on) to obtain the \newterm{\( n \)-fold smoothed function}.
+	Show how to generate the \( n \)-fold smoothed function of any given function using \code{smooth} and \code{repeated} from \link{Exercise 1.43}.
 \end{exercise}
 
 

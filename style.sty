@@ -62,6 +62,9 @@
 \usepackage{mathtools}
 \usepackage{amsthm}
 
+\usepackage{menukeys}
+\renewmenumacro{\keys}{shadowedroundedkeys}
+
 \usepackage{svg}
 \svgsetup{
 	inkscapelatex = false
@@ -131,6 +134,7 @@
 % some of the colors included in the style
 % extracted with a color picker
 \definecolor{DefaultVariable}{HTML}{19177D}
+\definecolor{DefaultProcedure}{HTML}{0000FF}
 
 \newtheorem*{theorem}{Theorem}
 
@@ -159,6 +163,7 @@
 \newcommand{\dark}[1]{#1}
 \newcommand{\var}[1]{\textsl{\texttt{#1}}}
 \newcommand{\cvar}{\color{DefaultVariable}\var}
+\newcommand{\cproc}{\color{DefaultProcedure}\var}
 \newcommand{\ind}[1]{\textsubscript{\ttfamily \indint{#1}}}
 \newcommand{\indint}[1]{\IfInteger{#1}{\textup{#1}}{#1}}
 
