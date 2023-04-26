@@ -11,17 +11,16 @@ Clearly, not every arbitrary set of three procedures can serve as an appropriate
 We need to guarantee that, if we construct a rational number \code{x} from a pair of integers \code{n} and \code{d}, then extracting the \code{numer} and the \code{denom} of \code{x} and dividing them should yield the same result as dividing \code{n} by \code{d}.
 In other words, \code{make-rat}, \code{numer}, and \code{denom} must satisfy the condition that, for any integer \code{n} and any non-zero integer \code{d}, if \code{x} is \code{(make-rat n d)}, then
 \[
-	\frac{\code{numer x}}{\code{denom x}}
+	\frac{\code{(numer x)}}{\code{(denom x)}}
 	=
-	\frac{\code{n}}{\code{d}}
+	\frac{\code{n}}{\code{d}} \,.
 \]
 In fact, this is the only condition \code{make-rat}, \code{numer}, and \code{denom} must fulfill in order to form a suitable basis for a rational-number representation.
 In general, we can think of data as defined by some collection of selectors and constructors, together with specified conditions that these procedures must fulfill in order to be a valid representation.%
 \footnote{
 	Surprisingly, this idea is very difficult to formulate rigorously.
 	There are two approaches to giving such a formulation.
-	One, pioneered by C.~A.~R.
-	\link{Hoare (1972)}, is known as the method of \newterm{abstract models}.
+	One, pioneered by C.~A.~R. \link{Hoare (1972)}, is known as the method of \newterm{abstract models}.
 	It formalizes the “procedures plus conditions” specification as outlined in the rational-number example above.
 	Note that the condition on the rational-number representation was stated in terms of facts about integers (equality and division).
 	In general, abstract models define new kinds of data objects in terms of previously defined types of data objects.
@@ -55,11 +54,11 @@ Here are the definitions:
 This use of procedures corresponds to nothing like our intuitive notion of what data should be.
 Nevertheless, all we need to do to show that this is a valid way to represent pairs is to verify that these procedures satisfy the condition given above.
 
-The subtle point to notice is that the value returned by \code{(cons x y)} is a procedure---namely the internally defined procedure \code{dispatch}, which takes one argument and returns either \code{x} or \code{y} depending on whether the argument is 0 or 1.
-Correspondingly, \code{(car z)} is defined to apply \code{z} to 0.
-Hence, if \code{z} is the procedure formed by \code{(cons x y)}, then \code{z} applied to 0 will yield \code{x}.
+The subtle point to notice is that the value returned by \code{(cons x y)} is a procedure---namely the internally defined procedure \code{dispatch}, which takes one argument and returns either \code{x} or \code{y} depending on whether the argument is \( 0 \) or \( 1 \).
+Correspondingly, \code{(car z)} is defined to apply \code{z} to \( 0 \).
+Hence, if \code{z} is the procedure formed by \code{(cons x y)}, then \code{z} applied to \( 0 \) will yield \code{x}.
 Thus, we have shown that \code{(car (cons x y))} yields \code{x}, as desired.
-Similarly, \code{(cdr (cons x y))} applies the procedure returned by \code{(cons x y)} to 1, which returns \code{y}.
+Similarly, \code{(cdr (cons x y))} applies the procedure returned by \code{(cons x y)} to \( 1 \), which returns \code{y}.
 Therefore, this procedural implementation of pairs is a valid implementation, and if we access pairs using only \code{cons}, \code{car}, and \code{cdr} we cannot distinguish this implementation from one that uses “real” data structures.
 
 The point of exhibiting the procedural representation of pairs is not that our language works this way (Scheme, and Lisp systems in general, implement pairs directly, for efficiency reasons) but that it could work this way.
@@ -77,6 +76,7 @@ This style of programming is often called \newterm{message passing}, and we will
 	\begin{scheme}
 	  (define (cons x y)
 	    (lambda (m) (m x y)))
+
 	  (define (car z)
 	    (z (lambda (p q) p)))
 	\end{scheme}
@@ -97,7 +97,7 @@ This style of programming is often called \newterm{message passing}, and we will
 
 \begin{exercise}
 	\label{Exercise 2.6}
-	In case representing pairs as procedures wasn’t mind-boggling enough, consider that, in a language that can manipulate procedures, we can get by without numbers (at least insofar as nonnegative integers are concerned) by implementing 0 and the operation of adding \( 1 \) as
+	In case representing pairs as procedures wasn’t mind-boggling enough, consider that, in a language that can manipulate procedures, we can get by without numbers (at least insofar as nonnegative integers are concerned) by implementing \( 0 \) and the operation of adding \( 1 \) as
 	\begin{scheme}
 	  (define zero (lambda (f) (lambda (x) x)))
 

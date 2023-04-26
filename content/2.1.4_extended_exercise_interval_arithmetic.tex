@@ -11,8 +11,8 @@ It is sometimes necessary for them to compute the value of a parallel equivalent
 \]
 
 Resistance values are usually known only up to some tolerance guaranteed by the manufacturer of the resistor.
-For example, if you buy a resistor labeled “6.8 ohms with 10\% tolerance” you can only be sure that the resistor has a resistance between \( 6.8 - 0.68 = 6.12 \) and \( 6.8 + 0.68 = 7.48 \) ohms.
-Thus, if you have a 6.8-ohm 10\% resistor in parallel with a 4.7-ohm 5\% resistor, the resistance of the combination can range from about 2.58 ohms (if the two resistors are at the lower bounds) to about 2.97 ohms (if the two resistors are at the upper bounds).
+For example, if you buy a resistor labeled “\( 6.8 \) ohms with \( 10\% \) tolerance” you can only be sure that the resistor has a resistance between \( 6.8 - 0.68 = 6.12 \) and \( 6.8 + 0.68 = 7.48 \) ohms.
+Thus, if you have a \( 6.8 \)-ohm \( 10\% \) resistor in parallel with a \( 4.7 \)-ohm \( 5\% \) resistor, the resistance of the combination can range from about \( 2.58 \) ohms (if the two resistors are at the lower bounds) to about \( 2.97 \) ohms (if the two resistors are at the upper bounds).
 
 Alyssa’s idea is to implement “interval arithmetic” as a set of arithmetic operations for combining “intervals” (objects that represent the range of possible values of an inexact quantity).
 The result of adding, subtracting, multiplying, or dividing two intervals is itself an interval, representing the range of the result.
@@ -52,7 +52,7 @@ Note that the bounds of the reciprocal interval are the reciprocal of the upper 
 
 \begin{exercise}
 	\label{Exercise 2.7}
-	Alyssa’s program is incomplete  because she has not specified the implementation of the interval abstraction.
+	Alyssa’s program is incomplete because she has not specified the implementation of the interval abstraction.
 	Here is a definition of the interval constructor:
 	\begin{scheme}
 	  (define (make-interval a b) (cons a b))
@@ -96,6 +96,8 @@ Note that the bounds of the reciprocal interval are the reciprocal of the upper 
 	Rewrite this procedure using Ben’s suggestion.
 \end{exercise}
 
+\vspace{\baselineskip}
+
 
 
 After debugging her program, Alyssa shows it to a potential user, who complains that her program solves the wrong problem.
@@ -129,10 +131,12 @@ Engineers usually specify percentage tolerances on the parameters of devices, as
 
 
 \begin{exercise}
-\label{Exercise 2.13}
+	\label{Exercise 2.13}
 	Show that under the assumption of small percentage tolerances there is a simple formula for the approximate percentage tolerance of the product of two intervals in terms of the tolerances of the factors.
 	You may simplify the problem by assuming that all numbers are positive.
 \end{exercise}
+
+\vspace{\baselineskip}
 
 
 
@@ -146,8 +150,7 @@ and
 \[
 	\frac{1}{1 / R_1 + 1 / R_2} \,.
 \]
-He has written the following two programs, each of which computes the
-parallel-resistors formula differently:
+He has written the following two programs, each of which computes the parallel-resistors formula differently:
 \begin{scheme}
   (define (par1 r1 r2)
     (div-interval (mul-interval r1 r2)
@@ -155,9 +158,9 @@ parallel-resistors formula differently:
 
   (define (par2 r1 r2)
     (let ((one (make-interval 1 1)))
-      (div-interval
-       one (add-interval (div-interval one r1)
-                         (div-interval one r2)))))
+      (div-interval one
+                    (add-interval (div-interval one r1)
+                                  (div-interval one r2)))))
 \end{scheme}
 
 Lem complains that Alyssa’s program gives different answers for the two ways of computing.

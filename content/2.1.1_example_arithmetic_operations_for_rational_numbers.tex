@@ -10,13 +10,13 @@ Let us further assume that the constructor and selectors are available as proced
 \begin{itemize}
 
 	\item
-		\code{(make-rat ⟨n⟩ ⟨d⟩)} returns the rational number whose numerator is the integer \code{⟨\var{n}⟩} and whose denominator is the integer \code{⟨\var{d}⟩}.
+		\code{(make-rat \var{⟨n⟩} \var{⟨d⟩})} returns the rational number whose numerator is the integer \code{\var{⟨n⟩}} and whose denominator is the integer \code{\var{⟨d⟩}}.
 
 	\item
-		\code{(numer ⟨x⟩)} returns the numerator of the rational number \code{⟨\var{x}⟩}.
+		\code{(numer \var{⟨x⟩})} returns the numerator of the rational number \code{\var{⟨x⟩}}.
 
 	\item
-		\code{(denom ⟨x⟩)} returns the denominator of the rational number \code{⟨\var{x}⟩}.
+		\code{(denom \var{⟨x⟩})} returns the denominator of the rational number \code{⟨\var{x}⟩}.
 
 \end{itemize}
 
@@ -28,7 +28,7 @@ Even so, if we did have these three procedures, we could then add, subtract, mul
 	\frac{n_1}{d_1} + \frac{n_2}{d_2} &= \frac{n_1 d_2 + n_2 d_1}{d_1 d_2} \,, \\[0.5em]
 	\frac{n_1}{d_1} - \frac{n_2}{d_2} &= \frac{n_1 d_2 - n_2 d_1}{d_1 d_2} \,, \\[0.5em]
 	\frac{n_1}{d_1} ⋅ \frac{n_2}{d_2} &= \frac{n_1 n_2}{d_1 d_2} \,, \\[0.5em]
-	\frac{n_1 / d_1}{n_2 / d_2} &= \frac{n_1 d_2}{d_1 n_2} \,, \\[0.5em]
+	\frac{n_1}{d_1} \big/ \frac{n_2}{d_2} &= \frac{n_1 d_2}{d_1 n_2} \,, \\[0.5em]
 	\frac{n_1}{d_1} = \frac{n_2}{d_2} &\quad\text{if and only if} \quad n_1 d_2 = n_2 d_1 \,.
 \end{align*}
 
@@ -57,10 +57,9 @@ We can express these rules as procedures:
        (* (numer y) (denom x))))
 \end{scheme}
 
-Now we have the operations on rational numbers defined in terms of the selector
-and constructor procedures \code{numer}, \code{denom}, and \code{make-rat}.
-But we haven’t yet defined these.  What we need is some way to glue together a
-numerator and a denominator to form a rational number.
+Now we have the operations on rational numbers defined in terms of the selector and constructor procedures \code{numer}, \code{denom}, and \code{make-rat}.
+But we haven’t yet defined these.
+What we need is some way to glue together a numerator and a denominator to form a rational number.
 
 
 
@@ -72,7 +71,7 @@ Given a pair, we can extract the parts using the primitive procedures \code{car}
 \footnote{
 	The name \code{cons} stands for “construct.”
 	The names \code{car} and \code{cdr} derive from the original implementation of Lisp on the \acronym{IBM 704}.
-	That machine had an addressing scheme that allowed one to reference the “address”  and  “decrement” parts of a memory location.
+	That machine had an addressing scheme that allowed one to reference the “address” and “decrement” parts of a memory location.
 	\code{car} stands for “Contents of Address part of Register” and \code{cdr} (pronounced “could-er”) stands for “Contents of Decrement part of Register.”
 }
 Thus, we can use \code{cons}, \code{car}, and \code{cdr} as follows:
@@ -136,9 +135,7 @@ Then \code{make-rat}, \code{numer}, and \code{denom} are readily implemented as 
 
   (define (denom x) (cdr x))
 \end{scheme}
-Also, in order to display the results of our computations, we can print
-rational numbers by printing the numerator, a slash, and the
-denominator:%
+Also, in order to display the results of our computations, we can print rational numbers by printing the numerator, a slash, and the denominator:%
 \footnote{
 	\code{display} is the Scheme primitive for printing data.
 	The Scheme primitive \code{newline} starts a new line for printing.
@@ -189,7 +186,7 @@ This modification was accomplished by changing the constructor \code{make-rat} w
 
 
 \begin{exercise}
-\label{Exercise 2.1}
-Define a better version of \code{make-rat} that handles both positive and negative arguments.
-\code{make-rat} should normalize the sign so that if the rational number is positive, both the numerator and denominator are positive, and if the rational number is negative, only the numerator is negative.
+	\label{Exercise 2.1}
+	Define a better version of \code{make-rat} that handles both positive and negative arguments.
+	\code{make-rat} should normalize the sign so that if the rational number is positive, both the numerator and denominator are positive, and if the rational number is negative, only the numerator is negative.
 \end{exercise}
