@@ -83,8 +83,12 @@
 \usepackage[final]{pdfpages} % inserts pages from a pdf file
 \usepackage[use-files = {true}]{xsim} % to typeset exercises
 \usepackage{booktabs}
+\usepackage{makecell}
 \usepackage{enumitem}  % allows customized labels in enumerations
 \usepackage{hyperref}  % makes cross references and URLs clickable
+
+% default alignment for table cells
+\renewcommand{\cellalign}{tl}
 
 % remove numbers from headmark
 \renewcommand*{\chaptermarkformat}{\thechapter.\enspace}

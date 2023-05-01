@@ -1,12 +1,6 @@
 \subsection{Representing Sequences}
 \label{Section 2.2.1}
 
-One of the useful structures we can build with pairs is a \newterm{sequence}---an ordered collection of data objects.
-There are, of course, many ways to represent sequences in terms of pairs.
-One particularly straightforward representation is illustrated in \link{Figure 2.4}, where the sequence 1, 2, 3, 4 is represented as a chain of pairs.
-The \code{car} of each pair is the corresponding item in the chain, and the \code{cdr} of the pair is the next pair in the chain.
-The \code{cdr} of the final pair signals the end of the sequence by pointing to a distinguished value that is not a pair, represented in box-and-pointer diagrams as a diagonal line and in programs as the value of the variable \code{nil}.
-
 \begin{figure}[tb]
 	\centering
 	\includesvg[width=76mm]{fig/chap2/Fig2.4c.svg}
@@ -15,6 +9,12 @@ The \code{cdr} of the final pair signals the end of the sequence by pointing to 
 	}
 	\label{Figure 2.4}
 \end{figure}
+
+One of the useful structures we can build with pairs is a \newterm{sequence}---an ordered collection of data objects.
+There are, of course, many ways to represent sequences in terms of pairs.
+One particularly straightforward representation is illustrated in \link{Figure 2.4}, where the sequence \( 1, 2, 3, 4 \) is represented as a chain of pairs.
+The \code{car} of each pair is the corresponding item in the chain, and the \code{cdr} of the pair is the next pair in the chain.
+The \code{cdr} of the final pair signals the end of the sequence by pointing to a distinguished value that is not a pair, represented in box-and-pointer diagrams as a diagonal line and in programs as the value of the variable \code{nil}.
 The entire sequence is constructed by nested \code{cons} operations:
 \begin{scheme}
   (cons 1
@@ -31,11 +31,11 @@ Such a sequence of pairs, formed by nested \code{cons}es, is called a \newterm{l
 The above sequence could be produced by \code{(list 1 2 3 4)}.
 In general,
 \begin{scheme}
-  (list ⟨~\var{a}\ind{1}~⟩ ⟨~\var{a}\ind{2}~⟩ … ⟨~\var{a}\ind{n}~⟩)
+  (list ~\cvar{⟨a\ind{1}⟩}~ ~\cvar{⟨a\ind{2}⟩}~ ~…~ ~\cvar{⟨a\ind{n}⟩}~)
 \end{scheme}
 is equivalent to
 \begin{scheme}
-  (cons ⟨~\var{a}\ind{1}~⟩ (cons ⟨~\var{a}\ind{2}~⟩ (cons … (cons ⟨~\var{a}\ind{n}~⟩ nil) …)))
+  (cons ~\cvar{⟨a\ind{1}⟩}~ (cons ~\cvar{⟨a\ind{2}⟩}~ (cons ~…~ (cons ~\cvar{⟨a\ind{n}⟩}~ nil) ~…~)))
 \end{scheme}
 Lisp systems conventionally print lists by printing the sequence of elements, enclosed in parentheses.
 Thus, the data object in \link{Figure 2.4} is printed as \code{(1 2 3 4)}:
@@ -53,7 +53,7 @@ Nested applications of \code{car} and \code{cdr} can be used to extract the seco
 \footnote{
 	Since nested applications of \code{car} and \code{cdr} are cumbersome to write, Lisp dialects provide abbreviations for them---for instance,
 	\begin{smallscheme}
-	  (cadr ⟨~\var{arg}~⟩) = (car (cdr ⟨~\var{arg}~⟩))
+	  (cadr ~\cvar{⟨arg⟩}~) = (car (cdr ~\cvar{⟨arg⟩}~))
 	\end{smallscheme}
 	The names of all such procedures start with \code{c} and end with \code{r}.
 	Each \code{a} between them stands for a \code{car} operation and each \code{d} for a \code{cdr} operation, to be applied in the same order in which they appear in the name.
@@ -120,7 +120,7 @@ The method for computing \code{list-ref} is the following:
 \end{scheme}
 
 Often we \code{cdr} down the whole list.
-To aid in this, Scheme includes a  primitive predicate \code{null?}, which tests whether its argument is the empty list.
+To aid in this, Scheme includes a primitive predicate \code{null?}, which tests whether its argument is the empty list.
 The procedure \code{length}, which returns the number of items in a list, illustrates this typical pattern of use:
 \begin{scheme}
   (define (length items)
@@ -134,11 +134,11 @@ The procedure \code{length}, which returns the number of items in a list, illust
   ~\outprint{4}~
 \end{scheme}
 The \code{length} procedure implements a simple recursive plan.
-The reduction  step is:
+The reduction step is:
 \begin{itemize}
 
 	\item
-		The \code{length} of any list is 1 plus the \code{length} of the \code{cdr} of
+		The \code{length} of any list is \( 1 \) plus the \code{length} of the \code{cdr} of
 	the list.
 
 \end{itemize}
@@ -146,7 +146,7 @@ This is applied successively until we reach the base case:
 \begin{itemize}
 
 	\item
-		The \code{length} of the empty list is 0.
+		The \code{length} of the empty list is \( 0 \).
 
 \end{itemize}
 We could also compute \code{length} in an iterative style:
@@ -182,7 +182,8 @@ To \code{append} lists \code{list1} and \code{list2}, do the following:
   (define (append list1 list2)
     (if (null? list1)
         list2
-        (cons (car list1) (append (cdr list1) list2))))
+        (cons (car list1)
+              (append (cdr list1) list2))))
 \end{scheme}
 
 
@@ -236,11 +237,9 @@ To \code{append} lists \code{list1} and \code{list2}, do the following:
 	          ((or (< amount 0) (no-more? coin-values)) 0)
 	          (else
 	           (+ (cc amount
-	                  (except-first-denomination
-	                   coin-values))
+	                  (except-first-denomination coin-values))
 	              (cc (- amount
-	                     (first-denomination
-	                      coin-values))
+	                     (first-denomination coin-values))
 	                  coin-values)))))
 	\end{scheme}
 	Define the procedures \code{first-denomination}, \code{except-first-denomination}, and \code{no-more?} in terms of primitive operations on list structures.
@@ -257,7 +256,7 @@ To \code{append} lists \code{list1} and \code{list2}, do the following:
 	In a procedure definition, a parameter list that has a dot before the last parameter name indicates that, when the procedure is called, the initial parameters (if any) will have as values the initial arguments, as usual, but the final parameter’s value will be a \newterm{list} of any remaining arguments.
 	For instance, given the definition
 	\begin{scheme}
-	  (define (f x y . z) ⟨~\var{body}~⟩)
+	  (define (f x y . z) ~\cvar{⟨body⟩}~)
 	\end{scheme}
 	the procedure \code{f} can be called with two or more arguments.
 	If we evaluate
@@ -267,7 +266,7 @@ To \code{append} lists \code{list1} and \code{list2}, do the following:
 	then in the body of \code{f}, \code{x} will be \( 1 \), \code{y} will be \( 2 \), and \code{z} will be the list \code{(3 4 5 6)}.
 	Given the definition
 	\begin{scheme}
-	  (define (g . w) ⟨~\var{body}~⟩)
+	  (define (g . w) ~\cvar{⟨body⟩}~)
 	\end{scheme}
 	the procedure \code{g} can be called with zero or more arguments.
 	If we evaluate
@@ -278,9 +277,9 @@ To \code{append} lists \code{list1} and \code{list2}, do the following:
 	\footnote{
 		To define \code{f} and \code{g} using \code{lambda} we would write
 		\begin{smallscheme}
-		  (define f (lambda (x y . z) ⟨~\var{body}~⟩))
+		  (define f (lambda (x y . z) ~\cvar{⟨body⟩}~))
 
-		  (define g (lambda w ⟨~\var{body}~⟩))
+		  (define g (lambda w ~\cvar{⟨body⟩}~))
 		\end{smallscheme}
 	}
 
@@ -306,8 +305,7 @@ For instance, the following procedure scales each number in a list by a given fa
     (if (null? items)
         nil
         (cons (* (car items) factor)
-              (scale-list (cdr items)
-                          factor))))
+              (scale-list (cdr items) factor))))
 
   (scale-list (list 1 2 3 4 5) 10)
   ~\outprint{(10 20 30 40 50)}~
@@ -336,10 +334,12 @@ The higher-order procedure here is called \code{map}.
         nil
         (cons (proc (car items))
               (map proc (cdr items)))))
+
   (map abs (list -10 2.5 -11.6 17))
   ~\outprint{(10 2.5 11.6 17)}~
 
-  (map (lambda (x) (* x x)) (list 1 2 3 4))
+  (map (lambda (x) (* x x))
+       (list 1 2 3 4))
   ~\outprint{(1 4 9 16)}~
 \end{scheme}
 Now we can give a new definition of \code{scale-list} in terms of \code{map}:
@@ -348,6 +348,7 @@ Now we can give a new definition of \code{scale-list} in terms of \code{map}:
     (map (lambda (x) (* x factor))
          items))
 \end{scheme}
+
 \code{map} is an important construct, not only because it captures a common pattern, but because it establishes a higher level of abstraction in dealing with lists.
 In the original definition of \code{scale-list}, the recursive structure of the program draws attention to the element-by-element processing of the list.
 Defining \code{scale-list} in terms of \code{map} suppresses that level of detail and emphasizes that scaling transforms a list of elements to a list of results.
@@ -371,10 +372,10 @@ Like the barriers shown in \link{Figure 2.1}, this abstraction gives us the flex
 	  (define (square-list items)
 	    (if (null? items)
 	        nil
-	        (cons ⟨??⟩ ⟨??⟩)))
+	        (cons ~\cvar{⟨??⟩}~ ~\cvar{⟨??⟩}~)))
 
 	  (define (square-list items)
-	    (map ⟨??⟩ ⟨??⟩))
+	    (map ~\cvar{⟨??⟩}~ ~\cvar{⟨??⟩}~))
 	\end{scheme}
 \end{exercise}
 

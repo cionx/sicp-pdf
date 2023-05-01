@@ -58,17 +58,18 @@ To implement \code{count-leaves}, recall the recursive plan for computing
 \begin{itemize}
 
 	\item
-		\code{length} of a list \code{x} is 1 plus \code{length} of the \code{cdr} of \code{x}.
+		\code{length} of a list \code{x} is \( 1 \) plus \code{length} of the \code{cdr} of \code{x}.
 
 	\item
-		\code{length} of the empty list is 0.
+		\code{length} of the empty list is \( 0 \).
 
 \end{itemize}
-\code{count-leaves} is similar.  The value for the empty list is the same:
+\code{count-leaves} is similar.
+The value for the empty list is the same:
 \begin{itemize}
 
 	\item
-		\code{count-leaves} of the empty list is 0.
+		\code{count-leaves} of the empty list is \( 0 \).
 
 \end{itemize}
 But in the reduction step, where we strip off the \code{car} of the list, we must take into account that the \code{car} may itself be a tree whose leaves we need to count.
@@ -76,15 +77,14 @@ Thus, the appropriate reduction step is
 \begin{itemize}
 
 	\item
-		\code{count-leaves} of a tree \code{x} is \code{count-leaves} of the \code{car}  of \code{x} plus \code{count-leaves} of the \code{cdr} of \code{x}.
+		\code{count-leaves} of a tree \code{x} is \code{count-leaves} of the \code{car} of \code{x} plus \code{count-leaves} of the \code{cdr} of \code{x}.
 
 \end{itemize}
-Finally, by taking \code{car}s we reach actual leaves, so we need another base
-case:
+Finally, by taking \code{car}s we reach actual leaves, so we need another base case:
 \begin{itemize}
 
 	\item
-		\code{count-leaves} of a leaf is 1.
+		\code{count-leaves} of a leaf is \( 1 \).
 
 \end{itemize}
 To aid in writing recursive procedures on trees, Scheme provides the primitive predicate \code{pair?}, which tests whether its argument is a pair.
@@ -112,7 +112,7 @@ Here is the complete procedure:%
 
 \begin{exercise}
 	\label{Exercise 2.25}
-	Give combinations of \code{car}s and \code{cdr}s that will pick 7 from each of the following lists:
+	Give combinations of \code{car}s and \code{cdr}s that will pick \( 7 \) from each of the following lists:
 	\begin{scheme}
 	  (1 3 (5 7) 9)
 
@@ -251,8 +251,7 @@ In the base case, where the tree is a leaf, we simply multiply by the factor:
                (* sub-tree factor)))
          tree))
 \end{scheme}
-Many tree operations can be implemented by similar combinations of sequence
-operations and recursion.
+Many tree operations can be implemented by similar combinations of sequence operations and recursion.
 
 
 
@@ -285,13 +284,16 @@ operations and recursion.
 \begin{exercise}
 	\label{Exercise 2.32}
 	We can represent a set as a list of distinct elements, and we can represent the set of all subsets of the set as a list of lists.
-	For example, if the set is \code{(1 2 3)}, then the set of all subsets is \code{(() (3) (2) (2 3) (1) (1 3) (1 2) (1 2 3))}.
+	For example, if the set is \code{(1 2 3)}, then the set of all subsets is
+	\begin{example}
+	  (() (3) (2) (2 3) (1) (1 3) (1 2) (1 2 3))
+	\end{example}
 	Complete the following definition of a procedure that generates the set of subsets of a set and give a clear explanation of why it works:
 	\begin{scheme}
 	  (define (subsets s)
 	    (if (null? s)
 	        (list nil)
 	        (let ((rest (subsets (cdr s))))
-	          (append rest (map ⟨??⟩ rest)))))
+	        (append rest (map ~\cvar{⟨??⟩}~ rest)))))
 	\end{scheme}
 \end{exercise}

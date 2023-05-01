@@ -1,6 +1,15 @@
 \subsection{Example: A Picture Language}
 \label{Section 2.2.4}
 
+\begin{figure}[tb]
+	\centering
+	\includegraphics[width=111mm]{fig/chap2/Fig2.9-bigger.png}
+	\caption{
+		Designs generated with the picture language.
+	}
+	\label{Figure 2.9}
+\end{figure}
+
 This section presents a simple language for drawing pictures that illustrates the power of data abstraction and closure, and also exploits higher-order procedures in an essential way.
 The language is designed to make it easy to experiment with patterns such as the ones in \link{Figure 2.9}, which are composed of repeated elements that are shifted and scaled.%
 \footnote{
@@ -19,15 +28,6 @@ We’ll follow that framework here.
 
 \begin{figure}[tb]
 	\centering
-	\includegraphics[width=111mm]{fig/chap2/Fig2.9-bigger.png}
-	\caption{
-		Designs generated with the picture language.
-	}
-	\label{Figure 2.9}
-\end{figure}
-
-\begin{figure}[tb]
-	\centering
 	\includesvg[width=50mm]{fig/chap2/Fig2.10.svg}
 	\caption{
 		Images produced by the \code{wave} painter, with respect to four different frames.
@@ -39,7 +39,7 @@ We’ll follow that framework here.
 Part of the elegance of this picture language is that there is only one kind of element, called a \newterm{painter}.
 A painter draws an image that is shifted and scaled to fit within a designated parallelogram-shaped frame.
 For example, there’s a primitive painter we’ll call \code{wave} that makes a crude line drawing, as shown in \link{Figure 2.10}.
-The actual shape of the drawing depends on the frame---all four images in figure 2.10 are produced by the same \code{wave} painter, but with respect to four different frames.
+The actual shape of the drawing depends on the frame---all four images in \link{Figure 2.10} are produced by the same \code{wave} painter, but with respect to four different frames.
 Painters can be more elaborate than this:
 The primitive painter called \code{rogers} paints a picture of \acronym{MIT}’s founder, William Barton Rogers, as shown in \link{Figure 2.11}.%
 \footnote{
@@ -67,17 +67,19 @@ The primitive painter called \code{rogers} paints a picture of \acronym{MIT}’s
 
 	\begin{quote}
 		“As I stand here today and see what the Institute is, … I call to mind the beginnings of science.
-		I remember one hundred and fifty years ago Stephen Hales published a pamphlet on the subject of illuminating gas, in which he stated that his researches had demonstrated that 128 grains of bituminous coal -- ” “Bituminous coal,” these were his last words on earth.
+		I remember one hundred and fifty years ago Stephen Hales published a pamphlet on the subject of illuminating gas, in which he stated that his researches had demonstrated that 128 grains of bituminous coal---”
+
+		“Bituminous coal,” these were his last words on earth.
 		Here he bent forward, as if consulting some notes on the table before him, then slowly regaining an erect position, threw up his hands, and was translated from the scene of his earthly labors and triumphs to “the tomorrow of death,” where the mysteries of life are solved, and the disembodied spirit finds unending satisfaction in contemplating the new and still unfathomable mysteries of the infinite future.
 	\end{quote}
 
 	In the words of Francis A. Walker (\acronym{MIT}’s third president):
 
 	\begin{quote}
-		All his life he had borne himself most faithfully and heroically, and he died  as so good a knight would surely have wished, in harness, at his post, and in the very part and act of public duty.
+		All his life he had borne himself most faithfully and heroically, and he died as so good a knight would surely have wished, in harness, at his post, and in the very part and act of public duty.
 	\end{quote}
 }
-The four images in figure 2.11 are drawn with respect to the same four frames as the \code{wave} images in figure 2.10.
+The four images in \link{Figure 2.11} are drawn with respect to the same four frames as the \code{wave} images in \link{Figure 2.10}.
 
 \begin{figure}[tb]
 	\centering
@@ -94,8 +96,7 @@ Similarly, \code{below} takes two painters and produces a compound painter that 
 Some operations transform a single painter to produce a new painter.
 For example, \code{flip-vert} takes a painter and produces a painter that draws its image upside-down, and \code{flip-horiz} produces a painter that draws the original painter’s image left-to-right reversed.
 
-\link{Figure 2.12} shows the drawing of a painter called
-\code{wave4} that is built up in two stages starting from \code{wave}:
+\link{Figure 2.12} shows the drawing of a painter called \code{wave4} that is built up in two stages starting from \code{wave}:
 \begin{scheme}
   (define wave2 (beside wave (flip-vert wave)))
   (define wave4 (below wave2 wave2))
@@ -113,7 +114,7 @@ The \code{beside} or \code{below} of two painters is itself a painter;
 therefore, we can use it as an element in making more complex painters.
 As with building up list structure using \code{cons}, the closure of our data under the means of combination is crucial to the ability to create complex structures while using only a few operations.
 
-Once we can combine painters, we would like to be able to abstract typical  patterns of combining painters.
+Once we can combine painters, we would like to be able to abstract typical patterns of combining painters.
 We will implement the painter operations as Scheme procedures.
 This means that we don’t need a special abstraction mechanism in the picture language:
 Since the means of combination are ordinary Scheme procedures, we automatically have the capability to do anything with painter operations that we can do with procedures.
@@ -137,9 +138,8 @@ and define \code{wave4} as an instance of this pattern:
 	\label{Figure 2.13}
 \end{figure}
 
-We can also define recursive operations.  Here’s one that makes painters split
-and branch towards the right as shown in \link{Figure 2.13}
-and \link{Figure 2.14}:
+We can also define recursive operations.
+Here’s one that makes painters split and branch towards the right as shown in \link{Figure 2.13} and \link{Figure 2.14}:
 \begin{scheme}
   (define (right-split painter n)
     (if (= n 0)
@@ -207,8 +207,7 @@ One way to abstract this pattern of painter combination is with the following pr
             (bottom (beside (bl painter) (br painter))))
         (below bottom top))))
 \end{scheme}
-Then \code{flipped-pairs} can be defined in terms of \code{square-of-four} as
-follows:%
+Then \code{flipped-pairs} can be defined in terms of \code{square-of-four} as follows:%
 \footnote{
 	Equivalently, we could write
 	\begin{smallscheme}
@@ -264,7 +263,7 @@ In accordance with data abstraction, we need not be specific yet about how frame
 	\centering
 	\includesvg[width=51mm]{fig/chap2/Fig2.15a.svg}
 	\caption{
-		A frame is described by three vectors --- an origin and two edges.
+		A frame is described by three vectors---an origin and two edges.
 	}
 	\label{Figure 2.15}
 \end{figure}
@@ -277,7 +276,7 @@ The map transforms the unit square into the frame by mapping the vector \( v = (
 	+ x ⋅ \operatorname{Edge}_1(\mathrm{Frame})
 	+ y ⋅ \operatorname{Edge}_2(\mathrm{Frame}) \,.
 \]
-For example, \( (0, 0) \) is mapped to the origin of the frame, \( (1, 1) \) to the vertex  diagonally opposite the origin, and \( (0.5, 0.5) \) to the center of the frame.
+For example, \( (0, 0) \) is mapped to the origin of the frame, \( (1, 1) \) to the vertex diagonally opposite the origin, and \( (0.5, 0.5) \) to the center of the frame.
 We can create a frame’s coordinate map with the following procedure:%
 \footnote{
 	\code{frame-coord-map} uses the vector operations described in \link{Exercise 2.46} below, which we assume have been implemented using some representation for vectors.
@@ -288,8 +287,10 @@ We can create a frame’s coordinate map with the following procedure:%
     (lambda (v)
       (add-vect
        (origin-frame frame)
-       (add-vect (scale-vect (xcor-vect v) (edge1-frame frame))
-                 (scale-vect (ycor-vect v) (edge2-frame frame))))))
+       (add-vect (scale-vect (xcor-vect v)
+                             (edge1-frame frame))
+                 (scale-vect (ycor-vect v)
+                             (edge2-frame frame))))))
 \end{scheme}
 Observe that applying \code{frame-coord-map} to a frame returns a procedure that, given a vector, returns a vector.
 If the argument vector is in the unit square, the result vector will be in the frame.
@@ -349,13 +350,13 @@ Then we can create painters for line drawings, such as the \code{wave} painter i
   (define (segments->painter segment-list)
     (lambda (frame)
       (for-each
-       (lambda (segment)
-         (draw-line
-          ((frame-coord-map frame)
-           (start-segment segment))
-          ((frame-coord-map frame)
-           (end-segment segment))))
-       segment-list)))
+        (lambda (segment)
+          (draw-line
+           ((frame-coord-map frame)
+            (start-segment segment))
+           ((frame-coord-map frame)
+            (end-segment segment))))
+        segment-list)))
 \end{scheme}
 The segments are given using coordinates with respect to the unit square.
 For each segment in the list, the painter transforms the segment endpoints with the frame coordinate map and draws a line between the transformed points.
@@ -431,19 +432,20 @@ Here’s how to flip painter images vertically:
 \begin{scheme}
   (define (flip-vert painter)
     (transform-painter painter
-                       (make-vect 0.0 1.0)   ~\textrm{; new \code{origin}}~
-                       (make-vect 1.0 1.0)   ~\textrm{; new end of \code{edge1}}~
-                       (make-vect 0.0 0.0))) ~\textrm{; new end of \code{edge2}}~
+                       (make-vect 0.0 1.0)   ; ~\textrm{new \code{origin}}~
+                       (make-vect 1.0 1.0)   ; ~\textrm{new end of \code{edge1}}~
+                       (make-vect 0.0 0.0))) ; ~\textrm{new end of \code{edge2}}~
 \end{scheme}
 Using \code{transform-painter}, we can easily define new transformations.
 For example, we can define a painter that shrinks its image to the upper-right quarter of the frame it is given:
 \begin{scheme}
   (define (shrink-to-upper-right painter)
-    (transform-painter
-     painter (make-vect 0.5 0.5)
-     (make-vect 1.0 0.5) (make-vect 0.5 1.0)))
+    (transform-painter painter
+                       (make-vect 0.5 0.5)
+                       (make-vect 1.0 0.5)
+                       (make-vect 0.5 1.0)))
 \end{scheme}
-Other transformations rotate images counterclockwise by 90 degrees%
+Other transformations rotate images counterclockwise by \( 90 \) degrees%
 \footnote{
 	\code{rotate90} is a pure rotation only for square frames, because it also stretches and shrinks the image to fit into the rotated frame.
 }
@@ -473,17 +475,15 @@ When the compound painter is given a frame, it calls the first transformed paint
   (define (beside painter1 painter2)
     (let ((split-point (make-vect 0.5 0.0)))
       (let ((paint-left
-             (transform-painter
-              painter1
-              (make-vect 0.0 0.0)
-              split-point
-              (make-vect 0.0 1.0)))
+             (transform-painter painter1
+                                (make-vect 0.0 0.0)
+                                split-point
+                                (make-vect 0.0 1.0)))
             (paint-right
-             (transform-painter
-              painter2
-              split-point
-              (make-vect 1.0 0.0)
-              (make-vect 0.5 1.0))))
+             (transform-painter painter2
+                                split-point
+                                (make-vect 1.0 0.0)
+                                (make-vect 0.5 1.0))))
         (lambda (frame)
           (paint-left frame)
           (paint-right frame)))))
@@ -493,18 +493,18 @@ Observe how the painter data abstraction, and in particular the representation o
 The \code{beside} procedure need not know anything about the details of the component painters other than that each painter will draw something in its designated frame.
 
 \begin{exercise}
-\label{Exercise 2.50}
-Define the transformation \code{flip-horiz}, which flips painters horizontally, and transformations that rotate painters counterclockwise by \( 180 \) degrees and \( 270 \) degrees.
+	\label{Exercise 2.50}
+	Define the transformation \code{flip-horiz}, which flips painters horizontally, and transformations that rotate painters counterclockwise by \( 180 \) degrees and \( 270 \) degrees.
 \end{exercise}
 
 
 
 \begin{exercise}
-\label{Exercise 2.51}
-Define the \code{below} operation for painters.
-\code{below} takes two painters as arguments.
-The resulting painter, given a frame, draws with the first painter in the bottom of the frame and with the second painter in the top.
-Define \code{below} in two different ways---first by writing a procedure that is analogous to the \code{beside} procedure given above, and again in terms of \code{beside} and suitable rotation operations (from \link{Exercise 2.50}).
+	\label{Exercise 2.51}
+	Define the \code{below} operation for painters.
+	\code{below} takes two painters as arguments.
+	The resulting painter, given a frame, draws with the first painter in the bottom of the frame and with the second painter in the top.
+	Define \code{below} in two different ways---first by writing a procedure that is analogous to the \code{beside} procedure given above, and again in terms of \code{beside} and suitable rotation operations (from \link{Exercise 2.50}).
 \end{exercise}
 
 
