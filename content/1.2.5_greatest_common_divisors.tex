@@ -1,4 +1,4 @@
-\subsection{Greatest Common Divisors}
+\/csubsection{Greatest Common Divisors}
 \label{Section 1.2.5}
 
 The greatest common divisor (\acronym{GCD}) of two integers \( a \) and \( b \) is defined to be the largest integer that divides both \( a \) and \( b \) with no remainder.
@@ -15,14 +15,14 @@ Thus, we can use the equation
 \]
 to successively reduce the problem of computing a \acronym{GCD} to the problem of computing the \acronym{GCD} of smaller and smaller pairs of integers.
 For example,
-\begin{align*}
+\[
 	\gcd(206,40)
-	&= \gcd(40,6)
-	&= \gcd(6,4)
-	&= \gcd(4,2)
-	&= \gcd(2,0)
-	&= 2
-\end{align*}
+	= \gcd(40,6)
+	= \gcd(6,4)
+	= \gcd(4,2)
+	= \gcd(2,0)
+	= 2
+\]
 reduces \( \gcd(206, 40) \) to \( \gcd(2, 0) \), which is \( 2 \).
 It is possible to show that starting with any two positive integers and performing repeated reductions will always eventually produce a pair where the second number is \( 0 \).
 Then the \acronym{GCD} is the other number in the pair.
