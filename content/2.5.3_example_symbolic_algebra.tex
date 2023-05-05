@@ -63,7 +63,7 @@ Moreover, we will insist that two polynomials to be combined must have the same 
 We will approach the design of our system by following the familiar discipline of data abstraction.
 We will represent polynomials using a data structure called a \newterm{poly}, which consists of a variable and a collection of terms.
 We assume that we have selectors \code{variable} and \code{term-list} that extract those parts from a poly and a constructor \code{make-poly} that assembles a poly from a given variable and a term list.
-A variable will be just a symbol, so we can use the \code{same-variable?}  procedure of \cref{Section 2.3.2} to compare variables.
+A variable will be just a symbol, so we can use the \code{same-variable?} procedure of \cref{Section 2.3.2} to compare variables.
 The following procedures define addition and multiplication of polys:
 \begin{scheme}
   (define (add-poly p1 p2)
@@ -212,7 +212,6 @@ For example,
 \[
 	A: \quad x^5 + 2 x^4 + 3 x^2 - 2 x - 5
 \]
-nt
 is a dense polynomial, whereas
 \[
 	B: \quad x^{100} + 2 x^2 + 1
@@ -254,8 +253,7 @@ Once we have made this decision, implementing the selectors and constructors for
 where \code{=zero?} is as defined in \cref{Exercise 2.80}.
 (See also \cref{Exercise 2.87} below.)
 
-Users of the polynomial package will create (tagged) polynomials by means of
-the procedure:
+Users of the polynomial package will create (tagged) polynomials by means of the procedure:
 \begin{scheme}
   (define (make-polynomial var terms)
     ((get 'make 'polynomial) var terms))
@@ -384,8 +382,7 @@ These are “fractions” whose numerator and denominator are polynomials, such 
 	\frac{x + 1}{x^3 - 1} \,.
 \]
 
-The system should be able to add, subtract, multiply, and divide rational
-functions, and to perform such computations as
+The system should be able to add, subtract, multiply, and divide rational functions, and to perform such computations as
 \[
 	\frac{x + 1}{x^3 - 1} + \frac{x}{x^2 - 1}
 	=
@@ -464,8 +461,8 @@ where \code{remainder-terms} picks out the remainder component of the list retur
 	\label{Exercise 2.95}
 	Define \( P_1 \), \( P_2 \), and \( P_3 \) to be the polynomials
 	\begin{align*}
-		P_1 &: \quad x^2 - 2 x + 1 \,,  \\
-		P_2 &: \quad 11 x^2 + 7 \,,     \\
+		P_1 &: \quad x^2 - 2 x + 1 \,, \\
+		P_2 &: \quad 11 x^2 + 7 \,,    \\
 		P_3 &: \quad 13 x + 5 \,.
 	\end{align*}
 

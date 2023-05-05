@@ -68,7 +68,7 @@ Now we can implement our \code{solve} procedure by delaying the evaluation of \c
     y)
 \end{scheme}
 In general, every caller of \code{integral} must now \code{delay} the integrand argument.
-We can demonstrate that the \code{solve} procedure works by approximating \( e \approx 2.718 \) by computing the value at \( y = 1 \) of the solution to the differential equation \( dy / dt = y \) with initial condition \( y(0) = 1 \):
+We can demonstrate that the \code{solve} procedure works by approximating \( e ≈ 2.718 \) by computing the value at \( y = 1 \) of the solution to the differential equation \( dy / dt = y \) with initial condition \( y(0) = 1 \):
 \begin{scheme}
   (stream-ref (solve (lambda (y) y)
                      1
@@ -182,7 +182,7 @@ We can demonstrate that the \code{solve} procedure works by approximating \( e \
 \begin{exercise}
 	Write a procedure \code{RLC} that takes as arguments the parameters \( R \), \( L \), and \( C \) of the circuit and the time increment \( dt \).
 	In a manner similar to that of the \code{RC} procedure of \cref{Exercise 3.73}, \code{RLC} should produce a procedure that takes the initial values of the state variables, \( v_{C_0} \) and \( i_{L_0} \), and produces a pair (using \code{cons}) of the streams of states \( v_C \) and \( i_L \).
-	Using \code{RLC}, generate the pair of streams that models the behavior of a series RLC circuit with \( R \) = 1 ohm, \( C \) = 0.2 farad, \( L  = 1 \) henry, \( dt \) = 0.1 second, and initial values \( i_{L_0} = 0 \) amps and \( v_{C_0} \) = 10 volts.
+	Using \code{RLC}, generate the pair of streams that models the behavior of a series RLC circuit with \( R \) = 1 ohm, \( C \) = 0.2 farad, \( L = 1 \) henry, \( dt \) = 0.1 second, and initial values \( i_{L_0} = 0 \) amps and \( v_{C_0} \) = 10 volts.
 \end{exercise}
 
 

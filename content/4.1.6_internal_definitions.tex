@@ -20,7 +20,7 @@ More generally, in block structure, the scope of a local name is the entire proc
 
 As it happens, our interpreter will evaluate calls to \code{f} correctly, but for an “accidental” reason:
 Since the definitions of the internal procedures come first, no calls to these procedures will be evaluated until all of them have been defined.
-Hence, \code{odd?}  will have been defined by the time \code{even?} is executed.
+Hence, \code{odd?} will have been defined by the time \code{even?} is executed.
 In fact, our sequential evaluation mechanism will give the same result as a mechanism that directly implements simultaneous definition for any procedure in which the internal definitions come first in a body and evaluation of the value expressions for the defined variables doesn’t actually use any of the defined variables.
 (For an example of a procedure that doesn’t obey these restrictions, so that sequential definition isn’t equivalent to simultaneous definition, see \cref{Exercise 4.19}.)%
 \footnote{

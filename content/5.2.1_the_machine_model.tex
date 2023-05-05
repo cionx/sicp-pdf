@@ -179,8 +179,7 @@ For convenience, we provide an alternate procedural interface to a machine’s \
     'done)
 \end{scheme}
 
-These procedures (and many procedures in \cref{Section 5.2.2} and \cref{Section 5.2.3})
-use the following to look up the register with a given name in a given machine:
+These procedures (and many procedures in \cref{Section 5.2.2} and \cref{Section 5.2.3}) use the following to look up the register with a given name in a given machine:
 \begin{scheme}
   (define (get-register machine reg-name)
     ((machine 'get-register) reg-name))

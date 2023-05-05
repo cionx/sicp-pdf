@@ -13,14 +13,13 @@ Rather, let us assume that we have a procedure \code{rand-update} that has the p
   ~\dark{\( x_2 \)}~ = (rand-update ~\dark{\( x_1 \)}~)
   ~\dark{\( x_3 \)}~ = (rand-update ~\dark{\( x_2 \)}~)
 \end{scheme}
-then the sequence of values \( x_1, x_2, x_3, \dotsc \) will have the
-desired statistical properties.%
+then the sequence of values \( x_1, x_2, x_3, \dotsc \) will have the desired statistical properties.%
 \footnote{
 	One common way to implement \code{rand-update} is to use the rule that \( x \) is updated to \( a x + b \) modulo \( m \), where \( a \), \( b \), and \( m \) are appropriately chosen integers.
 	Chapter 3 of \cref{Knuth 1981} includes an extensive discussion of techniques for generating sequences of random numbers and establishing their statistical properties.
 	Notice that the \code{rand-update} procedure computes a mathematical function:
 	Given the same input twice, it produces the same output.
-	Therefore, the number sequence produced by \code{rand-update} certainly is not “random,”  if by  “random” we insist that each number in the sequence is unrelated to the preceding number.
+	Therefore, the number sequence produced by \code{rand-update} certainly is not “random,” if by “random” we insist that each number in the sequence is unrelated to the preceding number.
 	The relation between “real randomness” and so-called \newterm{pseudo-random} sequences, which are produced by well-determined computations and yet have suitable statistical properties, is a complex question involving difficult issues in mathematics and philosophy.
 	Kolmogorov, Solomonoff, and Chaitin have made great progress in clarifying these issues;
 	a discussion can be found in \cref{Chaitin 1975}.

@@ -264,10 +264,10 @@ The local procedure \code{accept-action-procedure!} adds the given procedure to 
 With the local \code{dispatch} procedure set up as specified, we can provide the following procedures to access the local operations on wires:%
 \footnote{
 	\label{Footnote 27} These procedures are simply syntactic sugar that allow us to use ordinary procedural syntax to access the local procedures of objects.
-	It is striking that we can interchange the role of “procedures”  and  “data” in such a simple way.
+	It is striking that we can interchange the role of “procedures” and “data” in such a simple way.
 	For example, if we write \code{(wire 'get-signal)} we think of \code{wire} as a procedure that is called with the message \code{get-signal} as input.
 	Alternatively, writing \code{(get-signal wire)} encourages us to think of \code{wire} as a data object that is the input to a procedure \code{get-signal}.
-	The truth of the matter is that, in a language in which we can deal with procedures as objects, there is no fundamental difference between “procedures”  and  “data,” and we can choose our syntactic sugar to allow us to program in whatever style we choose.
+	The truth of the matter is that, in a language in which we can deal with procedures as objects, there is no fundamental difference between “procedures” and “data,” and we can choose our syntactic sugar to allow us to program in whatever style we choose.
 }
 \begin{scheme}
   (define (get-signal wire) (wire 'get-signal))
@@ -359,8 +359,7 @@ The probe tells the wire that, whenever its signal changes value, it should prin
                    (display (get-signal wire)))))
 \end{scheme}
 
-We begin by initializing the agenda and specifying delays for the primitive
-function boxes:
+We begin by initializing the agenda and specifying delays for the primitive function boxes:
 \begin{scheme}
   (define the-agenda (make-agenda))
   (define inverter-delay 2)
@@ -404,8 +403,7 @@ At this point, we can set the signal on \code{input-2} to \( 1 \) and allow the 
   ~\outprint{sum 16  New-value = 0}~
   ~\outprint{done}~
 \end{scheme}
-The \code{carry} changes to 1 at time 11 and the \code{sum} changes to 0 at
-time 16.
+The \code{carry} changes to 1 at time 11 and the \code{sum} changes to 0 at time 16.
 
 
 

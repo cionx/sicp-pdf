@@ -50,9 +50,7 @@ The \code{make-assign} procedure handles \code{assign} instructions:
           (set-contents! target (value-proc))
           (advance-pc pc)))))
 \end{scheme}
-\code{make-assign} extracts the target register name (the second element of the
-instruction) and the value expression (the rest of the list that forms the
-instruction) from the \code{assign} instruction using the selectors
+\code{make-assign} extracts the target register name (the second element of the instruction) and the value expression (the rest of the list that forms the instruction) from the \code{assign} instruction using the selectors
 \begin{scheme}
   (define (assign-reg-name assign-instruction)
     (cadr assign-instruction))
@@ -120,9 +118,7 @@ Notice also that the label is looked up at assembly time, not each time the \cod
     (cadr branch-instruction))
 \end{scheme}
 
-A \code{goto} instruction is similar to a branch, except that the destination
-may be specified either as a label or as a register, and there is no condition
-to check---the \code{pc} is always set to the new destination.
+A \code{goto} instruction is similar to a branch, except that the destination may be specified either as a label or as a register, and there is no condition to check---the \code{pc} is always set to the new destination.
 \begin{scheme}
   (define (make-goto inst machine labels pc)
     (let ((dest (goto-dest inst)))
@@ -291,7 +287,7 @@ The simulation procedure is found by looking up the operation name in the operat
 			\code{(restore y)} puts into \code{y} the last value saved on the stack, but only if that value was saved from \code{y};
 			otherwise, it signals an error.
 			Modify the simulator to behave this way.
-			You will have to change \code{save}  to put the register name on the stack along with the value.
+			You will have to change \code{save} to put the register name on the stack along with the value.
 
 		\item
 			\code{(restore y)} puts into \code{y} the last value saved from \code{y} regardless of what other registers were saved after \code{y} and not restored.

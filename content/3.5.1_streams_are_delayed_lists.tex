@@ -21,8 +21,7 @@ The first program is written in standard iterative style:%
             (else (iter (+ count 1) accum))))
     (iter a 0))
 \end{scheme}
-The second program performs the same computation using the sequence operations
-of \cref{Section 2.2.3}:
+The second program performs the same computation using the sequence operations of \cref{Section 2.2.3}:
 \begin{scheme}
   (define (sum-primes a b)
     (accumulate +

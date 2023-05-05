@@ -438,7 +438,7 @@ If we do not make this guarantee, then the mutex can fail in a way similar to th
 
 The actual implementation of \code{test-and-set!} depends on the details of how our system runs concurrent processes.
 For example, we might be executing concurrent processes on a sequential processor using a time-slicing mechanism that cycles through the processes, permitting each process to run for a short time before interrupting it and moving on to the next process.
-In that case, \code{test-and-set!}  can work by disabling time slicing during the testing and setting.%
+In that case, \code{test-and-set!} can work by disabling time slicing during the testing and setting.%
 \footnote{
 	In \acronym{MIT} Scheme for a single processor, which uses a
 	time-slicing model, \code{test-and-set!} can be implemented as follows:
@@ -470,7 +470,7 @@ Alternatively, multiprocessing computers provide instructions that support atomi
 
 \begin{exercise}
 	\label{Exercise 3.46}
-	Suppose that we implement \code{test-and-set!}  using an ordinary procedure as shown in the text, without attempting to make the operation atomic.
+	Suppose that we implement \code{test-and-set!} using an ordinary procedure as shown in the text, without attempting to make the operation atomic.
 	Draw a timing diagram like the one in \cref{Figure 3.29} to demonstrate how the mutex implementation can fail by allowing two processes to acquire the mutex at the same time.
 \end{exercise}
 

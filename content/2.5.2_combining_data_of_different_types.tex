@@ -46,8 +46,7 @@ Here is a typical coercion procedure, which transforms a given ordinary number t
   (define (scheme-number->complex n)
     (make-complex-from-real-imag (contents n) 0))
 \end{scheme}
-We install these coercion procedures in a special coercion table, indexed under
-the names of the two types:
+We install these coercion procedures in a special coercion table, indexed under the names of the two types:
 \begin{scheme}
   (put-coercion 'scheme-number
                 'complex

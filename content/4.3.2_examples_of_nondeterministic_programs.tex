@@ -200,8 +200,7 @@ To parse a sentence, we identify its two constituent pieces and return a list of
            (parse-noun-phrase)
            (parse-word verbs)))
 \end{scheme}
-A noun phrase, similarly, is parsed by finding an article followed by a
-noun:
+A noun phrase, similarly, is parsed by finding an article followed by a noun:
 \begin{scheme}
   (define (parse-noun-phrase)
     (list 'noun-phrase
@@ -236,8 +235,7 @@ To start the parsing, all we need to do is set \code{*unparsed*} to be the entir
       (require (null? *unparsed*)) sent))
 \end{scheme}
 
-We can now try the parser and verify that it works for our simple test
-sentence:
+We can now try the parser and verify that it works for our simple test sentence:
 \begin{scheme}
   ~\outprint{;;; Amb-Eval input:}~
   (parse '(the cat eats))
@@ -253,10 +251,7 @@ Let’s add to our grammar a list of prepositions:
 \begin{scheme}
   (define prepositions '(prep for to in by with))
 \end{scheme}
-
-\noindent
-and define a prepositional phrase (e.g., “for the cat”) to be a preposition
-followed by a noun phrase:
+and define a prepositional phrase (e.g., “for the cat”) to be a preposition followed by a noun phrase:
 \begin{scheme}
   (define (parse-prepositional-phrase)
     (list 'prep-phrase

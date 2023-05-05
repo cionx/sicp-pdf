@@ -165,7 +165,7 @@ We remove from the input stream all frames for which the predicate fails.
 \subsubsection*{Unification}
 
 In order to handle rules in the query language, we must be able to find the rules whose conclusions match a given query pattern.
-Rule conclusions are like assertions except that they can contain variables, so we will need a generalization of pattern matching---called \newterm{unification}---in which both the “pattern”  and the  “datum” may contain variables.
+Rule conclusions are like assertions except that they can contain variables, so we will need a generalization of pattern matching---called \newterm{unification}---in which both the “pattern” and the “datum” may contain variables.
 
 A unifier takes two patterns, each containing constants and variables, and determines whether it is possible to assign values to the variables that will make the two patterns equal.
 If so, it returns a frame containing these bindings.

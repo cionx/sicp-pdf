@@ -129,9 +129,8 @@ We also change the prompts to indicate that this is the lazy evaluator:
     (driver-loop))
 \end{scheme}
 
-With these changes made, we can start the evaluator and test it.  The
-successful evaluation of the \code{try} expression discussed in
-\cref{Section 4.2.1} indicates that the interpreter is performing lazy evaluation:
+With these changes made, we can start the evaluator and test it.
+The successful evaluation of the \code{try} expression discussed in \cref{Section 4.2.1} indicates that the interpreter is performing lazy evaluation:
 \begin{scheme}
   (define the-global-environment (setup-environment))
 
@@ -206,8 +205,7 @@ When a thunk is forced, we will turn it into an evaluated thunk by replacing the
           ((evaluated-thunk? obj) (thunk-value obj))
           (else obj)))
 \end{scheme}
-Notice that the same \code{delay-it} procedure works both with and without
-memoization.
+Notice that the same \code{delay-it} procedure works both with and without memoization.
 
 
 

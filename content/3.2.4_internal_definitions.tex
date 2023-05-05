@@ -26,7 +26,7 @@ Since the first expression in the body of \code{sqrt} is
   (define (good-enough? guess)
     (< (abs (- (square guess) x)) 0.001))
 \end{scheme}
-evaluating this expression defined the procedure \code{good-enough?}  in the environment E1.
+evaluating this expression defined the procedure \code{good-enough?} in the environment E1.
 To be more precise, the symbol \code{good-enough?} was added to the first frame of E1, bound to a procedure object whose associated environment is E1.
 Similarly, \code{improve} and \code{sqrt-iter} were defined as procedures in E1.
 For conciseness, \cref{Figure 3.11} shows only the procedure object for \code{good-enough?}.

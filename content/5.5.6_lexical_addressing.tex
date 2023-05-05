@@ -35,7 +35,7 @@ We can exploit this fact by inventing a new kind of variable-lookup operation, \
 a \newterm{frame number}, which specifies how many frames to pass over, and a \newterm{displacement number}, which specifies how many variables to pass over in that frame.
 \code{lexical-address-lookup} will produce the value of the variable stored at that lexical address relative to the current environment.
 If we add the \code{lexical-address-lookup} operation to our machine, we can make the compiler generate code that references variables using this operation, rather than \code{lookup-variable-value}.
-Similarly, our compiled code can use a new \code{lexical-address-set!}  operation instead of \code{set-variable-value!}.
+Similarly, our compiled code can use a new \code{lexical-address-set!} operation instead of \code{set-variable-value!}.
 
 In order to generate such code, the compiler must be able to determine the lexical address of a variable it is about to compile a reference to.
 The lexical address of a variable in a program depends on where one is in the code.

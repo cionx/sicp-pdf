@@ -32,7 +32,7 @@ This second factorial computation itself has a factorial subproblem, which requi
 Since each factorial machine contains another factorial machine within it, the total machine contains an infinite nest of similar machines and hence cannot be constructed from a fixed, finite number of parts.
 
 Nevertheless, we can implement the factorial process as a register machine if we can arrange to use the same components for each nested instance of the machine.
-Specifically, the machine that computes \( n! \)  should use the same components to work on the subproblem of computing \( (n - 1)! \), on the subproblem for \( (n - 2)! \), and so on.
+Specifically, the machine that computes \( n! \) should use the same components to work on the subproblem of computing \( (n - 1)! \), on the subproblem for \( (n - 2)! \), and so on.
 This is plausible because, although the factorial process dictates that an unbounded number of copies of the same machine are needed to perform a computation, only one of these copies needs to be active at any given time.
 When the machine encounters a recursive subproblem, it can suspend work on the main problem, reuse the same physical parts to work on the subproblem, then continue the suspended computation.
 

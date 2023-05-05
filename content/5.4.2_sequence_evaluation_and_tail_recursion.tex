@@ -11,9 +11,7 @@ Explicit \code{begin} expressions are evaluated by placing the sequence of expre
     (save continue)
     (goto (label ev-sequence))
 \end{scheme}
-The implicit sequences in procedure bodies are handled by jumping to
-\code{ev-sequence} from \code{compound-apply}, at which point \code{continue}
-is already on the stack, having been saved at \code{ev-application}.
+The implicit sequences in procedure bodies are handled by jumping to \code{ev-sequence} from \code{compound-apply}, at which point \code{continue} is already on the stack, having been saved at \code{ev-application}.
 
 The entries at \code{ev-sequence} and \code{ev-sequence-continue} form a loop that successively evaluates each expression in a sequence.
 The list of unevaluated expressions is kept in \code{unev}.

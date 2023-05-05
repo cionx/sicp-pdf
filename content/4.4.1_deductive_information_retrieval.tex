@@ -250,8 +250,6 @@ For example,
   (or (supervisor ?x (Bitdiddle Ben))
       (supervisor ?x (Hacker Alyssa P)))
 \end{scheme}
-
-\noindent
 will find all employees supervised by Ben Bitdiddle or Alyssa P. Hacker:
 \begin{scheme}
   (or (supervisor (Hacker Alyssa P) (Bitdiddle Ben))
@@ -596,7 +594,7 @@ Unfortunately, although the system works impressively in the \code{append} case,
 	  (son Ada Jubal)
 	\end{scheme}
 
-	Formulate rules such as “If \( S \) is the son of \( f \), and \( f \) is the son of \( G \), then \( S \) is the grandson of \( G \)”  and  “If \( W \) is the wife of \( M \), and \( S \) is the son of \( W \), then \( S \) is the son of \( M \)” (which was supposedly more true in biblical times than today) that will enable the query system to find the grandson of Cain;
+	Formulate rules such as “If \( S \) is the son of \( f \), and \( f \) is the son of \( G \), then \( S \) is the grandson of \( G \)” and “If \( W \) is the wife of \( M \), and \( S \) is the son of \( W \), then \( S \) is the son of \( M \)” (which was supposedly more true in biblical times than today) that will enable the query system to find the grandson of Cain;
 	the sons of Lamech;
 	the grandsons of Methushael.
 	(See \cref{Exercise 4.69} for some rules to deduce more complicated relationships.)

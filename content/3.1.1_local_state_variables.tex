@@ -70,9 +70,7 @@ In general, evaluating the expression
 \begin{scheme}
   (begin ⟨~\var{exp}\ind{1}~⟩ ⟨~\var{exp}\ind{2}~⟩ … ⟨~\var{exp}\ind{k}~⟩)
 \end{scheme}
-causes the expressions \code{⟨\var{exp}\ind{1}⟩} through \code{⟨\var{exp}\ind{k}⟩} to be evaluated
-in sequence and the value of the final expression \code{⟨\var{exp}\ind{k}⟩} to be
-returned as the value of the entire \code{begin} form.%
+causes the expressions \code{⟨\var{exp}\ind{1}⟩} through \code{⟨\var{exp}\ind{k}⟩} to be evaluated in sequence and the value of the final expression \code{⟨\var{exp}\ind{k}⟩} to be returned as the value of the entire \code{begin} form.%
 \footnote{
 	We have already used \code{begin} implicitly in our programs, because in Scheme the body of a procedure can be a sequence of expressions.
 	Also, the \code{⟨\var{consequent}⟩} part of each clause in a \code{cond} expression can be a sequence of expressions rather than a single expression.
@@ -149,8 +147,7 @@ The formal parameter \code{balance} in \code{make-withdraw} specifies the initia
 \end{scheme}
 
 \noindent
-Observe that \code{W1} and \code{W2} are completely independent objects, each
-with its own local state variable \code{balance}.
+Observe that \code{W1} and \code{W2} are completely independent objects, each with its own local state variable \code{balance}.
 Withdrawals from one do not affect the other.
 
 We can also create objects that handle deposits as well as withdrawals, and thus we can represent simple bank accounts.

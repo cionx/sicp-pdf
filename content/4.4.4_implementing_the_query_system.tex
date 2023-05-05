@@ -415,7 +415,7 @@ these cases are recognized by the predicate \code{depends-on?}.%
 On the other hand, we do not want to reject attempts to bind a variable to itself.
 For example, consider unifying \code{(?x ?x)} and \code{(?y ?y)}.
 The second attempt to bind \code{?x} to \code{?y} matches \code{?y} (the stored value of \code{?x}) against \code{?y} (the new value of \code{?x}).
-This is taken care of by the \code{equal?}  clause of \code{unify-match}.
+This is taken care of by the \code{equal?} clause of \code{unify-match}.
 \begin{scheme}
   (define (extend-if-possible var val frame)
     (let ((binding (binding-in-frame var frame)))
@@ -821,8 +821,8 @@ Frames are represented as lists of bindings, which are variable-value pairs:
 
 \begin{exercise}
 	\label{Exercise 4.73}
-	Why does \code{flatten-stream}
-	use \code{delay} explicitly?  What would be wrong with defining it as follows:
+	Why does \code{flatten-stream} use \code{delay} explicitly?
+	What would be wrong with defining it as follows:
 	\begin{scheme}
 	  (define (flatten-stream stream)
 	    (if (stream-null? stream)

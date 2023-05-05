@@ -22,8 +22,7 @@ In the stream formulation there is no random-number generator \emph{per se}, jus
      random-init
      (stream-map rand-update random-numbers)))
 \end{scheme}
-We use this to construct the stream of outcomes of the Ces\`aro experiment
-performed on consecutive pairs in the \code{random-numbers} stream:
+We use this to construct the stream of outcomes of the Cesàro experiment performed on consecutive pairs in the \code{random-numbers} stream:
 \begin{scheme}
   (define cesaro-stream
     (map-successive-pairs

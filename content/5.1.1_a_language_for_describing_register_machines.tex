@@ -9,7 +9,7 @@ We define the data paths of a machine by describing the registers and the operat
 To describe a register, we give it a name and specify the buttons that control assignment to it.
 We give each of these buttons a name and specify the source of the data that enters the register under the button’s control.
 (The source is a register, a constant, or an operation.)
-To describe an operation, we give it a name and specify its inputs (registers or  constants).
+To describe an operation, we give it a name and specify its inputs (registers or constants).
 
 We define the controller of a machine as a sequence of \newterm{instructions} together with \newterm{labels} that identify \newterm{entry points} in the sequence.
 An instruction is one of the following:
@@ -106,7 +106,7 @@ This form of description is easier to read than the kind illustrated in \cref{Fi
 	\item
 		Because the controller instructions in a machine definition look like Lisp expressions, it is easy to forget that they are not arbitrary Lisp expressions.
 		They can notate only legal machine operations.
-		For example, operations can operate directly only on constants and the contents of registers, not on the  results of other operations.
+		For example, operations can operate directly only on constants and the contents of registers, not on the results of other operations.
 
 \end{itemize}
 

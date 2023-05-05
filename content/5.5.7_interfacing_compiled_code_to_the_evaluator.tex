@@ -58,10 +58,10 @@ To enable us to run some compiled code when we start the evaluator machine, we a
 	\end{smallscheme}
 }
 \begin{scheme}
-  (branch (label external-entry))    ~\textrm{; branches if \code{flag} is set}~
-read-eval-print-loop
-  (perform (op initialize-stack))
-  …
+    (branch (label external-entry))    ~\textrm{; branches if \code{flag} is set}~
+  read-eval-print-loop
+    (perform (op initialize-stack))
+    …
 \end{scheme}
 \code{external-entry} assumes that the machine is started with \code{val} containing the location of an instruction sequence that puts a result into \code{val} and ends with \code{(goto (reg continue))}.
 Starting at this entry point jumps to the location designated by \code{val}, but first assigns \code{continue} so that execution will return to \code{print-result}, which prints the value in \code{val} and then goes to the beginning of the evaluator’s read-eval-print loop.%
@@ -104,8 +104,7 @@ We then initialize the \code{val} register to point to the list of instructions,
       (start eceval)))
 \end{scheme}
 
-If we have set up stack monitoring, as at the end of \cref{Section 5.4.4}, we
-can examine the stack usage of compiled code:
+If we have set up stack monitoring, as at the end of \cref{Section 5.4.4}, we can examine the stack usage of compiled code:
 \begin{scheme}
   (compile-and-go
    '(define (factorial n)
@@ -187,7 +186,7 @@ Or we can compile one of the interpreters of \cref{Section 4.1} to produce an in
 			Now perform the same analysis using the compiled \code{factorial} procedure.
 
 			Take the ratio of the number of pushes in the compiled version to the number of pushes in the interpreted version, and do the same for the maximum stack depth.
-			Since the number of operations and the stack depth used to compute \( n! \)  are linear in \( n \), these ratios should approach constants as \( n \) becomes large.
+			Since the number of operations and the stack depth used to compute \( n! \) are linear in \( n \), these ratios should approach constants as \( n \) becomes large.
 			What are these constants?
 			Similarly, find the ratios of the stack usage in the special-purpose machine to the usage in the interpreted version.
 			Compare the ratios for special-purpose versus interpreted code to the ratios for compiled versus interpreted code.

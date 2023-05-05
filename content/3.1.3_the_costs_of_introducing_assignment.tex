@@ -74,7 +74,7 @@ Now we apply the operator by substituting 20 for \code{amount} in the body of th
 \end{scheme}
 If we adhered to the substitution model, we would have to say that the meaning of the procedure application is to first set \code{balance} to \( 5 \) and then return \( 25 \) as the value of the expression.
 This gets the wrong answer.
-In order to get the correct answer, we would have to somehow distinguish the first occurrence of \code{balance} (before the effect of the \code{set!})  from the second occurrence of \code{balance} (after the effect of the \code{set!}), and the substitution model cannot do this.
+In order to get the correct answer, we would have to somehow distinguish the first occurrence of \code{balance} (before the effect of the \code{set!}) from the second occurrence of \code{balance} (after the effect of the \code{set!}), and the substitution model cannot do this.
 
 The trouble here is that substitution is based ultimately on the notion that the symbols in our language are essentially names for values.
 But as soon as we introduce \code{set!} and the idea that the value of a variable can change, a variable can no longer be simply a name.
@@ -152,11 +152,11 @@ if we are searching for all the places in our program where \code{paul-acc} can 
 	The phenomenon of a single computational object being accessed by more than one name is known as \newterm{aliasing}.
 	The joint bank account situation illustrates a very simple example of an alias.
 	In \cref{Section 3.3} we will see much more complex examples, such as “distinct” compound data structures that share parts.
-	Bugs can occur in our programs if we forget that a change to an object may also, as a “side effect,” change a “different”  object because the two  “different” objects are actually a single object appearing under different aliases.
+	Bugs can occur in our programs if we forget that a change to an object may also, as a “side effect,” change a “different” object because the two “different” objects are actually a single object appearing under different aliases.
 	These so-called \newterm{side-effect bugs} are so difficult to locate and to analyze that some people have proposed that programming languages be designed in such a way as to not allow side effects or aliasing (\cref{Lampson et al. 1981}; \cref{Morris et al. 1980}).
 }
 
-With reference to the above remarks on “sameness”  and  “change,” observe that if Peter and Paul could only examine their bank balances, and could not perform operations that changed the balance, then the issue of whether the two accounts are distinct would be moot.
+With reference to the above remarks on “sameness” and “change,” observe that if Peter and Paul could only examine their bank balances, and could not perform operations that changed the balance, then the issue of whether the two accounts are distinct would be moot.
 In general, so long as we never modify data objects, we can regard a compound data object to be precisely the totality of its pieces.
 For example, a rational number is determined by giving its numerator and its denominator.
 But this view is no longer valid in the presence of change, where a compound data object has an “identity” that is something different from the pieces of which it is composed.

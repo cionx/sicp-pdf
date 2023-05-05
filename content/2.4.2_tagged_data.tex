@@ -30,7 +30,7 @@ A straightforward way to implement this is to use ordinary list structure:
         (error "Bad tagged datum: CONTENTS" datum)))
 \end{scheme}
 
-Using these procedures, we can define predicates \code{rectangular?}  and \code{polar?}, which recognize rectangular and polar numbers, respectively:
+Using these procedures, we can define predicates \code{rectangular?} and \code{polar?}, which recognize rectangular and polar numbers, respectively:
 \begin{scheme}
   (define (rectangular? z) (eq? (type-tag z) 'rectangular))
 

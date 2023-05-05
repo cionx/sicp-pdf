@@ -200,8 +200,7 @@ Definitions of variables are handled in a similar manner.%
                       env)
     'ok)
 \end{scheme}
-We have chosen here to return the symbol \code{ok} as the value of an
-assignment or a definition.%
+We have chosen here to return the symbol \code{ok} as the value of an assignment or a definition.%
 \footnote{
 	As we said when we introduced \code{define} and \code{set!}, these values are implementation-dependent in Scheme---that is, the implementor can choose what value to return.
 }
@@ -209,7 +208,7 @@ assignment or a definition.%
 
 
 \begin{exercise}
-\label{Exercise 4.1}
+	\label{Exercise 4.1}
 	Notice that we cannot tell whether the metacircular evaluator evaluates operands from left to right or from right to left.
 	Its evaluation order is inherited from the underlying Lisp:
 	If the arguments to \code{cons} in \code{list-of-values} are evaluated from left to right, then \code{list-of-values} will evaluate operands from left to right;

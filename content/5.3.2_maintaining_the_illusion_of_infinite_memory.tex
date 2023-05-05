@@ -24,14 +24,14 @@ In order to recycle pairs, we must have a way to determine which allocated pairs
 The method we shall examine for accomplishing this is known as \newterm{garbage collection}.
 Garbage collection is based on the observation that, at any moment in a Lisp interpretation, the only objects that can affect the future of the computation are those that can be reached by some succession of \code{car} and \code{cdr} operations starting from the pointers that are currently in the machine registers.%
 \footnote{
-	We assume here  that the stack is represented as a list as described in \cref{Section 5.3.1}, so that items on the stack are accessible via the pointer in the stack register.
+	We assume here that the stack is represented as a list as described in \cref{Section 5.3.1}, so that items on the stack are accessible via the pointer in the stack register.
 }
 Any memory cell that is not so accessible may be recycled.
 
 There are many ways to perform garbage collection.
 The method we shall examine here is called \newterm{stop-and-copy}.
 The basic idea is to divide memory into two halves:
-“working memory” and  “free memory.”
+“working memory” and “free memory.”
 When \code{cons} constructs pairs, it allocates these in working memory.
 When working memory is full, we perform garbage collection by locating all the useful pairs in working memory and copying these into consecutive locations in free memory.
 (The useful pairs are located by tracing all the \code{car} and \code{cdr} pointers, starting with the machine registers.)
@@ -141,11 +141,9 @@ The \code{relocate-continue} register is set up so that the subroutine will retu
     (goto (label relocate-old-result-in-new))
 \end{scheme}
 
-At \code{update-car}, we modify the \code{car} pointer of the pair being
-scanned, then proceed to relocate the \code{cdr} of the pair.  We return to
-\code{update-cdr} when that relocation has been accomplished.  After relocating
-and updating the \code{cdr}, we are finished scanning that pair, so we continue
-with the main loop.
+At \code{update-car}, we modify the \code{car} pointer of the pair being scanned, then proceed to relocate the \code{cdr} of the pair.
+We return to \code{update-cdr} when that relocation has been accomplished.
+After relocating and updating the \code{cdr}, we are finished scanning that pair, so we continue with the main loop.
 
 \begin{scheme}
   update-car
@@ -175,7 +173,7 @@ If the \code{car} position of the pair to be relocated contains a broken-heart t
 If the pointer in \code{old} points at a yet-unmoved pair, then we move the pair to the first free cell in new memory (pointed at by \code{free}) and set up the broken heart by storing a broken-heart tag and forwarding address at the old location.
 \code{relocate-old-result-in-new} uses a register \code{oldcr} to hold the \code{car} or the \code{cdr} of the object pointed at by \code{old}.%
 \footnote{
-	The garbage collector uses the low-level predicate \code{pointer-to-pair?} instead of the list-structure \code{pair?}  operation because in a real system there might be various things that are treated as pairs for garbage-collection purposes.
+	The garbage collector uses the low-level predicate \code{pointer-to-pair?} instead of the list-structure \code{pair?} operation because in a real system there might be various things that are treated as pairs for garbage-collection purposes.
 	For example, in a Scheme system that conforms to the \acronym{IEEE} standard a procedure object may be implemented as a special kind of “pair” that doesn’t satisfy the \code{pair?} predicate.
 	For simulation purposes, \code{pointer-to-pair?} can be implemented as \code{pair?}.
 }

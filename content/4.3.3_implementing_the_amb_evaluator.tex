@@ -57,7 +57,8 @@ In summary, failure continuations are constructed by
 
 \end{itemize}
 
-Failures are initiated only when a dead end is encountered.  This occurs
+Failures are initiated only when a dead end is encountered.
+This occurs
 \begin{itemize}
 
 	\item
@@ -97,10 +98,7 @@ We must also add to the dispatch in \code{analyze} a clause that will recognize 
   ((amb? exp) (analyze-amb exp))
 \end{scheme}
 
-The top-level procedure \code{ambeval} (similar to the version of \code{eval}
-given in \cref{Section 4.1.7}) analyzes the given expression and applies the
-resulting execution procedure to the given environment, together with two given
-continuations:
+The top-level procedure \code{ambeval} (similar to the version of \code{eval} given in \cref{Section 4.1.7}) analyzes the given expression and applies the resulting execution procedure to the given environment, together with two given continuations:
 \begin{scheme}
   (define (ambeval exp env succeed fail)
     ((analyze exp) env succeed fail))
@@ -157,7 +155,8 @@ The execution procedures simply succeed with the value of the expression, passin
         (succeed (make-procedure vars bproc env) fail))))
 \end{scheme}
 
-Notice that looking up a variable always ‘succeeds.’  If \code{lookup-variable-value} fails to find the variable, it signals an error, as usual.
+Notice that looking up a variable always ‘succeeds.’
+If \code{lookup-variable-value} fails to find the variable, it signals an error, as usual.
 Such a “failure” indicates a program bug---a reference to an unbound variable;
 it is not an indication that we should try another nondeterministic choice instead of the one that is currently being tried.
 
@@ -403,10 +402,8 @@ In this case, however, we have completed a successful evaluation, so we can invo
        (newline) (display ";;; There is no current problem")
        (driver-loop))))
 \end{scheme}
-The initial call to \code{internal-loop} uses a \code{try-again} procedure that
-complains that there is no current problem and restarts the driver loop.  This
-is the behavior that will happen if the user types \code{try-again} when there
-is no evaluation in progress.
+The initial call to \code{internal-loop} uses a \code{try-again} procedure that complains that there is no current problem and restarts the driver loop.
+This is the behavior that will happen if the user types \code{try-again} when there is no evaluation in progress.
 
 
 

@@ -35,8 +35,7 @@ To evaluate this combination, we first evaluate the subexpressions.
 The first subexpression, \code{sum-of-squares}, has a value that is a procedure object.
 (Notice how this value is found:
 We first look in the first frame of E1, which contains no binding for \code{sum-of-squares}.
-Then we proceed to the enclosing environment, i.e.
-the global environment, and find the binding shown in \cref{Figure 3.4}.)
+Then we proceed to the enclosing environment, i.e., the global environment, and find the binding shown in \cref{Figure 3.4}.)
 The other two subexpressions are evaluated by applying the primitive operations \code{+} and \code{*} to evaluate the two combinations \code{(+ a 1)} and \code{(* a 2)} to obtain \( 6 \) and \( 10 \), respectively.
 
 Now we apply the procedure object \code{sum-of-squares} to the arguments \( 6 \) and \( 10 \).
@@ -69,25 +68,25 @@ however, this is also an important aspect of the evaluation process, and we will
 
 
 \begin{exercise}
-\label{Exercise 3.9}
-In \cref{Section 1.2.1} we used the substitution model to analyze two procedures for computing factorials, a recursive version
-\begin{scheme}
-  (define (factorial n)
-    (if (= n 1) 1 (* n (factorial (- n 1)))))
-\end{scheme}
-and an iterative version
-\begin{scheme}
-  (define (factorial n) (fact-iter 1 1 n))
-  (define (fact-iter product counter max-count)
-    (if (> counter max-count)
-        product
-        (fact-iter (* counter product)
-                   (+ counter 1)
-                   max-count)))
-\end{scheme}
-Show the environment structures created by evaluating \code{(factorial 6)} using each version of the \code{factorial} procedure.%
-\footnote{
-	The environment model will not clarify our claim in \cref{Section 1.2.1} that the interpreter can execute a procedure such as \code{fact-iter} in a constant amount of space using tail recursion.
-	We will discuss tail recursion when we deal with the control structure of the interpreter in \cref{Section 5.4}.
-}
+	\label{Exercise 3.9}
+	In \cref{Section 1.2.1} we used the substitution model to analyze two procedures for computing factorials, a recursive version
+	\begin{scheme}
+	  (define (factorial n)
+	    (if (= n 1) 1 (* n (factorial (- n 1)))))
+	\end{scheme}
+	and an iterative version
+	\begin{scheme}
+	  (define (factorial n) (fact-iter 1 1 n))
+	  (define (fact-iter product counter max-count)
+	    (if (> counter max-count)
+	        product
+	        (fact-iter (* counter product)
+	                   (+ counter 1)
+	                   max-count)))
+	\end{scheme}
+	Show the environment structures created by evaluating \code{(factorial 6)} using each version of the \code{factorial} procedure.%
+	\footnote{
+		The environment model will not clarify our claim in \cref{Section 1.2.1} that the interpreter can execute a procedure such as \code{fact-iter} in a constant amount of space using tail recursion.
+		We will discuss tail recursion when we deal with the control structure of the interpreter in \cref{Section 5.4}.
+	}
 \end{exercise}

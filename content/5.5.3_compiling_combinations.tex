@@ -162,14 +162,14 @@ Thus, we might expect the code for a compiled-procedure application (to be gener
 \end{scheme}
 or like this if the linkage is \code{return}.
 \begin{scheme}
- (save continue)
- (assign continue (label proc-return))
- (assign val (op compiled-procedure-entry) (reg proc))
- (goto (reg val))
-proc-return
- (assign ⟨~\var{target}~⟩ (reg val))   ~\textrm{; included if target is not \code{val}}~
- (restore continue)
- (goto (reg continue))         ~\textrm{; linkage code}~
+   (save continue)
+   (assign continue (label proc-return))
+   (assign val (op compiled-procedure-entry) (reg proc))
+   (goto (reg val))
+  proc-return
+   (assign ⟨~\var{target}~⟩ (reg val))   ~\textrm{; included if target is not \code{val}}~
+   (restore continue)
+   (goto (reg continue))         ~\textrm{; linkage code}~
 \end{scheme}
 This code sets up \code{continue} so that the procedure will return to a label \code{proc-return} and jumps to the procedure’s entry point.
 The code at \code{proc-return} transfers the procedure’s result from \code{val} to the target register (if necessary) and then jumps to the location specified by the linkage.
