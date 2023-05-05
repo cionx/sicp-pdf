@@ -3,10 +3,10 @@
 
 The mutators \code{set-car!} and \code{set-cdr!} enable us to use pairs to construct data structures that cannot be built with \code{cons}, \code{car}, and \code{cdr} alone.
 This section shows how to use pairs to represent a data structure called a queue.
-\link{Section 3.3.3} will show how to represent data structures called tables.
+\cref{Section 3.3.3} will show how to represent data structures called tables.
 
 A \newterm{queue} is a sequence in which items are inserted at one end (called the \newterm{rear} of the queue) and deleted from the other end (the \newterm{front}).
-\link{Figure 3.18} shows an initially empty queue in which the items \code{a} and \code{b} are inserted.
+\cref{Figure 3.18} shows an initially empty queue in which the items \code{a} and \code{b} are inserted.
 Then \code{a} is removed, \code{c} and \code{d} are inserted, and \code{b} is removed.
 Because items are always removed in the order in which they are inserted, a queue is sometimes called a \newterm{FIFO} (first in, first out) buffer.
 
@@ -82,7 +82,7 @@ That way, when we go to insert an item, we can consult the rear pointer and so a
 A queue is represented, then, as a pair of pointers, \code{front-ptr} and \code{rear-ptr}, which indicate, respectively, the first and last pairs in an ordinary list.
 Since we would like the queue to be an identifiable object, we can use \code{cons} to combine the two pointers.
 Thus, the queue itself will be the \code{cons} of the two pointers.
-\link{Figure 3.19} illustrates this representation.
+\cref{Figure 3.19} illustrates this representation.
 
 \begin{figure}[tb]
 	\centering
@@ -125,12 +125,12 @@ To select the item at the front of the queue, we return the \code{car} of the pa
 	\centering
 	\includesvg[width=88mm]{fig/chap3/Fig3.20b.svg}
 	\caption{
-		Result of using \code{(insert-queue! q 'd)} on the queue of \link{Figure 3.19}.
+		Result of using \code{(insert-queue! q 'd)} on the queue of \cref{Figure 3.19}.
 	}
 	\label{Figure 3.20}
 \end{figure}
 
-To insert an item in a queue, we follow the method whose result is indicated in \link{Figure 3.20}.
+To insert an item in a queue, we follow the method whose result is indicated in \cref{Figure 3.20}.
 We first create a new pair whose \code{car} is the item to be inserted and whose \code{cdr} is the empty list.
 If the queue was initially empty, we set the front and rear pointers of the queue to this new pair.
 Otherwise, we modify the final pair in the queue to point to the new pair, and also set the rear pointer to the new pair.
@@ -151,12 +151,12 @@ Otherwise, we modify the final pair in the queue to point to the new pair, and a
 	\centering
 	\includesvg[width=88mm]{fig/chap3/Fig3.21b.svg}
 	\caption{
-		Result of using \code{(delete-queue!  q)} on the queue of \link{Figure 3.20}.
+		Result of using \code{(delete-queue!  q)} on the queue of \cref{Figure 3.20}.
 	}
 	\label{Figure 3.21}
 \end{figure}
 
-To delete the item at the front of the queue, we merely modify the front pointer so that it now points at the second item in the queue, which can be found by following the \code{cdr} pointer of the first item (see \link{Figure 3.21}):%
+To delete the item at the front of the queue, we merely modify the front pointer so that it now points at the second item in the queue, which can be found by following the \code{cdr} pointer of the first item (see \cref{Figure 3.21}):%
 \footnote{
 	If the first item is the final item in the queue, the front pointer will be the empty list after the deletion, which will mark the queue as empty;
 	we needn’t worry about updating the rear pointer, which will still point to the deleted item, because \code{empty-queue?} looks only at the front pointer.
@@ -229,7 +229,7 @@ To delete the item at the front of the queue, we merely modify the front pointer
 		Show how to represent deques using pairs, and give implementations of the operations.%
 	\footnote{
 		Be careful not to make the interpreter try to print a structure that contains cycles.
-		(See \link{Exercise 3.13}.)
+		(See \cref{Exercise 3.13}.)
 	}
 	All operations should be accomplished in \( Θ \)(1) steps.
 \end{exercise}

@@ -155,7 +155,7 @@ This same pattern does \emph{not} match
 because the third item in the entry is a list of three elements, and the pattern’s third item specifies that there should be two elements.
 If we wanted 	to change the pattern so that the third item could be any list beginning with \code{computer}, we could specify%
 \footnote{
-	This uses the dotted-tail notation introduced in \link{Exercise 2.20}.
+	This uses the dotted-tail notation introduced in \cref{Exercise 2.20}.
 }
 \begin{scheme}
   (job ?x (computer . ?type))
@@ -287,7 +287,7 @@ is satisfied by all assignments to the pattern variables that do not satisfy
 \footnote{
 	Actually, this description of \code{not} is valid only for simple cases.
 	The real behavior of \code{not} is more complex.
-	We will examine \code{not}’s peculiarities in sections \link{Section 4.4.2} and \link{Section 4.4.3}.
+	We will examine \code{not}’s peculiarities in sections \cref{Section 4.4.2} and \cref{Section 4.4.3}.
 }
 
 The final combining form is called \code{lisp-value}.
@@ -494,7 +494,7 @@ says that a staff person is outranked by a boss in the organization if the boss 
 We can regard a rule as a kind of logical implication:
 \emph{If} an assignment of values to pattern variables satisfies the body, \emph{then} it satisfies the conclusion.
 Consequently, we can regard the query language as having the ability to perform \newterm{logical deductions} based upon the rules.
-As an example, consider the \code{append} operation described at the beginning of \link{Section 4.4}.
+As an example, consider the \code{append} operation described at the beginning of \cref{Section 4.4}.
 As we said, \code{append} can be characterized by the following two rules:
 \begin{itemize}
 
@@ -549,7 +549,7 @@ We can also ask for all pairs of lists that \code{append} to form \code{(a b c d
 
 The query system may seem to exhibit quite a bit of intelligence in using the rules to deduce the answers to the queries above.
 Actually, as we will see in the next section, the system is following a well-determined algorithm in unraveling the rules.
-Unfortunately, although the system works impressively in the \code{append} case, the general methods may break down in more complex cases, as we will see in \link{Section 4.4.3}.
+Unfortunately, although the system works impressively in the \code{append} case, the general methods may break down in more complex cases, as we will see in \cref{Section 4.4.3}.
 
 
 
@@ -574,7 +574,7 @@ Unfortunately, although the system works impressively in the \code{append} case,
 
 \begin{exercise}
 	\label{Exercise 4.62}
-	Define rules to implement the \code{last-pair} operation of \link{Exercise 2.17}, which returns a list containing the last element of a nonempty list.
+	Define rules to implement the \code{last-pair} operation of \cref{Exercise 2.17}, which returns a list containing the last element of a nonempty list.
 	Check your rules on queries such as \code{(last-pair (3) ?x)}, \code{(last-pair (1 2 3) ?x)} and \code{(last-pair (2 ?x) (3))}.
 	Do your rules work correctly on queries such as \code{(last-pair ?x (3))} ?
 \end{exercise}
@@ -599,5 +599,5 @@ Unfortunately, although the system works impressively in the \code{append} case,
 	Formulate rules such as “If \( S \) is the son of \( f \), and \( f \) is the son of \( G \), then \( S \) is the grandson of \( G \)”  and  “If \( W \) is the wife of \( M \), and \( S \) is the son of \( W \), then \( S \) is the son of \( M \)” (which was supposedly more true in biblical times than today) that will enable the query system to find the grandson of Cain;
 	the sons of Lamech;
 	the grandsons of Methushael.
-	(See \link{Exercise 4.69} for some rules to deduce more complicated relationships.)
+	(See \cref{Exercise 4.69} for some rules to deduce more complicated relationships.)
 \end{exercise}

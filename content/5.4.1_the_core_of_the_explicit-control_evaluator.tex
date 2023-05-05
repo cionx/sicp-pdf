@@ -2,7 +2,7 @@
 \label{Section 5.4.1}
 
 The central element in the evaluator is the sequence of instructions beginning at \code{eval-dispatch}.
-This corresponds to the \code{eval} procedure of the metacircular evaluator described in \link{Section 4.1.1}.
+This corresponds to the \code{eval} procedure of the metacircular evaluator described in \cref{Section 4.1.1}.
 When the controller starts at \code{eval-dispatch}, it evaluates the expression specified by \code{exp} in the environment specified by \code{env}.
 When evaluation is complete, the controller will go to the entry point stored in \code{continue}, and the \code{val} register will hold the value of the expression.
 As with the metacircular \code{eval}, the structure of \code{eval-dispatch} is a case analysis on the syntactic type of the expression to be evaluated.%
@@ -105,7 +105,7 @@ Then we assign to the \code{proc} register the procedure that was produced by ev
 If there are no operands, we go directly to \code{apply-dispatch}.
 Otherwise we save \code{proc} on the stack and start the argument-evaluation loop:%
 \footnote{
-	We add to the evaluator data-structure procedures in \link{Section 4.1.3} the following two procedures for manipulating argument lists:
+	We add to the evaluator data-structure procedures in \cref{Section 4.1.3} the following two procedures for manipulating argument lists:
 	\begin{smallscheme}
 	  (define (empty-arglist) '())
 	  (define (adjoin-arg arg arglist) (append arglist (list arg)))
@@ -160,11 +160,11 @@ Evaluation of the last argument is handled differently.
 There is no need to save the environment or the list of unevaluated operands before going to \code{eval-dispatch}, since they will not be required after the last operand is evaluated.
 Thus, we return from the evaluation to a special entry point \code{ev-appl-accum-last-arg}, which restores the argument list, accumulates the new argument, restores the saved procedure, and goes off to perform the application.%
 \footnote{
-	The optimization of treating the last operand specially is known as \newterm{evlis tail recursion} (see \link{Wand 1980}).
+	The optimization of treating the last operand specially is known as \newterm{evlis tail recursion} (see \cref{Wand 1980}).
 	We could be somewhat more efficient in the argument evaluation loop if we made evaluation of the first operand a special case too.
 	This would permit us to postpone initializing \code{argl} until after evaluating the first operand, so as to avoid saving \code{argl} in this case.
-	The compiler in \link{Section 5.5} performs this optimization.
-	(Compare the \code{construct-arglist} procedure of \link{Section 5.5.3}.)
+	The compiler in \cref{Section 5.5} performs this optimization.
+	(Compare the \code{construct-arglist} procedure of \cref{Section 5.5.3}.)
 }
 
 \begin{scheme}
@@ -178,10 +178,10 @@ Thus, we return from the evaluation to a special entry point \code{ev-appl-accum
     (goto (label apply-dispatch))
 \end{scheme}
 
-The details of the argument-evaluation loop determine the order in which the interpreter evaluates the operands of a combination (e.g., left to right or right to left---see \link{Exercise 3.8}).
+The details of the argument-evaluation loop determine the order in which the interpreter evaluates the operands of a combination (e.g., left to right or right to left---see \cref{Exercise 3.8}).
 This order is not determined by the metacircular evaluator, which inherits its control structure from the underlying Scheme in which it is implemented.%
 \footnote{
-	The order of operand evaluation in the metacircular evaluator is determined by the order of evaluation of the arguments to \code{cons} in the procedure \code{list-of-values} of \link{Section 4.1.1} (see \link{Exercise 4.1}).
+	The order of operand evaluation in the metacircular evaluator is determined by the order of evaluation of the arguments to \code{cons} in the procedure \code{list-of-values} of \cref{Section 4.1.1} (see \cref{Exercise 4.1}).
 }
 	Because the \code{first-operand} selector (used in \code{ev-appl-operand-loop} to extract successive operands from \code{unev}) is implemented as \code{car} and the \code{rest-operands} selector is implemented as \code{cdr}, the explicit-control evaluator will evaluate the operands of a combination in left-to-right order.
 
@@ -208,7 +208,7 @@ Either the procedure to be applied is a primitive or it is a compound procedure.
 We assume that each primitive is implemented so as to obtain its arguments from \code{argl} and place its result in \code{val}.
 To specify how the machine handles primitives, we would have to provide a sequence of controller instructions to implement each primitive and arrange for \code{primitive-apply} to dispatch to the instructions for the primitive identified by the contents of \code{proc}.
 Since we are interested in the structure of the evaluation process rather than the details of the primitives, we will instead just use an \code{apply-primitive-procedure} operation that applies the procedure in \code{proc} to the arguments in \code{argl}.
-For the purpose of simulating the evaluator with the simulator of \link{Section 5.2} we use the procedure \code{apply-primitive-procedure}, which calls on the underlying Scheme system to perform the application, just as we did for the metacircular evaluator in \link{Section 4.1.4}.
+For the purpose of simulating the evaluator with the simulator of \cref{Section 5.2} we use the procedure \code{apply-primitive-procedure}, which calls on the underlying Scheme system to perform the application, just as we did for the metacircular evaluator in \cref{Section 4.1.4}.
 After computing the value of the primitive application, we restore \code{continue} and go to the designated entry point.
 
 \begin{scheme}
@@ -222,7 +222,7 @@ After computing the value of the primitive application, we restore \code{continu
 
 To apply a compound procedure, we proceed just as with the metacircular evaluator.
 We construct a frame that binds the procedure’s parameters to the arguments, use this frame to extend the environment carried by the procedure, and evaluate in this extended environment the sequence of expressions that forms the body of the procedure.
-\code{ev-sequence}, described below in \link{Section 5.4.2}, handles the evaluation of the sequence.
+\code{ev-sequence}, described below in \cref{Section 5.4.2}, handles the evaluation of the sequence.
 
 \begin{scheme}
   compound-apply

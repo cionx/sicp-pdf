@@ -40,7 +40,7 @@ From the viewpoint of data abstraction, we are free to design any representation
 
 One way to represent a set is as a list of its elements in which no element appears more than once.
 The empty set is represented by the empty list.
-In this representation, \code{element-of-set?} is similar to the procedure \code{memq} of \link{Section 2.3.1}.
+In this representation, \code{element-of-set?} is similar to the procedure \code{memq} of \cref{Section 2.3.1}.
 It uses \code{equal?} instead of \code{eq?} so that the set elements need not be symbols:
 \begin{scheme}
   (define (element-of-set? x set)
@@ -177,7 +177,7 @@ This is \( Θ(n) \) growth rather than \( Θ(n^2) \)---a considerable speedup, e
 We can do better than the ordered-list representation by arranging the set elements in the form of a tree.
 Each node of the tree holds one element of the set, called the “entry” at that node, and a link to each of two other (possibly empty) nodes.
 The “left” link points to elements smaller than the one at the node, and the “right” link to elements greater than the one at the node.
-\link{Figure 2.16} shows some trees that represent the set \( \{ 1, 3, 5, 7, 9, 11 \} \).
+\cref{Figure 2.16} shows some trees that represent the set \( \{ 1, 3, 5, 7, 9, 11 \} \).
 The same set may be represented by a tree in a number of different ways.
 The only thing we require for a valid representation is that all elements in the left subtree be smaller than the node entry and that all elements in the right subtree be larger.
 
@@ -199,7 +199,7 @@ Now, if the tree is “balanced,” each of these subtrees will be about half th
 Thus, in one step we have reduced the problem of searching a tree of size \( n \) to searching a tree of size \( n / 2 \).
 Since the size of the tree is halved at each step, we should expect that the number of steps needed to search a tree of size \( n \) grows as \( Θ(\log n) \).%
 \footnote{
-	Halving the size of the problem at each step is the distinguishing characteristic of logarithmic growth, as we saw with the fast-exponentiation algorithm of \link{Section 1.2.4} and the half-interval search method of \link{Section 1.3.3}.
+	Halving the size of the problem at each step is the distinguishing characteristic of logarithmic growth, as we saw with the fast-exponentiation algorithm of \cref{Section 1.2.4} and the half-interval search method of \cref{Section 1.3.3}.
 }
 For large sets, this will be a significant speedup over the previous representations.
 
@@ -258,7 +258,7 @@ But how can we be certain that the trees we construct will be balanced?
 Even if we start with a balanced tree, adding elements with \code{adjoin-set} may produce an unbalanced result.
 Since the position of a newly adjoined element depends on how the element compares with the items already in the set, we can expect that if we add elements “randomly” the tree will tend to be balanced on the average.
 But this is not a guarantee.
-For example, if we start with an empty set and adjoin the numbers 1 through 7 in sequence we end up with the highly unbalanced tree shown in \link{Figure 2.17}.
+For example, if we start with an empty set and adjoin the numbers 1 through 7 in sequence we end up with the highly unbalanced tree shown in \cref{Figure 2.17}.
 In this tree all the left subtrees are empty, so it has no advantage over a simple ordered list.
 One way to solve this problem is to define an operation that transforms an arbitrary tree into a balanced tree with the same elements.
 Then we can perform this transformation after every few \code{adjoin-set} operations to keep our set in balance.
@@ -266,7 +266,7 @@ There are also other ways to solve this problem, most of which involve designing
 \footnote{
 	Examples of such structures include \newterm{B-trees} and \newterm{red-black trees}.
 	There is a large literature on data structures devoted to this problem.
-	See \link{Cormen et al. 1990}.
+	See \cref{Cormen et al. 1990}.
 }
 
 \begin{figure}[tb]
@@ -306,7 +306,7 @@ There are also other ways to solve this problem, most of which involve designing
 		\item
 			Do the two procedures produce the same result for every tree?
 			If not, how do the results differ?
-			What lists do the two procedures produce for the trees in \link{Figure 2.16}?
+			What lists do the two procedures produce for the trees in \cref{Figure 2.16}?
 
 		\item
 			Do the two procedures have the same order of growth in the number of steps required to convert a balanced tree with \( n \) elements to a list?
@@ -364,9 +364,9 @@ There are also other ways to solve this problem, most of which involve designing
 
 \begin{exercise}
 	\label{Exercise 2.65}
-	Use the results of \link{Exercise 2.63} and \link{Exercise 2.64} to give \( Θ(n) \) implementations of \code{union-set} and \code{intersection-set} for sets implemented as (balanced) binary trees.%
+	Use the results of \cref{Exercise 2.63} and \cref{Exercise 2.64} to give \( Θ(n) \) implementations of \code{union-set} and \code{intersection-set} for sets implemented as (balanced) binary trees.%
 	\footnote{
-		\link{Exercise 2.63} through \link{Exercise 2.65} are due to Paul Hilfinger.
+		\cref{Exercise 2.63} through \cref{Exercise 2.65} are due to Paul Hilfinger.
 	}
 \end{exercise}
 

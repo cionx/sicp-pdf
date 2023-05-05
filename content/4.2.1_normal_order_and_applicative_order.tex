@@ -1,7 +1,7 @@
 \subsection{Normal Order and Applicative Order}
 \label{Section 4.2.1}
 
-In \link{Section 1.1}, where we began our discussion of models of evaluation, we noted that Scheme is an \newterm{applicative-order} language, namely, that all the arguments to Scheme procedures are evaluated when the procedure is applied.
+In \cref{Section 1.1}, where we began our discussion of models of evaluation, we noted that Scheme is an \newterm{applicative-order} language, namely, that all the arguments to Scheme procedures are evaluated when the procedure is applied.
 In contrast, \newterm{normal-order} languages delay evaluation of procedure arguments until the actual argument values are needed.
 Delaying evaluation of procedure arguments until the last possible moment (e.g., until they are required by a primitive operation) is called \newterm{lazy evaluation}.%
 \footnote{
@@ -28,7 +28,7 @@ that can be used in expressions such as
           (/ a b)
           (begin (display "exception: returning 0") 0))
 \end{scheme}
-This won’t work in an applicative-order language because both the usual value and the exceptional value will be evaluated before \code{unless} is called (compare \link{Exercise 1.6}).
+This won’t work in an applicative-order language because both the usual value and the exceptional value will be evaluated before \code{unless} is called (compare \cref{Exercise 1.6}).
 An advantage of lazy evaluation is that some procedures, such as \code{unless}, can do useful computation even if evaluation of some of their arguments would produce errors or would not terminate.
 
 If the body of a procedure is entered before an argument has been evaluated we say that the procedure is \newterm{non-strict} in that argument.
@@ -40,12 +40,12 @@ If the argument is evaluated before the body of the procedure is entered we say 
 }
 In a purely applicative-order language, all procedures are strict in each argument.
 In a purely normal-order language, all compound procedures are non-strict in each argument, and primitive procedures may be either strict or non-strict.
-There are also languages (see \link{Exercise 4.31}) that give programmers detailed control over the strictness of the procedures they define.
+There are also languages (see \cref{Exercise 4.31}) that give programmers detailed control over the strictness of the procedures they define.
 
 A striking example of a procedure that can usefully be made non-strict is \code{cons} (or, in general, almost any constructor for data structures).
 One can do useful computation, combining elements to form data structures and operating on the resulting data structures, even if the values of the elements are not known.
 It makes perfect sense, for instance, to compute the length of a list without knowing the values of the individual elements in the list.
-We will exploit this idea in \link{Section 4.2.3} to implement the streams of \link{Chapter 3} as lists formed of non-strict \code{cons} pairs.
+We will exploit this idea in \cref{Section 4.2.3} to implement the streams of \cref{Chapter 3} as lists formed of non-strict \code{cons} pairs.
 
 
 

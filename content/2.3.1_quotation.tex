@@ -30,7 +30,7 @@ Note that we are forced to nest quotation marks to describe what somebody else m
 \footnote{
 	Allowing quotation in a language wreaks havoc with the ability to reason about the language in simple terms, because it destroys the notion that equals can be substituted for equals.
 	For example, three is one plus two, but the word “three” is not the phrase “one plus two.”
-	Quotation is powerful because it gives us a way to build expressions that manipulate other expressions (as we will see when we write an interpreter in \link{Chapter 4}).
+	Quotation is powerful because it gives us a way to build expressions that manipulate other expressions (as we will see when we write an interpreter in \cref{Chapter 4}).
 	But allowing statements in a language that talk about other statements in that language makes it very difficult to maintain any coherent principle of what “equals can be substituted for equals” should mean.
 	For example, if we know that the evening star is the morning star, then from the statement “the evening star is Venus” we can deduce “the morning star is Venus.”
 	However, given that “John knows that the evening star is Venus” we cannot infer that “John knows that the morning star is Venus.”
@@ -87,7 +87,7 @@ One additional primitive used in manipulating symbols is \code{eq?}, which takes
 	We can consider two symbols to be “the same” if they consist of the same characters in the same order.
 	Such a definition skirts a deep issue that we are not yet ready to address:
 	the meaning of “sameness” in a programming language.
-	We will return to this in \link{Chapter 3} (\link{Section 3.1.3}).
+	We will return to this in \cref{Chapter 3} (\cref{Section 3.1.3}).
 }
 Using \code{eq?}, we can implement a useful procedure called \code{memq}.
 This takes two arguments, a symbol and a list.

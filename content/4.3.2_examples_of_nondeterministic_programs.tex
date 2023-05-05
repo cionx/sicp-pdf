@@ -1,7 +1,7 @@
 \subsection{Examples of Nondeterministic Programs}
 \label{Section 4.3.2}
 
-\link{Section 4.3.3} describes the implementation of the \code{amb} evaluator.
+\cref{Section 4.3.3} describes the implementation of the \code{amb} evaluator.
 First, however, we give some examples of how it can be used.
 The advantage of nondeterministic programming is that we can suppress the details of how search is carried out, thereby expressing our programs at a higher level of abstraction.
 
@@ -9,7 +9,7 @@ The advantage of nondeterministic programming is that we can suppress the detail
 
 \subsubsection*{Logic Puzzles}
 
-The following puzzle (taken from \link{Dinesman 1968}) is typical of a large class of simple logic puzzles:
+The following puzzle (taken from \cref{Dinesman 1968}) is typical of a large class of simple logic puzzles:
 
 \begin{quote}
 	Baker, Cooper, Fletcher, Miller, and Smith live on different floors of an apartment house that contains only five floors.
@@ -58,7 +58,7 @@ Evaluating the expression \code{(multiple-dwelling)} produces the result
   ((baker 3) (cooper 2) (fletcher 4) (miller 5) (smith 1))
 \end{scheme}
 Although this simple procedure works, it is very slow.
-\link{Exercise 4.39} and \link{Exercise 4.40} discuss some possible improvements.
+\cref{Exercise 4.39} and \cref{Exercise 4.40} discuss some possible improvements.
 
 
 
@@ -100,7 +100,7 @@ Although this simple procedure works, it is very slow.
 
 \begin{exercise}
 	\label{Exercise 4.42}
-	Solve the following “Liars” puzzle (from \link{Phillips 1934}):
+	Solve the following “Liars” puzzle (from \cref{Phillips 1934}):
 
 	Five schoolgirls sat for an examination.
 	Their parents---so they thought---showed an undue degree of interest in the result.
@@ -154,7 +154,7 @@ Although this simple procedure works, it is very slow.
 	Gabrielle’s father owns the yacht that is named after Dr.~Parker’s daughter.
 	Who is Lorna’s father?
 
-	Try to write the program so that it runs efficiently (see \link{Exercise 4.40}).
+	Try to write the program so that it runs efficiently (see \cref{Exercise 4.40}).
 	Also determine how many solutions there are if we are not told that Mary Ann’s last name is Moore.
 \end{exercise}
 
@@ -162,7 +162,7 @@ Although this simple procedure works, it is very slow.
 
 \begin{exercise}
 	\label{Exercise 4.44}
-	\link{Exercise 2.42} described the “eight-queens puzzle” of placing queens on a chessboard so that no two attack each other.
+	\cref{Exercise 2.42} described the “eight-queens puzzle” of placing queens on a chessboard so that no two attack each other.
 	Write a nondeterministic program to solve this puzzle.
 \end{exercise}
 
@@ -368,7 +368,7 @@ Asking the evaluator to try again yields
 
 \begin{exercise}
 	\label{Exercise 4.46}
-	The evaluators in \link{Section 4.1} and \link{Section 4.2} do not determine what order operands are evaluated in.
+	The evaluators in \cref{Section 4.1} and \cref{Section 4.2} do not determine what order operands are evaluated in.
 	We will see that the \code{amb} evaluator evaluates them from left to right.
 	Explain why our parsing program wouldn’t work if the operands were evaluated in some other order.
 \end{exercise}
@@ -399,7 +399,7 @@ Asking the evaluator to try again yields
 		This kind of grammar can become arbitrarily complex, but it is only a toy as far as real language understanding is concerned.
 		Real natural-language understanding by computer requires an elaborate mixture of syntactic analysis and interpretation of meaning.
 		On the other hand, even toy parsers can be useful in supporting flexible command languages for programs such as information-retrieval systems.
-		\link{Winston 1992} discusses computational approaches to real language understanding and also the applications of simple grammars to command languages.
+		\cref{Winston 1992} discusses computational approaches to real language understanding and also the applications of simple grammars to command languages.
 	}
 \end{exercise}
 
@@ -413,6 +413,6 @@ Asking the evaluator to try again yields
 	\footnote{
 		Although Alyssa’s idea works just fine (and is surprisingly simple), the sentences that it generates are a bit boring---they don’t sample the possible sentences of this language in a very interesting way.
 		In fact, the grammar is highly recursive in many places, and Alyssa’s technique “falls into” one of these recursions and gets stuck.
-		See \link{Exercise 4.50} for a way to deal with this.
+		See \cref{Exercise 4.50} for a way to deal with this.
 	}
 \end{exercise}

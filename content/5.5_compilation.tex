@@ -1,7 +1,7 @@
 \section{Compilation}
 \label{Section 5.5}
 
-The explicit-control evaluator of \link{Section 5.4} is a register machine whose controller interprets Scheme programs.
+The explicit-control evaluator of \cref{Section 5.4} is a register machine whose controller interprets Scheme programs.
 In this section we will see how to run Scheme programs on a register machine whose controller is not a Scheme interpreter.
 
 The explicit-control evaluator machine is universal---it can carry out any computational process that can be described in Scheme.
@@ -46,7 +46,7 @@ In addition, because the entire library of primitives is present, new programs c
 In view of the complementary advantages of compilation and interpretation, modern program-development environments pursue a mixed strategy.
 Lisp interpreters are generally organized so that interpreted procedures and compiled procedures can call each other.
 This enables a programmer to compile those parts of a program that are assumed to be debugged, thus gaining the efficiency advantage of compilation, while retaining the interpretive mode of execution for those parts of the program that are in the flux of interactive development and debugging.
-In \link{Section 5.5.7}, after we have implemented the compiler, we will show how to interface it with our interpreter to produce an integrated interpreter-compiler development system.
+In \cref{Section 5.5.7}, after we have implemented the compiler, we will show how to interface it with our interpreter to produce an integrated interpreter-compiler development system.
 
 
 
@@ -67,7 +67,7 @@ Each time the interpreter evaluates an expression---for example, \code{(f 84 96)
 With a compiler, the expression is analyzed only once, when the instruction sequence is generated at compile time.
 The object code produced by the compiler contains only the instructions that evaluate the operator and the two operands, assemble the argument list, and apply the procedure (in \code{proc}) to the arguments (in \code{argl}).
 
-This is the same kind of optimization we implemented in the analyzing evaluator of \link{Section 4.1.7}.
+This is the same kind of optimization we implemented in the analyzing evaluator of \cref{Section 4.1.7}.
 But there are further opportunities to gain efficiency in compiled code.
 As the interpreter runs, it follows a process that must be applicable to any expression in the language.
 In contrast, a given segment of compiled code is meant to execute some particular expression.
@@ -90,9 +90,9 @@ This code not only avoids the unnecessary saves and restores but also assigns th
 
 A compiler can also optimize access to the environment.
 Having analyzed the code, the compiler can in many cases know in which frame a particular variable will be located and access that frame directly, rather than performing the \code{lookup-variable-value} search.
-We will discuss how to implement such variable access in \link{Section 5.5.6}.
+We will discuss how to implement such variable access in \cref{Section 5.5.6}.
 Until then, however, we will focus on the kind of register and stack optimizations described above.
-There are many other optimizations that can be performed by a compiler, such as coding primitive operations “in line” instead of using a general \code{apply} mechanism (see \link{Exercise 5.38});
+There are many other optimizations that can be performed by a compiler, such as coding primitive operations “in line” instead of using a general \code{apply} mechanism (see \cref{Exercise 5.38});
 but we will not emphasize these here.
 Our main goal in this section is to illustrate the compilation process in a simplified (but still interesting) context.
 

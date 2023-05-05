@@ -86,6 +86,8 @@
 \usepackage{makecell}
 \usepackage{enumitem}  % allows customized labels in enumerations
 \usepackage{hyperref}  % makes cross references and URLs clickable
+\usepackage[font=small]{caption} % change font size of captions; make links go to the top of the figure/table/… instead of the bottom, where the caption is
+\usepackage[noabbrev, capitalize, nameinlink]{cleveref}
 
 % default alignment for table cells
 \renewcommand{\cellalign}{tl}
@@ -112,6 +114,9 @@
 	exercise/within = {chapter},
 	exercise/the-counter = {\thechapter.\arabic{exercise}}
 }
+
+\crefname{exercise}{Exercise}{Exercises}
+\Crefname{exercise}{Exercise}{Exercises}
 
 \definecolor{LinkRed}{HTML}{80171F}
 \hypersetup{
@@ -176,7 +181,6 @@
 \newcommand{\booktitle}{\emph}
 \newcommand{\dollar}[1]{\$#1}
 \newcommand{\heading}[1]{{\sffamily\bfseries #1}}
-\newcommand{\link}[1]{\hyperref[#1]{#1}}
 \newcommand{\newterm}[1]{\index{#1}\emph{#1}}
 \newcommand{\nth}[1]{#1}
 \newcommand{\outprint}[1]{{\fontseries{l}\selectfont\textsl{#1}}}

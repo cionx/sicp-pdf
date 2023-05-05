@@ -3,13 +3,13 @@
 
 As we have seen, the \code{set!} operation enables us to model objects that have local state.
 However, this advantage comes at a price.
-Our programming language can no longer be interpreted in terms of the substitution model of procedure application that we introduced in \link{Section 1.1.5}.
+Our programming language can no longer be interpreted in terms of the substitution model of procedure application that we introduced in \cref{Section 1.1.5}.
 Moreover, no simple model with “nice” mathematical properties can be an adequate framework for dealing with objects and assignment in programming languages.
 
 So long as we do not use assignments, two evaluations of the same procedure with the same arguments will produce the same result, so that procedures can be viewed as computing mathematical functions.
 Programming without any use of assignments, as we did throughout the first two chapters of this book, is accordingly known as \newterm{functional programming}.
 
-To understand how assignment complicates matters, consider a simplified version of the \code{make-withdraw} procedure of \link{Section 3.1.1} that does not bother to check for an insufficient amount:
+To understand how assignment complicates matters, consider a simplified version of the \code{make-withdraw} procedure of \cref{Section 3.1.1} that does not bother to check for an insufficient amount:
 \begin{scheme}
   (define (make-simplified-withdraw balance)
     (lambda (amount)
@@ -79,7 +79,7 @@ In order to get the correct answer, we would have to somehow distinguish the fir
 The trouble here is that substitution is based ultimately on the notion that the symbols in our language are essentially names for values.
 But as soon as we introduce \code{set!} and the idea that the value of a variable can change, a variable can no longer be simply a name.
 Now a variable somehow refers to a place where a value can be stored, and the value stored at this place can change.
-In \link{Section 3.2} we will see how environments play this role of “place” in our computational model.
+In \cref{Section 3.2} we will see how environments play this role of “place” in our computational model.
 
 
 
@@ -151,9 +151,9 @@ if we are searching for all the places in our program where \code{paul-acc} can 
 \footnote{
 	The phenomenon of a single computational object being accessed by more than one name is known as \newterm{aliasing}.
 	The joint bank account situation illustrates a very simple example of an alias.
-	In \link{Section 3.3} we will see much more complex examples, such as “distinct” compound data structures that share parts.
+	In \cref{Section 3.3} we will see much more complex examples, such as “distinct” compound data structures that share parts.
 	Bugs can occur in our programs if we forget that a change to an object may also, as a “side effect,” change a “different”  object because the two  “different” objects are actually a single object appearing under different aliases.
-	These so-called \newterm{side-effect bugs} are so difficult to locate and to analyze that some people have proposed that programming languages be designed in such a way as to not allow side effects or aliasing (\link{Lampson et al. 1981}; \link{Morris et al. 1980}).
+	These so-called \newterm{side-effect bugs} are so difficult to locate and to analyze that some people have proposed that programming languages be designed in such a way as to not allow side effects or aliasing (\cref{Lampson et al. 1981}; \cref{Morris et al. 1980}).
 }
 
 With reference to the above remarks on “sameness”  and  “change,” observe that if Peter and Paul could only examine their bank balances, and could not perform operations that changed the balance, then the issue of whether the two accounts are distinct would be moot.
@@ -171,7 +171,7 @@ We do not, for example, ordinarily regard a rational number as a changeable obje
 
 In contrast to functional programming, programming that makes extensive use of assignment is known as \newterm{imperative programming}.
 In addition to raising complications about computational models, programs written in imperative style are susceptible to bugs that cannot occur in functional programs.
-For example, recall the iterative factorial program from \link{Section 1.2.1}:
+For example, recall the iterative factorial program from \cref{Section 1.2.1}:
 \begin{scheme}
   (define (factorial n)
     (define (iter product counter)
@@ -207,18 +207,18 @@ This issue simply does not arise in functional programs.%
 \footnote{
 	In view of this, it is ironic that introductory programming is most often taught in a highly imperative style.
 	This may be a vestige of a belief, common throughout the 1960s and 1970s, that programs that call procedures must inherently be less efficient than programs that perform assignments.
-	(\link{Steele 1977} debunks this argument.)
+	(\cref{Steele 1977} debunks this argument.)
 	Alternatively it may reflect a view that step-by-step assignment is easier for beginners to visualize than procedure call.
 	Whatever the reason, it often saddles beginning programmers with “should I set this variable before or after that one” concerns that can complicate programming and obscure the important ideas.
 }
 
 The complexity of imperative programs becomes even worse if we consider applications in which several processes execute concurrently.
-We will return to this in \link{Section 3.4}.
+We will return to this in \cref{Section 3.4}.
 First, however, we will address the issue of providing a computational model for expressions that involve assignment, and explore the uses of objects with local state in designing simulations.
 
 \begin{exercise}
 	\label{Exercise 3.7}
-	Consider the bank account objects created by \code{make-account}, with the password modification described in \link{Exercise 3.3}.
+	Consider the bank account objects created by \code{make-account}, with the password modification described in \cref{Exercise 3.3}.
 	Suppose that our banking system requires the ability to make joint accounts.
 	Define a procedure \code{make-joint} that accomplishes this.
 	\code{make-joint} should take three arguments.
@@ -232,14 +232,14 @@ First, however, we will address the issue of providing a computational model for
 	    (make-joint peter-acc 'open-sesame 'rosebud))
 	\end{scheme}
 	will allow one to make transactions on \code{peter-acc} using the name \code{paul-acc} and the password \code{rosebud}.
-	You may wish to modify your solution to \link{Exercise 3.3} to accommodate this new feature.
+	You may wish to modify your solution to \cref{Exercise 3.3} to accommodate this new feature.
 \end{exercise}
 
 
 
 \begin{exercise}
 	\label{Exercise 3.8}
-	When we defined the evaluation model in \link{Section 1.1.3}, we said that the first step in evaluating an expression is to evaluate its subexpressions.
+	When we defined the evaluation model in \cref{Section 1.1.3}, we said that the first step in evaluating an expression is to evaluate its subexpressions.
 	But we never specified the order in which the subexpressions should be evaluated (e.g., left to right or right to left).
 	When we introduce assignment, the order in which the arguments to a procedure are evaluated can make a difference to the result.
 	Define a simple procedure \code{f} such that evaluating

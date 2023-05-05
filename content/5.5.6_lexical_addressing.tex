@@ -27,7 +27,7 @@ We will assume, for the moment, that our programs do not use \code{define}---tha
 Because our language is lexically scoped, the run-time environment for any expression will have a structure that parallels the lexical structure of the program in which the expression appears.%
 \footnote{
 	This is not true if we allow internal definitions, unless we scan them out.
-	See \link{Exercise 5.43}.
+	See \cref{Exercise 5.43}.
 }
 Thus, the compiler can know, when it analyzes the above expression, that each time the procedure is applied the variable \code{x} in \code{(* x y z)} will be found two frames out from the current frame and will be the first variable in that frame.
 
@@ -62,8 +62,8 @@ The top-level call to \code{compile} uses an empty compile-time environment.
 When a \code{lambda} body is compiled, \code{compile-lambda-body} extends the compile-time environment by a frame containing the procedure’s parameters, so that the sequence making up the body is compiled with that extended environment.
 At each point in the compilation, \code{compile-variable} and \code{compile-assignment} use the compile-time environment in order to generate the appropriate lexical addresses.
 
-\link{Exercise 5.39} through \link{Exercise 5.43} describe how to complete this sketch of the lexical-addressing strategy in order to incorporate lexical lookup into the compiler.
-\link{Exercise 5.44} describes another use for the compile-time environment.
+\cref{Exercise 5.39} through \cref{Exercise 5.43} describe how to complete this sketch of the lexical-addressing strategy in order to incorporate lexical lookup into the compiler.
+\cref{Exercise 5.44} describes another use for the compile-time environment.
 
 
 
@@ -73,7 +73,7 @@ At each point in the compilation, \code{compile-variable} and \code{compile-assi
 	It should take two arguments---a lexical address and a run-time environment---and return the value of the variable stored at the specified lexical address.
 	\code{lexical-address-lookup} should signal an error if the value of the variable is the symbol \code{*unassigned*}.%
 	\footnote{
-		This is the modification to variable lookup required if we implement the scanning method to eliminate internal definitions (\link{Exercise 5.43}).
+		This is the modification to variable lookup required if we implement the scanning method to eliminate internal definitions (\cref{Exercise 5.43}).
 		We will need to eliminate these definitions in order for lexical addressing to work.
 	}
 	Also write a procedure \code{lexical-address-set!} that implements the operation that changes the value of the variable at a specified lexical address.
@@ -111,12 +111,12 @@ At each point in the compilation, \code{compile-variable} and \code{compile-assi
 
 \begin{exercise}
 	\label{Exercise 5.42}
-	Using \code{find-variable} from \link{Exercise 5.41}, rewrite \code{compile-variable} and \code{compile-assignment} to output lexical-address instructions.
+	Using \code{find-variable} from \cref{Exercise 5.41}, rewrite \code{compile-variable} and \code{compile-assignment} to output lexical-address instructions.
 	In cases where \code{find-variable} returns \code{not-found} (that is, where the variable is not in the compile-time environment), you should have the code generators use the evaluator operations, as before, to search for the binding.
 	(The only place a variable that is not found at compile time can be is in the global environment, which is part of the run-time environment but is not part of the compile-time environment.%
 	\footnote{
 		Lexical addresses cannot be used to access variables in the global environment, because these names can be defined and redefined interactively at any time.
-		With internal definitions scanned out, as in \link{Exercise 5.43}, the only definitions the compiler sees are those at top level, which act on the global environment.
+		With internal definitions scanned out, as in \cref{Exercise 5.43}, the only definitions the compiler sees are those at top level, which act on the global environment.
 		Compilation of a definition does not cause the defined name to be entered in the compile-time environment.
 	}
 	Thus, if you wish, you may have the evaluator operations look directly in the global environment, which can be obtained with the operation \code{(op get-global-environment)}, instead of having them search the whole run-time environment found in \code{env}.)
@@ -127,9 +127,9 @@ At each point in the compilation, \code{compile-variable} and \code{compile-assi
 
 \begin{exercise}
 	\label{Exercise 5.43}
-	We argued in \link{Section 4.1.6} that internal definitions for block structure should not be considered “real” \code{define}s.
+	We argued in \cref{Section 4.1.6} that internal definitions for block structure should not be considered “real” \code{define}s.
 	Rather, a procedure body should be interpreted as if the internal variables being defined were installed as ordinary \code{lambda} variables initialized to their correct values using \code{set!}.
-	\link{Section 4.1.6} and \link{Exercise 4.16} showed how to modify the metacircular interpreter to accomplish this by scanning out internal definitions.
+	\cref{Section 4.1.6} and \cref{Exercise 4.16} showed how to modify the metacircular interpreter to accomplish this by scanning out internal definitions.
 	Modify the compiler to perform the same transformation before it compiles a procedure body.
 \end{exercise}
 
@@ -139,9 +139,9 @@ At each point in the compilation, \code{compile-variable} and \code{compile-assi
 	\label{Exercise 5.44}
 	In this section we have focused on the use of the compile-time environment to produce lexical addresses.
 	But there are other uses for compile-time environments.
-	For instance, in \link{Exercise 5.38} we increased the efficiency of compiled code by open-coding primitive procedures.
+	For instance, in \cref{Exercise 5.38} we increased the efficiency of compiled code by open-coding primitive procedures.
 	Our implementation treated the names of open-coded procedures as reserved words.
-	If a program were to rebind such a name, the mechanism described in \link{Exercise 5.38} would still open-code it as a primitive, ignoring the new binding.
+	If a program were to rebind such a name, the mechanism described in \cref{Exercise 5.38} would still open-code it as a primitive, ignoring the new binding.
 	For example, consider the procedure
 	\begin{scheme}
 	  (lambda (+ * a b x y)

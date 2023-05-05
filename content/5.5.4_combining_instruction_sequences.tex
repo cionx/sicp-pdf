@@ -2,7 +2,7 @@
 \label{Section 5.5.4}
 
 This section describes the details on how instruction sequences are represented and combined.
-Recall from \link{Section 5.5.1} that an instruction sequence is represented as a list of the registers needed, the registers modified, and the actual instructions.
+Recall from \cref{Section 5.5.1} that an instruction sequence is represented as a list of the registers needed, the registers modified, and the actual instructions.
 We will also consider a label (symbol) to be a degenerate case of an instruction sequence, which doesn’t need or modify any registers.
 So to determine the registers needed and modified by instruction sequences we use the selectors
 \begin{scheme}
@@ -56,7 +56,7 @@ Thus, \code{append-instruction-sequences} is implemented as follows:
     (append-seq-list seqs))
 \end{scheme}
 
-This procedure uses some simple operations for manipulating sets represented as lists, similar to the (unordered) set representation described in \link{Section 2.3.3}:
+This procedure uses some simple operations for manipulating sets represented as lists, similar to the (unordered) set representation described in \cref{Section 2.3.3}:
 \begin{scheme}
   (define (list-union s1 s2)
     (cond ((null? s1) s2)

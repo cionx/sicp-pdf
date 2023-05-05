@@ -1,7 +1,7 @@
 \section{The Environment Model of Evaluation}
 \label{Section 3.2}
 
-When we introduced compound procedures in \link{Chapter 1}, we used the substitution model of evaluation (\link{Section 1.1.5}) to define what is meant by applying a procedure to arguments:
+When we introduced compound procedures in \cref{Chapter 1}, we used the substitution model of evaluation (\cref{Section 1.1.5}) to define what is meant by applying a procedure to arguments:
 \begin{itemize}
 
 	\item
@@ -10,7 +10,7 @@ When we introduced compound procedures in \link{Chapter 1}, we used the substitu
 \end{itemize}
 
 Once we admit assignment into our programming language, such a definition is no longer adequate.
-In particular, \link{Section 3.1.3} argued that, in the presence of assignment, a variable can no longer be considered to be merely a name for a value.
+In particular, \cref{Section 3.1.3} argued that, in the presence of assignment, a variable can no longer be considered to be merely a name for a value.
 Rather, a variable must somehow designate a “place” in which values can be stored.
 In our new model of evaluation, these places will be maintained in structures called \newterm{environments}.
 
@@ -28,7 +28,7 @@ If no frame in the sequence specifies a binding for the variable, then the varia
 	\label{Figure 3.1}
 \end{figure}
 
-\link{Figure 3.1} shows a simple environment structure consisting of three frames, labeled I, II, and III.
+\cref{Figure 3.1} shows a simple environment structure consisting of three frames, labeled I, II, and III.
 In the diagram, \( A \), \( B \), \( C \), and \( D \) are pointers to environments.
 \( C \) and \( D \) point to the same environment.
 The variables \code{z} and \code{x} are bound in I, while \code{y} and \code{x} are bound in frame I.

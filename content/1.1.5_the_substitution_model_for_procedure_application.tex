@@ -13,7 +13,7 @@
            (error "Values are not of opposite sign" a b))))
 \end{scheme}
 
-To evaluate a combination whose operator names a compound procedure, the interpreter follows much the same process as for combinations whose operators name primitive procedures, which we described in \link{Section 1.1.3}.
+To evaluate a combination whose operator names a compound procedure, the interpreter follows much the same process as for combinations whose operators name primitive procedures, which we described in \cref{Section 1.1.3}.
 That is, the interpreter evaluates the elements of the combination and applies the procedure (which is the value of the operator of the combination) to the arguments (which are the values of the operands of the combination).
 
 We can assume that the mechanism for applying primitive procedures to arguments is built into the interpreter.
@@ -28,7 +28,7 @@ To illustrate this process, let’s evaluate the combination
 \begin{scheme}
   (f 5)
 \end{scheme}
-where \code{f} is the procedure defined in \link{Section 1.1.4}.
+where \code{f} is the procedure defined in \cref{Section 1.1.4}.
 We begin by retrieving the body of \code{f}:
 \begin{scheme}
   (sum-of-squares (+ a 1) (* a 2))
@@ -68,20 +68,20 @@ However, there are two points that should be stressed:
 		Typical interpreters do not evaluate procedure applications by manipulating the
 		text of a procedure to substitute values for the formal parameters.
 		In practice, the “substitution” is accomplished by using a local environment for the formal parameters.
-		We will discuss this more fully in \link{Chapter 3} and \link{Chapter 4} when we examine the implementation of an interpreter in detail.
+		We will discuss this more fully in \cref{Chapter 3} and \cref{Chapter 4} when we examine the implementation of an interpreter in detail.
 
 	\item
-		Over the course of this book, we will present a sequence of increasingly elaborate models of how interpreters work, culminating with a complete implementation of an interpreter and compiler in \link{Chapter 5}.
+		Over the course of this book, we will present a sequence of increasingly elaborate models of how interpreters work, culminating with a complete implementation of an interpreter and compiler in \cref{Chapter 5}.
 		The substitution model is only the first of these models---a way to get started thinking formally about the evaluation process.
 		In general, when modeling phenomena in science and engineering, we begin with simplified, incomplete models.
 		As we examine things in greater detail, these simple models become inadequate and must be replaced by more refined models.
 		The substitution model is no exception.
-		In particular, when we address in \link{Chapter 3} the use of procedures with “mutable data,” we will see that the substitution model breaks down and must be replaced by a more complicated model of procedure application.%
+		In particular, when we address in \cref{Chapter 3} the use of procedures with “mutable data,” we will see that the substitution model breaks down and must be replaced by a more complicated model of procedure application.%
 		\footnote{
 			Despite the simplicity of the substitution idea, it turns out to be surprisingly complicated to give a rigorous mathematical definition of the substitution process.
 			The problem arises from the possibility of confusion between the names used for the formal parameters of a procedure and the (possibly identical) names used in the expressions to which the procedure may be applied.
 			Indeed, there is a long history of erroneous definitions of \newterm{substitution} in the literature of logic and programming semantics.
-			See \link{Stoy 1977} for a careful discussion of substitution.
+			See \cref{Stoy 1977} for a careful discussion of substitution.
 		}
 
 \end{itemize}
@@ -90,7 +90,7 @@ However, there are two points that should be stressed:
 
 \subsubsection*{Applicative order versus normal order}
 
-According to the description of evaluation given in \link{Section 1.1.3}, the interpreter first evaluates the operator and operands and then applies the resulting procedure to the resulting arguments.
+According to the description of evaluation given in \cref{Section 1.1.3}, the interpreter first evaluates the operator and operands and then applies the resulting procedure to the resulting arguments.
 This is not the only way to perform evaluation.
 An alternative evaluation model would not evaluate the operands until their values were needed.
 Instead it would first substitute operand expressions for parameters until it obtained an expression involving only primitive operators, and would then perform the evaluation.
@@ -119,11 +119,11 @@ with \code{x} replaced respectively by \code{(+ 5 1)} and \code{(* 5 2)}.
 
 This alternative “fully expand and then reduce” evaluation method is known as \newterm{normal-order evaluation}, in contrast to the “evaluate the arguments and then apply” method that the interpreter actually uses, which is called \newterm{applicative-order evaluation}.
 It can be shown that, for procedure applications that can be modeled using substitution (including all the procedures in the first two chapters of this book) and that yield legitimate values, normal-order and applicative-order evaluation produce the same value.
-(See \link{Exercise 1.5} for an instance of an “illegitimate” value where normal-order and applicative-order evaluation do not give the same result.)
+(See \cref{Exercise 1.5} for an instance of an “illegitimate” value where normal-order and applicative-order evaluation do not give the same result.)
 
 Lisp uses applicative-order evaluation, partly because of the additional efficiency obtained from avoiding multiple evaluations of expressions such as those illustrated with \code{(+ 5 1)} and \code{(* 5 2)} above and, more significantly, because normal-order evaluation becomes much more complicated to deal with when we leave the realm of procedures that can be modeled by substitution.
-On the other hand, normal-order evaluation can be an extremely valuable tool, and we will investigate some of its implications in \link{Chapter 3} and \link{Chapter 4}.%
+On the other hand, normal-order evaluation can be an extremely valuable tool, and we will investigate some of its implications in \cref{Chapter 3} and \cref{Chapter 4}.%
 \footnote{
-	In \link{Chapter 3} we will introduce \newterm{stream processing}, which is a way of handling apparently “infinite” data structures by incorporating a limited form of normal-order evaluation.
-	In \link{Section 4.2} we will modify the Scheme interpreter to produce a normal-order variant of Scheme.
+	In \cref{Chapter 3} we will introduce \newterm{stream processing}, which is a way of handling apparently “infinite” data structures by incorporating a limited form of normal-order evaluation.
+	In \cref{Section 4.2} we will modify the Scheme interpreter to produce a normal-order variant of Scheme.
 }

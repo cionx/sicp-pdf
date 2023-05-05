@@ -2,7 +2,7 @@
 \label{Section 5.1.5}
 
 A controller instruction in our register-machine language has one of the following forms, where each \code{⟨\var{input}\ind{i}⟩} is either \code{(reg ⟨\var{register-name}⟩)} or \code{(const ⟨\var{constant-value}⟩)}.
-These instructions were introduced in \link{Section 5.1.1}:
+These instructions were introduced in \cref{Section 5.1.1}:
 \begin{scheme}
   (assign ⟨~\var{\dark register-name}~⟩ (reg ⟨~\var{\dark register-name}~⟩))
 
@@ -21,14 +21,14 @@ These instructions were introduced in \link{Section 5.1.1}:
   (goto (label ⟨~\var{\dark label-name}~⟩))
 \end{scheme}
 
-The use of registers to hold labels was introduced in \link{Section 5.1.3}:
+The use of registers to hold labels was introduced in \cref{Section 5.1.3}:
 \begin{scheme}
   (assign ⟨~\var{\dark register-name}~⟩ (label ⟨~\var{\dark label-name}~⟩))
 
   (goto (reg ⟨~\var{\dark register-name}~⟩))
 \end{scheme}
 
-Instructions to use the stack were introduced in \link{Section 5.1.4}:
+Instructions to use the stack were introduced in \cref{Section 5.1.4}:
 \begin{scheme}
   (save ⟨~\var{\dark register-name}~⟩)
 

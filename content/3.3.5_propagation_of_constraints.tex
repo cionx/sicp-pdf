@@ -12,10 +12,10 @@ Given any four of the quantities, we can use it to compute the fifth.
 Yet translating the equation into a traditional computer language would force us to choose one of the quantities to be computed in terms of the other four.
 Thus, a procedure for computing the area \( A \) could not be used to compute the deflection \( d \), even though the computations of \( A \) and \( d \) arise from the same equation.%
 \footnote{
-	Constraint propagation first appeared in the incredibly forward-looking \acronym{SKETCHPAD} system of Ivan \link{Sutherland (1963)}.
-	A beautiful constraint-propagation system based on the Smalltalk language was developed by Alan \link{Borning (1977)} at Xerox Palo Alto Research Center.
-	Sussman, Stallman, and Steele applied constraint propagation to electrical circuit analysis (\link{Sussman and Stallman 1975}; \link{Sussman and Steele 1980}).
-	TK!Solver (\link{Konopasek and Jayaraman 1984}) is an extensive modeling environment based on constraints.
+	Constraint propagation first appeared in the incredibly forward-looking \acronym{SKETCHPAD} system of Ivan \cref{Sutherland (1963)}.
+	A beautiful constraint-propagation system based on the Smalltalk language was developed by Alan \cref{Borning (1977)} at Xerox Palo Alto Research Center.
+	Sussman, Stallman, and Steele applied constraint propagation to electrical circuit analysis (\cref{Sussman and Stallman 1975}; \cref{Sussman and Steele 1980}).
+	TK!Solver (\cref{Konopasek and Jayaraman 1984}) is an extensive modeling environment based on constraints.
 }
 
 In this section, we sketch the design of a language that enables us to work in terms of relations themselves.
@@ -29,7 +29,7 @@ For example, we know that the relationship between Fahrenheit and Celsius temper
 \[
 	9 C = 5 (F - 32) \,.
 \]
-Such a constraint can be thought of as a network consisting of primitive adder, multiplier, and constant constraints (\link{Figure 3.28}).
+Such a constraint can be thought of as a network consisting of primitive adder, multiplier, and constant constraints (\cref{Figure 3.28}).
 In the figure, we see on the left a multiplier box with three terminals, labeled \( m \)1, \( m \)2, and \( p \).
 These connect the multiplier to the rest of the network as follows:
 The \( m \)1 terminal is linked to a connector \( C \), which will hold the Celsius temperature.
@@ -81,10 +81,10 @@ The procedure that creates the network is defined as follows:
       (constant 32 y)
       'ok))
 \end{scheme}
-This procedure creates the internal connectors \code{u}, \code{v}, \code{w}, \code{x}, and \code{y}, and links them as shown in \link{Figure 3.28} using the primitive constraint constructors \code{adder}, \code{multiplier}, and \code{constant}.
-Just as with the digital-circuit simulator of \link{Section 3.3.4}, expressing these combinations of primitive elements in terms of procedures automatically provides our language with a means of abstraction for compound objects.
+This procedure creates the internal connectors \code{u}, \code{v}, \code{w}, \code{x}, and \code{y}, and links them as shown in \cref{Figure 3.28} using the primitive constraint constructors \code{adder}, \code{multiplier}, and \code{constant}.
+Just as with the digital-circuit simulator of \cref{Section 3.3.4}, expressing these combinations of primitive elements in terms of procedures automatically provides our language with a means of abstraction for compound objects.
 
-To watch the network in action, we can place probes on the connectors \code{C} and \code{F}, using a \code{probe} procedure similar to the one we used to monitor wires in \link{Section 3.3.4}.
+To watch the network in action, we can place probes on the connectors \code{C} and \code{F}, using a \code{probe} procedure similar to the one we used to monitor wires in \cref{Section 3.3.4}.
 Placing a probe on a connector will cause a message to be printed whenever the connector is given a value:
 \begin{scheme}
   (probe "Celsius temp" C)
@@ -136,7 +136,7 @@ This nondirectionality of computation is the distinguishing feature of constrain
 
 \subsubsection*{Implementing the constraint system}
 
-The constraint system is implemented via procedural objects with local state, in a manner very similar to the digital-circuit simulator of \link{Section 3.3.4}.
+The constraint system is implemented via procedural objects with local state, in a manner very similar to the digital-circuit simulator of \cref{Section 3.3.4}.
 Although the primitive objects of the constraint system are somewhat more complex, the overall system is simpler, since there is no concern about agendas and logic delays.
 
 The basic operations on connectors are the following:
@@ -200,7 +200,7 @@ An adder is implemented as a procedure with local state (the procedure \code{me}
 
 \code{adder} connects the new adder to the designated connectors and returns it as its value.
 The procedure \code{me}, which represents the adder, acts as a dispatch to the local procedures.
-The following “syntax interfaces” (see \link{Footnote 27} in \link{Section 3.3.4}) are used in conjunction with the dispatch:
+The following “syntax interfaces” (see \cref{Footnote 27} in \cref{Section 3.3.4}) are used in conjunction with the dispatch:
 \begin{scheme}
   (define (inform-about-value constraint)
     (constraint 'I-have-a-value))
@@ -400,7 +400,7 @@ The following procedures provide a syntax interface for the dispatch:
 
 \begin{exercise}
 	\label{Exercise 3.35}
-	Ben Bitdiddle tells Louis that one way to avoid the trouble in \link{Exercise 3.34} is to define a squarer as a new primitive constraint.
+	Ben Bitdiddle tells Louis that one way to avoid the trouble in \cref{Exercise 3.34} is to define a squarer as a new primitive constraint.
 	Fill in the missing portions in Ben’s outline for a procedure to implement such a constraint:
 	\begin{scheme}
 	  (define (squarer a b)

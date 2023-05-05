@@ -1,7 +1,7 @@
 \subsection{Streams Are Delayed Lists}
 \label{Section 3.5.1}
 
-As we saw in \link{Section 2.2.3}, sequences can serve as standard interfaces for combining program modules.
+As we saw in \cref{Section 2.2.3}, sequences can serve as standard interfaces for combining program modules.
 We formulated powerful abstractions for manipulating sequences, such as \code{map}, \code{filter}, and \code{accumulate}, that capture a wide variety of operations in a manner that is both succinct and elegant.
 
 Unfortunately, if we represent sequences as lists, this elegance is bought at the price of severe inefficiency with respect to both the time and space required by our computations.
@@ -10,7 +10,7 @@ When we represent manipulations on sequences as transformations of lists, our pr
 To see why this is true, let us compare two programs for computing the sum of all the prime numbers in an interval.
 The first program is written in standard iterative style:%
 \footnote{
-	Assume that we have a predicate \code{prime?} (e.g., as in \link{Section 1.2.6}) that tests for primality.
+	Assume that we have a predicate \code{prime?} (e.g., as in \cref{Section 1.2.6}) that tests for primality.
 }
 \begin{scheme}
   (define (sum-primes a b)
@@ -22,7 +22,7 @@ The first program is written in standard iterative style:%
     (iter a 0))
 \end{scheme}
 The second program performs the same computation using the sequence operations
-of \link{Section 2.2.3}:
+of \cref{Section 2.2.3}:
 \begin{scheme}
   (define (sum-primes a b)
     (accumulate +
@@ -65,13 +65,13 @@ There is a distinguishable object, \code{the-empty-stream}, which cannot be the 
 	In the \acronym{MIT} implementation, \code{the-empty-stream} is the same as the empty list \code{'()}, and \code{stream-null?} is the same as \code{null?}.
 }
 Thus we can make and use streams, in just the same way as we can make and use lists, to represent aggregate data arranged in a sequence.
-In particular, we can build stream analogs of the list operations from \link{Chapter 2}, such as \code{list-ref}, \code{map}, and \code{for-each}:%
+In particular, we can build stream analogs of the list operations from \cref{Chapter 2}, such as \code{list-ref}, \code{map}, and \code{for-each}:%
 \footnote{
 	This should bother you.
 	The fact that we are defining such similar procedures for streams and lists indicates that we are missing some underlying abstraction.
 	Unfortunately, in order to exploit this abstraction, we will need to exert finer control over the process of evaluation than we can at present.
-	We will discuss this point further at the end of \link{Section 3.5.4}.
-	In \link{Section 4.2}, we’ll develop a framework that unifies lists and streams.
+	We will discuss this point further at the end of \cref{Section 3.5.4}.
+	In \cref{Section 4.2}, we’ll develop a framework that unifies lists and streams.
 }
 \begin{scheme}
   (define (stream-ref s n)
@@ -100,7 +100,7 @@ In particular, we can build stream analogs of the list operations from \link{Cha
 \end{scheme}
 
 To make the stream implementation automatically and transparently interleave the construction of a stream with its use, we will arrange for the \code{cdr} of a stream to be evaluated when it is accessed by the \code{stream-cdr} procedure rather than when the stream is constructed by \code{cons-stream}.
-This implementation choice is reminiscent of our discussion of rational numbers in \link{Section 2.1.2}, where we saw that we can choose to implement rational numbers so that the reduction of numerator and denominator to lowest terms is performed either at construction time or at selection time.
+This implementation choice is reminiscent of our discussion of rational numbers in \cref{Section 2.1.2}, where we saw that we can choose to implement rational numbers so that the reduction of numerator and denominator to lowest terms is performed either at construction time or at selection time.
 The two rational-number implementations produce the same data abstraction, but the choice has an effect on efficiency.
 There is a similar relationship between streams and ordinary lists.
 As a data abstraction, streams are the same as lists.
@@ -152,7 +152,7 @@ To see how this implementation behaves, let us analyze the “outrageous” prim
 We will see that it does indeed work efficiently.
 
 We begin by calling \code{stream-enumerate-interval} with the arguments \( 10,000 \) and \( 1,000,000 \).
-\code{stream-enumerate-interval} is the stream analog of \code{enumerate-interval} (\link{Section 2.2.3}):
+\code{stream-enumerate-interval} is the stream analog of \code{enumerate-interval} (\cref{Section 2.2.3}):
 \begin{scheme}
   (define (stream-enumerate-interval low high)
     (if (> low high)
@@ -172,7 +172,7 @@ and thus the result returned by \code{stream-enumerate-interval}, formed by the 
         (delay (stream-enumerate-interval 10001 1000000)))
 \end{scheme}
 That is, \code{stream-enumerate-interval} returns a stream represented as a pair whose \code{car} is \( 10,000 \) and whose \code{cdr} is a promise to enumerate more of the interval if so requested.
-This stream is now filtered for primes, using the stream analog of the \code{filter} procedure (\link{Section 2.2.3}):
+This stream is now filtered for primes, using the stream analog of the \code{filter} procedure (\cref{Section 2.2.3}):
 \begin{scheme}
   (define (stream-filter pred stream)
     (cond ((stream-null? stream) the-empty-stream)
@@ -247,10 +247,10 @@ is syntactic sugar for
 This implementation suffices for \code{delay} and \code{force} to work as advertised, but there is an important optimization that we can include.
 In many applications, we end up forcing the same delayed object many times.
 This can lead to serious inefficiency in recursive programs involving streams.
-(See \link{Exercise 3.57}.)
+(See \cref{Exercise 3.57}.)
 The solution is to build delayed objects so that the first time they are forced, they store the value that is computed.
 Subsequent forcings will simply return the stored value without repeating the computation.
-In other words, we implement \code{delay} as a special-purpose memoized procedure similar to the one described in \link{Exercise 3.27}.
+In other words, we implement \code{delay} as a special-purpose memoized procedure similar to the one described in \cref{Exercise 3.27}.
 One way to accomplish this is to use the following procedure, which takes as argument a procedure (of no arguments) and returns a memoized version of the procedure.
 The first time the memoized procedure is run, it saves the computed result.
 On subsequent evaluations, it simply returns the result.
@@ -272,8 +272,8 @@ and \code{force} is as defined previously.%
 \footnote{
 	There are many possible implementations of streams other than the one described in this section.
 	Delayed evaluation, which is the key to making streams practical, was inherent in Algol~60’s \newterm{call-by-name} parameter-passing method.
-	The use of this mechanism to implement streams was first described by \link{Landin (1965)}.
-	Delayed evaluation for streams was introduced into Lisp by \link{Friedman and Wise (1976)}.
+	The use of this mechanism to implement streams was first described by \cref{Landin (1965)}.
+	Delayed evaluation for streams was introduced into Lisp by \cref{Friedman and Wise (1976)}.
 	In their implementation, \code{cons} always delays evaluating its arguments, so that lists automatically behave as streams.
 	The memoizing optimization is also known as \newterm{call-by-need}.
 	The Algol community would refer to our original delayed objects as \newterm{call-by-name thunks} and to the optimized versions as \newterm{call-by-need thunks}.
@@ -283,7 +283,7 @@ and \code{force} is as defined previously.%
 
 \begin{exercise}
 	\label{Exercise 3.50}
-	Complete the following definition, which generalizes \code{stream-map} to allow procedures that take multiple arguments, analogous to \code{map} in \link{Section 2.2.1}, \link{Footnote 12}.
+	Complete the following definition, which generalizes \code{stream-map} to allow procedures that take multiple arguments, analogous to \code{map} in \cref{Section 2.2.1}, \cref{Footnote 12}.
 	\begin{scheme}
 	  (define (stream-map proc . argstreams)
 	    (if (⟨??⟩ (car argstreams))
@@ -307,7 +307,7 @@ and \code{force} is as defined previously.%
 	\end{scheme}
 	What does the interpreter print in response to evaluating each expression in the following sequence?%
 	\footnote{
-		Exercises such as \link{Exercise 3.51} and \link{Exercise 3.52} are valuable for testing our understanding of how \code{delay} works.
+		Exercises such as \cref{Exercise 3.51} and \cref{Exercise 3.52} are valuable for testing our understanding of how \code{delay} works.
 		On the other hand, intermixing delayed evaluation with printing---and, even worse, with assignment---is extremely confusing, and instructors of courses on computer languages have traditionally tormented their students with examination questions such as the ones in this section.
 		Needless to say, writing programs that depend on such subtleties is odious programming style.
 		Part of the power of stream processing is that it lets us ignore the order in which events actually happen in our programs.

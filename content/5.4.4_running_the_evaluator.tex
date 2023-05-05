@@ -1,15 +1,15 @@
 \subsection{Running the Evaluator}
 \label{Section 5.4.4}
 
-With the implementation of the explicit-control evaluator we come to the end of a development, begun in \link{Chapter 1}, in which we have explored successively more precise models of the evaluation process.
-We started with the relatively informal substitution model, then extended this in \link{Chapter 3} to the environment model, which enabled us to deal with state and change.
-In the metacircular evaluator of \link{Chapter 4}, we used Scheme itself as a language for making more explicit the environment structure constructed during evaluation of an expression.
+With the implementation of the explicit-control evaluator we come to the end of a development, begun in \cref{Chapter 1}, in which we have explored successively more precise models of the evaluation process.
+We started with the relatively informal substitution model, then extended this in \cref{Chapter 3} to the environment model, which enabled us to deal with state and change.
+In the metacircular evaluator of \cref{Chapter 4}, we used Scheme itself as a language for making more explicit the environment structure constructed during evaluation of an expression.
 Now, with register machines, we have taken a close look at the evaluator’s mechanisms for storage management, argument passing, and control.
 At each new level of description, we have had to raise issues and resolve ambiguities that were not apparent at the previous, less precise treatment of evaluation.
 To understand the behavior of the explicit-control evaluator, we can simulate it and monitor its performance.
 
 We will install a driver loop in our evaluator machine.
-This plays the role of the \code{driver-loop} procedure of \link{Section 4.1.4}.
+This plays the role of the \code{driver-loop} procedure of \cref{Section 4.1.4}.
 The evaluator will repeatedly print a prompt, read an expression, evaluate the expression by going to \code{eval-dispatch}, and print the result.
 The following instructions form the beginning of the explicit-control evaluator’s controller sequence:%
 \footnote{
@@ -42,7 +42,7 @@ The following instructions form the beginning of the explicit-control evaluator�
 When we encounter an error in a procedure (such as the “unknown procedure type error” indicated at \code{apply-dispatch}), we print an error message and return to the driver loop.%
 \footnote{
 	There are other errors that we would like the interpreter to handle, but these are not so simple.
-	See \link{Exercise 5.30}.
+	See \cref{Exercise 5.30}.
 }
 
 \begin{scheme}
@@ -63,7 +63,7 @@ For the purposes of the simulation, we initialize the stack each time through th
 	We could perform the stack initialization only after errors, but doing it in the driver loop will be convenient for monitoring the evaluator’s performance, as described below.
 }
 
-If we combine all the code fragments presented in \link{Section 5.4.1}--\link{Section 5.4.4}, we can create an evaluator machine model that we can run using the register-machine simulator of \link{Section 5.2}.
+If we combine all the code fragments presented in \cref{Section 5.4.1}--\cref{Section 5.4.4}, we can create an evaluator machine model that we can run using the register-machine simulator of \cref{Section 5.2}.
 \begin{scheme}
   (define eceval
     (make-machine
@@ -73,7 +73,7 @@ If we combine all the code fragments presented in \link{Section 5.4.1}--\link{Se
        ⟨~\emph{entire machine controller as given above}~⟩ )))
 \end{scheme}
 We must define Scheme procedures to simulate the operations used as primitives by the evaluator.
-These are the same procedures we used for the metacircular evaluator in \link{Section 4.1}, together with the few additional ones defined in footnotes throughout \link{Section 5.4}.
+These are the same procedures we used for the metacircular evaluator in \cref{Section 4.1}, together with the few additional ones defined in footnotes throughout \cref{Section 5.4}.
 
 \begin{scheme}
   (define eceval-operations
@@ -107,7 +107,7 @@ Our expressions are evaluated by the explicit-control-evaluator machine, which i
 Simulation can be a powerful tool to guide the implementation of evaluators.
 Simulations make it easy not only to explore variations of the register-machine design but also to monitor the performance of the simulated evaluator.
 For example, one important factor in performance is how efficiently the evaluator uses the stack.
-We can observe the number of stack operations required to evaluate various expressions by defining the evaluator register machine with the version of the simulator that collects statistics on stack use (\link{Section 5.2.4}), and adding an instruction at the evaluator’s \code{print-result} entry point to print the statistics:
+We can observe the number of stack operations required to evaluate various expressions by defining the evaluator register machine with the version of the simulator that collects statistics on stack use (\cref{Section 5.2.4}), and adding an instruction at the evaluator’s \code{print-result} entry point to print the statistics:
 \begin{scheme}
   print-result
     (perform (op print-stack-statistics))   ~\textrm{; added instruction}~
@@ -136,8 +136,8 @@ Note that the driver loop of the evaluator reinitializes the stack at the start 
 
 \begin{exercise}
 	\label{Exercise 5.26}
-	Use the monitored stack to explore the tail-recursive property of the evaluator (\link{Section 5.4.2}).
-	Start the evaluator and define the iterative \code{factorial} procedure from \link{Section 1.2.1}:
+	Use the monitored stack to explore the tail-recursive property of the evaluator (\cref{Section 5.4.2}).
+	Start the evaluator and define the iterative \code{factorial} procedure from \cref{Section 1.2.1}:
 	\begin{scheme}
 	  (define (factorial n)
 	    (define (iter product counter)
@@ -166,7 +166,7 @@ Note that the driver loop of the evaluator reinitializes the stack at the start 
 
 \begin{exercise}
 	\label{Exercise 5.27}
-	For comparison with \link{Exercise 5.26}, explore the behavior of the following procedure for computing factorials recursively:
+	For comparison with \cref{Exercise 5.26}, explore the behavior of the following procedure for computing factorials recursively:
 	\begin{scheme}
 	  (define (factorial n)
 	    (if (= n 1) 1 (* (factorial (- n 1)) n)))
@@ -191,8 +191,8 @@ Note that the driver loop of the evaluator reinitializes the stack at the start 
 
 \begin{exercise}
 	\label{Exercise 5.28}
-	Modify the definition of the evaluator by changing \code{eval-sequence} as described in \link{Section 5.4.2} so that the evaluator is no longer tail-recursive.
-	Rerun your experiments from \link{Exercise 5.26} and \link{Exercise 5.27} to demonstrate that both versions of the \code{factorial} procedure now require space that grows linearly with their input.
+	Modify the definition of the evaluator by changing \code{eval-sequence} as described in \cref{Section 5.4.2} so that the evaluator is no longer tail-recursive.
+	Rerun your experiments from \cref{Exercise 5.26} and \cref{Exercise 5.27} to demonstrate that both versions of the \code{factorial} procedure now require space that grows linearly with their input.
 \end{exercise}
 
 \begin{exercise}
@@ -210,7 +210,7 @@ Note that the driver loop of the evaluator reinitializes the stack at the start 
 		\item
 			Give a formula in terms of \( n \) for the maximum depth of the stack required to compute \( \Fib(n) \) for \( n ≥ 2 \).
 			Hint:
-			In \link{Section 1.2.2} we argued that the space used by this process grows linearly with \( n \).
+			In \cref{Section 1.2.2} we argued that the space used by this process grows linearly with \( n \).
 
 		\item
 			Give a formula for the total number of pushes used to compute \( \Fib(n) \) for \( n ≥ 2 \).

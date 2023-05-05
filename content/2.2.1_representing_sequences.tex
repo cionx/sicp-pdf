@@ -12,7 +12,7 @@
 
 One of the useful structures we can build with pairs is a \newterm{sequence}---an ordered collection of data objects.
 There are, of course, many ways to represent sequences in terms of pairs.
-One particularly straightforward representation is illustrated in \link{Figure 2.4}, where the sequence \( 1, 2, 3, 4 \) is represented as a chain of pairs.
+One particularly straightforward representation is illustrated in \cref{Figure 2.4}, where the sequence \( 1, 2, 3, 4 \) is represented as a chain of pairs.
 The \code{car} of each pair is the corresponding item in the chain, and the \code{cdr} of the pair is the next pair in the chain.
 The \code{cdr} of the final pair signals the end of the sequence by pointing to a distinguished value that is not a pair, represented in box-and-pointer diagrams as a diagonal line and in programs as the value of the variable \code{nil}.
 The entire sequence is constructed by nested \code{cons} operations:
@@ -38,7 +38,7 @@ is equivalent to
   (cons ~\cvar{⟨a\ind{1}⟩}~ (cons ~\cvar{⟨a\ind{2}⟩}~ (cons ~…~ (cons ~\cvar{⟨a\ind{n}⟩}~ nil) ~…~)))
 \end{scheme}
 Lisp systems conventionally print lists by printing the sequence of elements, enclosed in parentheses.
-Thus, the data object in \link{Figure 2.4} is printed as \code{(1 2 3 4)}:
+Thus, the data object in \cref{Figure 2.4} is printed as \code{(1 2 3 4)}:
 \begin{scheme}
   (define one-through-four (list 1 2 3 4))
 
@@ -87,7 +87,7 @@ The word \newterm{nil} is a contraction of the Latin word \emph{nihil}, which me
 	In Scheme, \code{nil} is an ordinary name, which we use in this section as a variable whose value is the end-of-list marker (just as \code{true} is an ordinary variable that has a true value).
 	Other dialects of Lisp, including Common Lisp, treat \code{nil} as a special symbol.
 	The authors of this book, who have endured too many language standardization brawls, would like to avoid the entire issue.
-	Once we have introduced quotation in \link{Section 2.3}, we will denote the empty list as \code{'()} and dispense with the variable \code{nil} entirely.
+	Once we have introduced quotation in \cref{Section 2.3}, we will denote the empty list as \code{'()} and dispense with the variable \code{nil} entirely.
 }
 
 
@@ -212,7 +212,7 @@ To \code{append} lists \code{list1} and \code{list2}, do the following:
 
 \begin{exercise}
 	\label{Exercise 2.19}
-	Consider the change-counting program of \link{Section 1.2.2}.
+	Consider the change-counting program of \cref{Section 1.2.2}.
 	It would be nice to be able to easily change the currency used by the program, so that we could compute the number of ways to change a British pound, for example.
 	As the program is written, the knowledge of the currency is distributed partly into the procedure \code{first-denomination} and partly into the procedure \code{count-change} (which knows that there are five kinds of U.S. coins).
 	It would be nicer to be able to supply a list of coins to be used for making change.
@@ -311,7 +311,7 @@ For instance, the following procedure scales each number in a list by a given fa
   ~\outprint{(10 20 30 40 50)}~
 \end{scheme}
 
-We can abstract this general idea and capture it as a common pattern expressed as a higher-order procedure, just as in \link{Section 1.3}.
+We can abstract this general idea and capture it as a common pattern expressed as a higher-order procedure, just as in \cref{Section 1.3}.
 The higher-order procedure here is called \code{map}.
 \code{map} takes as arguments a procedure of one argument and a list, and returns a list of the results produced by applying the procedure to each element in the list%
 \footnote{
@@ -354,8 +354,8 @@ In the original definition of \code{scale-list}, the recursive structure of the 
 Defining \code{scale-list} in terms of \code{map} suppresses that level of detail and emphasizes that scaling transforms a list of elements to a list of results.
 The difference between the two definitions is not that the computer is performing a different process (it isn’t) but that we think about the process differently.
 In effect, \code{map} helps establish an abstraction barrier that isolates the implementation of procedures that transform lists from the details of how the elements of the list are extracted and combined.
-Like the barriers shown in \link{Figure 2.1}, this abstraction gives us the flexibility to change the low-level details of how sequences are implemented, while preserving the conceptual framework of operations that transform sequences to sequences.
-\link{Section 2.2.3} expands on this use of sequences as a framework for organizing programs.
+Like the barriers shown in \cref{Figure 2.1}, this abstraction gives us the flexibility to change the low-level details of how sequences are implemented, while preserving the conceptual framework of operations that transform sequences to sequences.
+\cref{Section 2.2.3} expands on this use of sequences as a framework for organizing programs.
 
 
 
@@ -383,7 +383,7 @@ Like the barriers shown in \link{Figure 2.1}, this abstraction gives us the flex
 
 \begin{exercise}
 	\label{Exercise 2.22}
-	Louis Reasoner tries to rewrite the first \code{square-list} procedure of \link{Exercise 2.21} so that it evolves an iterative process:
+	Louis Reasoner tries to rewrite the first \code{square-list} procedure of \cref{Exercise 2.21} so that it evolves an iterative process:
 	\begin{scheme}
 	  (define (square-list items)
 	    (define (iter things answer)

@@ -4,7 +4,7 @@
 The above examples demonstrate how the ability to pass procedures as arguments significantly enhances the expressive power of our programming language.
 We can achieve even more expressive power by creating procedures whose returned values are themselves procedures.
 
-We can illustrate this idea by looking again at the fixed-point example described at the end of \link{Section 1.3.3}.
+We can illustrate this idea by looking again at the fixed-point example described at the end of \cref{Section 1.3.3}.
 We formulated a new version of the square-root procedure as a fixed-point search, starting with the observation that \( \sqrt{x} \) is a fixed-point of the function \( y \mapsto x / y \).
 Then we used average damping to make the approximations converge.
 Average damping is a useful general technique in itself.
@@ -20,7 +20,7 @@ For example, applying \code{average-damp} to the \code{square} procedure produce
 Applying this resulting procedure to \( 10 \) returns the average of \( 10 \) and \( 100 \), or \( 55 \):%
 \footnote{
 	Observe that this is a combination whose operator is itself a combination.
-	\link{Exercise 1.4} already demonstrated the ability to form such combinations, but that was only a toy example.
+	\cref{Exercise 1.4} already demonstrated the ability to form such combinations, but that was only a toy example.
 	Here we begin to see the real need for such combinations---when applying a procedure that is obtained as the value returned by a higher-order procedure.
 }
 \begin{scheme}
@@ -36,13 +36,13 @@ Using \code{average-damp}, we can reformulate the square-root procedure as follo
 \end{scheme}
 Notice how this formulation makes explicit the three ideas in the method:
 fixed-point search, average damping, and the function \( y \mapsto x / y \).
-It is instructive to compare this formulation of the square-root method with the original version given in \link{Section 1.1.7}.
+It is instructive to compare this formulation of the square-root method with the original version given in \cref{Section 1.1.7}.
 Bear in mind that these procedures express the same process, and notice how much clearer the idea becomes when we express the process in terms of these abstractions.
 In general, there are many ways to formulate a process as a procedure.
 Experienced programmers know how to choose procedural formulations that are particularly perspicuous, and where useful elements of the process are exposed as separate entities that can be reused in other applications.
 As a simple example of reuse, notice that the cube root of \( x \) is a fixed point of the function \( y \mapsto x / y^2 \), so we can immediately generalize our square-root procedure to one that extracts cube roots:%
 \footnote{
-	See \link{Exercise 1.45} for a further generalization.
+	See \cref{Exercise 1.45} for a further generalization.
 }
 \begin{scheme}
   (define (cube-root x)
@@ -54,7 +54,7 @@ As a simple example of reuse, notice that the cube root of \( x \) is a fixed po
 
 \subsubsection*{Newton’s method}
 
-When we first introduced the square-root procedure, in \link{Section 1.1.7}, we mentioned that this was a special case of \newterm{Newton’s method}.
+When we first introduced the square-root procedure, in \cref{Section 1.1.7}, we mentioned that this was a special case of \newterm{Newton’s method}.
 If \( x \mapsto g(x) \) is a differentiable function, then a solution of the equation \( g(x) = 0 \) is a fixed point of the function \( x \mapsto f(x) \), where
 \[
 	f(x) = x - \frac{g(x)}{Dg(x)}
@@ -147,7 +147,7 @@ Similarly, we can express the second square-root computation from this section (
      (lambda (y) (- (square y) x)) newton-transform 1.0))
 \end{scheme}
 
-We began \link{Section 1.3} with the observation that compound procedures are a crucial abstraction mechanism, because they permit us to express general methods of computing as explicit elements in our programming language.
+We began \cref{Section 1.3} with the observation that compound procedures are a crucial abstraction mechanism, because they permit us to express general methods of computing as explicit elements in our programming language.
 Now we’ve seen how higher-order procedures permit us to manipulate these general methods to create further abstractions.
 
 As programmers, we should be alert to opportunities to identify the underlying abstractions in our programs and to build upon them and generalize them to create more powerful abstractions.
@@ -176,7 +176,7 @@ Some of the “rights and privileges” of first-class elements are:%
 	\item
 		They may be included in data structures.%
 		\footnote{
-			We’ll see examples of this after we introduce data structures in \link{Chapter 2}.
+			We’ll see examples of this after we introduce data structures in \cref{Chapter 2}.
 		}
 
 \end{itemize}
@@ -184,7 +184,7 @@ Lisp, unlike other common programming languages, awards procedures full first-cl
 This poses challenges for efficient implementation, but the resulting gain in expressive power is enormous.%
 \footnote{
 	The major implementation cost of first-class procedures is that allowing procedures to be returned as values requires reserving storage for a procedure’s free variables even while the procedure is not executing.
-	In the Scheme implementation we will study in \link{Section 4.1}, these variables are stored in the procedure’s environment.
+	In the Scheme implementation we will study in \cref{Section 4.1}, these variables are stored in the procedure’s environment.
 }
 
 
@@ -238,7 +238,7 @@ This poses challenges for efficient implementation, but the resulting gain in ex
 	  ~\outprint{625}~
 	\end{scheme}
 	Hint:
-	You may find it convenient to use \code{compose} from \link{Exercise 1.42}.
+	You may find it convenient to use \code{compose} from \cref{Exercise 1.42}.
 \end{exercise}
 
 
@@ -249,19 +249,19 @@ This poses challenges for efficient implementation, but the resulting gain in ex
 	If \( f \) is a function and \( dx \) is some small number, then the smoothed version of \( f \) is the function whose value at a point \( x \) is the average of \( f(x - dx) \), \( f(x) \), and \( f(x + dx) \).
 	Write a procedure \code{smooth} that takes as input a procedure that computes \( f \) and returns a procedure that computes the smoothed \( f \).
 	It is sometimes valuable to repeatedly smooth a function (that is, smooth the smoothed function, and so on) to obtain the \newterm{\( n \)-fold smoothed function}.
-	Show how to generate the \( n \)-fold smoothed function of any given function using \code{smooth} and \code{repeated} from \link{Exercise 1.43}.
+	Show how to generate the \( n \)-fold smoothed function of any given function using \code{smooth} and \code{repeated} from \cref{Exercise 1.43}.
 \end{exercise}
 
 
 
 \begin{exercise}
 	\label{Exercise 1.45}
-	We saw in \link{Section 1.3.3} that attempting to compute square roots by naively finding a fixed point of \( y \mapsto x / y \) does not converge, and that this can be fixed by average damping.
+	We saw in \cref{Section 1.3.3} that attempting to compute square roots by naively finding a fixed point of \( y \mapsto x / y \) does not converge, and that this can be fixed by average damping.
 	The same method works for finding cube roots as fixed points of the average-damped \( y \mapsto x / y^2 \).
 	Unfortunately, the process does not work for fourth roots---a single average damp is not enough to make a fixed-point search for \( y \mapsto x / y^3 \) converge.
 	On the other hand, if we average damp twice (i.e., use the average damp of the average damp of \( y \mapsto x / y^3 \)) the fixed-point search does converge.
 	Do some experiments to determine how many average damps are required to compute \( n \)\nth{th} roots as a fixed-point search based upon repeated average damping of \( y \mapsto x / y^{n - 1} \).
-	Use this to implement a simple procedure for computing \( n \)\nth{th} roots using \code{fixed-point}, \code{average-damp}, and the \code{repeated} procedure of \link{Exercise 1.43}.
+	Use this to implement a simple procedure for computing \( n \)\nth{th} roots using \code{fixed-point}, \code{average-damp}, and the \code{repeated} procedure of \cref{Exercise 1.43}.
 	Assume that any arithmetic operations you need are available as primitives.
 \end{exercise}
 
@@ -274,5 +274,5 @@ This poses challenges for efficient implementation, but the resulting gain in ex
 	Write a procedure \code{iterative-improve} that takes two procedures as arguments:
 	a method for telling whether a guess is good enough and a method for improving a guess.
 	\code{iterative-improve} should return as its value a procedure that takes a guess as argument and keeps improving the guess until it is good enough.
-	Rewrite the \code{sqrt} procedure of \link{Section 1.1.7} and the \code{fixed-point} procedure of \link{Section 1.3.3} in terms of \code{iterative-improve}.
+	Rewrite the \code{sqrt} procedure of \cref{Section 1.1.7} and the \code{fixed-point} procedure of \cref{Section 1.3.3} in terms of \code{iterative-improve}.
 \end{exercise}

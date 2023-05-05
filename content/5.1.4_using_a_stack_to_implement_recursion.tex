@@ -6,7 +6,7 @@ The machine repeatedly executes a controller loop, changing the contents of the 
 At each point in the controller sequence, the state of the machine (representing the state of the iterative process) is completely determined by the contents of the registers (the values of the state variables).
 
 Implementing recursive processes, however, requires an additional mechanism.
-Consider the following recursive method for computing factorials, which we first examined in \link{Section 1.2.1}:
+Consider the following recursive method for computing factorials, which we first examined in \cref{Section 1.2.1}:
 \begin{scheme}
   (define (factorial n)
     (if (= n 1) 1 (* (factorial (- n 1)) n)))
@@ -53,19 +53,19 @@ We can extend the register-machine language to include a stack by adding two kin
 Values are placed on the stack using a \code{save} instruction and restored from the stack using a \code{restore} instruction.
 After a sequence of values has been \code{save}d on the stack, a sequence of \code{restore}s will retrieve these values in reverse order.%
 \footnote{
-	In \link{Section 5.3} we will see how to implement a stack in terms of more primitive operations.
+	In \cref{Section 5.3} we will see how to implement a stack in terms of more primitive operations.
 }
 
 With the aid of the stack, we can reuse a single copy of the factorial machine’s data paths for each factorial subproblem.
 There is a similar design issue in reusing the controller sequence that operates the data paths.
 To reexecute the factorial computation, the controller cannot simply loop back to the beginning, as with an iterative process, because after solving the \( (n - 1)! \) subproblem the machine must still multiply the result by \( n \).
 The controller must suspend its computation of \( n! \), solve the \( (n - 1)! \) subproblem, then continue its computation of \( n! \).
-This view of the factorial computation suggests the use of the subroutine mechanism described in \link{Section 5.1.3}, which has the controller use a \code{continue} register to transfer to the part of the sequence that solves a subproblem and then continue where it left off on the main problem.
+This view of the factorial computation suggests the use of the subroutine mechanism described in \cref{Section 5.1.3}, which has the controller use a \code{continue} register to transfer to the part of the sequence that solves a subproblem and then continue where it left off on the main problem.
 We can thus make a factorial subroutine that returns to the entry point stored in the \code{continue} register.
 Around each subroutine call, we save and restore \code{continue} just as we do the \code{n} register, since each “level” of the factorial computation will use the same \code{continue} register.
 That is, the factorial subroutine must put a new value in \code{continue} when it calls itself for a subproblem, but it will need the old value in order to return to the place that called it to solve a subproblem.
 
-\link{Figure 5.11} shows the data paths and controller for a machine that implements the recursive \code{factorial} procedure.
+\cref{Figure 5.11} shows the data paths and controller for a machine that implements the recursive \code{factorial} procedure.
 The machine has a stack and three registers, called \code{n}, \code{val}, and \code{continue}.
 To simplify the data-path diagram, we have not named the register-assignment buttons, only the stack-operation buttons (\code{sc} and \code{sn} to save registers, \code{rc} and \code{rn} to restore registers).
 To operate the machine, we put in register \code{n} the number whose factorial we wish to compute and start the machine.
@@ -85,18 +85,18 @@ Only the new value, which is the value produced by the subcomputation, is needed
 	\label{Figure 5.11}
 \end{figure}
 
-Although in principle the factorial computation requires an infinite machine, the machine in \link{Figure 5.11} is actually finite except for the stack, which is potentially unbounded.
+Although in principle the factorial computation requires an infinite machine, the machine in \cref{Figure 5.11} is actually finite except for the stack, which is potentially unbounded.
 Any particular physical implementation of a stack, however, will be of finite size, and this will limit the depth of recursive calls that can be handled by the machine.
 This implementation of factorial illustrates the general strategy for realizing recursive algorithms as ordinary register machines augmented by stacks.
 When a recursive subproblem is encountered, we save on the stack the registers whose current values will be required after the subproblem is solved, solve the recursive subproblem, then restore the saved registers and continue execution on the main problem.
 The \code{continue} register must always be saved.
-Whether there are other registers that need to be saved depends on the particular machine, since not all recursive computations need the original values of registers that are modified during solution of the subproblem (see \link{Exercise 5.4}).
+Whether there are other registers that need to be saved depends on the particular machine, since not all recursive computations need the original values of registers that are modified during solution of the subproblem (see \cref{Exercise 5.4}).
 
 
 
 \subsubsection*{A double recursion}
 
-Let us examine a more complex recursive process, the tree-recursive computation of the Fibonacci numbers, which we introduced in \link{Section 1.2.2}:
+Let us examine a more complex recursive process, the tree-recursive computation of the Fibonacci numbers, which we introduced in \cref{Section 1.2.2}:
 \begin{scheme}
   (define (fib n)
     (if (< n 2)
@@ -108,7 +108,7 @@ The machine is more complex than the one for factorial, because there are two pl
 To set up for each of these calls, we save the registers whose values will be needed later, set the \code{n} register to the number whose Fib we need to compute recursively (\( n - 1 \) or \( n - 2 \)), and assign to \code{continue} the entry point in the main sequence to which to return (\code{afterfib-n-1} or \code{afterfib-n-2}, respectively).
 We then go to \code{fib-loop}.
 When we return from the recursive call, the answer is in \code{val}.
-\link{Figure 5.12} shows the controller sequence for this machine.
+\cref{Figure 5.12} shows the controller sequence for this machine.
 
 \begin{figure}
 	\begin{scheme}

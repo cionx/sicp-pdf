@@ -103,7 +103,7 @@ Thus, in contrast to the example above, executing
 can produce only two possible values for \code{x}, \( 101 \) or \( 121 \).
 The other possibilities are eliminated, because the execution of \( P_1 \) and \( P_2 \) cannot be interleaved.
 
-Here is a version of the \code{make-account} procedure from \link{Section 3.1.1}, where the deposits and withdrawals have been serialized:
+Here is a version of the \code{make-account} procedure from \cref{Section 3.1.1}, where the deposits and withdrawals have been serialized:
 \begin{scheme}
   (define (make-account balance)
     (define (withdraw amount)
@@ -124,7 +124,7 @@ Here is a version of the \code{make-account} procedure from \link{Section 3.1.1}
       dispatch))
 \end{scheme}
 With this implementation, two processes cannot be withdrawing from or depositing into a single account concurrently.
-This eliminates the source of the error illustrated in \link{Figure 3.29}, where Peter changes the account balance between the times when Paul accesses the balance to compute the new value and when Paul actually performs the assignment.
+This eliminates the source of the error illustrated in \cref{Figure 3.29}, where Peter changes the account balance between the times when Paul accesses the balance to compute the new value and when Paul actually performs the assignment.
 On the other hand, each account has its own serializer, so that deposits and withdrawals for different accounts can proceed concurrently.
 
 
@@ -255,14 +255,14 @@ For example, Peter might compute the difference in the balances for \( a \)1 and
 \footnote{
 	If the account balances start out as \dollar{10}, \dollar{20}, and \dollar{30}, then after any number of concurrent exchanges, the balances should still be \dollar{10}, \dollar{20}, and \dollar{30} in some order.
 	Serializing the deposits to individual accounts is not sufficient to guarantee this.
-	See \link{Exercise 3.43}.
+	See \cref{Exercise 3.43}.
 }
 For correct behavior, we must arrange for the \code{exchange} procedure to lock out any other concurrent accesses to the accounts during the entire time of the exchange.
 
 One way we can accomplish this is by using both accounts’ serializers to serialize the entire \code{exchange} procedure.
 To do this, we will arrange for access to an account’s serializer.
 Note that we are deliberately breaking the modularity of the bank-account object by exposing the serializer.
-The following version of \code{make-account} is identical to the original version given in \link{Section 3.1.1}, except that a serializer is provided to protect the balance variable, and the serializer is exported via message passing:
+The following version of \code{make-account} is identical to the original version given in \cref{Section 3.1.1}, except that a serializer is provided to protect the balance variable, and the serializer is exported via message passing:
 \begin{scheme}
   (define (make-account-and-serializer balance)
     (define (withdraw amount)
@@ -286,7 +286,7 @@ The following version of \code{make-account} is identical to the original versio
 We can use this to do serialized deposits and withdrawals.
 However, unlike our earlier serialized account, it is now the responsibility of each user of bank-account objects to explicitly manage the serialization, for example as follows:%
 \footnote{
-	\link{Exercise 3.45} investigates why deposits and withdrawals are no longer automatically serialized by the account.
+	\cref{Exercise 3.45} investigates why deposits and withdrawals are no longer automatically serialized by the account.
 }
 \begin{scheme}
   (define (deposit account amount)
@@ -312,7 +312,7 @@ We simply serialize the original \code{exchange} procedure with the serializers 
 	\label{Exercise 3.43}
 	Suppose that the balances in three accounts start out as \dollar{10}, \dollar{20}, and \dollar{30}, and that multiple processes run, exchanging the balances in the accounts.
 	Argue that if the processes are run sequentially, after any number of concurrent exchanges, the account balances should be \dollar{10}, \dollar{20}, and \dollar{30} in some order.
-	Draw a timing diagram like the one in \link{Figure 3.29} to show how this condition can be violated if the exchanges are implemented using the first version of the account-exchange program in this section.
+	Draw a timing diagram like the one in \cref{Figure 3.29} to show how this condition can be violated if the exchanges are implemented using the first version of the account-exchange program in this section.
 	On the other hand, argue that even with this \code{exchange} program, the sum of the balances in the accounts will be preserved.
 	Draw a timing diagram to show how even this condition would be violated if we did not serialize the transactions on individual accounts.
 \end{exercise}
@@ -377,9 +377,9 @@ Once a mutex has been acquired, no other acquire operations on that mutex may pr
 \footnote{
 	The term “mutex” is an abbreviation for \newterm{mutual exclusion}.
 	The general problem of arranging a mechanism that permits concurrent processes to safely share resources is called the mutual exclusion problem.
-	Our mutex is a simple variant of the \newterm{semaphore} mechanism (see \link{Exercise 3.47}), which was introduced in the “THE” Multiprogramming System developed at the Technological University of Eindhoven and named for the university’s initials in Dutch (\link{Dijkstra 1968a}).
+	Our mutex is a simple variant of the \newterm{semaphore} mechanism (see \cref{Exercise 3.47}), which was introduced in the “THE” Multiprogramming System developed at the Technological University of Eindhoven and named for the university’s initials in Dutch (\cref{Dijkstra 1968a}).
 	The acquire and release operations were originally called P and V, from the Dutch words \emph{passeren} (to pass) and \emph{vrijgeven} (to release), in reference to the semaphores used on railroad systems.
-	Dijkstra’s classic exposition (\link{Dijkstra 1968b}) was one of the first to clearly present the issues of concurrency control, and showed how to use semaphores to handle a variety of concurrency problems.
+	Dijkstra’s classic exposition (\cref{Dijkstra 1968b}) was one of the first to clearly present the issues of concurrency control, and showed how to use semaphores to handle a variety of concurrency problems.
 }
 In our implementation, each serializer has an associated mutex.
 Given a procedure \code{p}, the serializer returns a procedure that acquires the mutex, runs \code{p}, and then releases the mutex.
@@ -433,8 +433,8 @@ However, this implementation of \code{test-and-set!} does not suffice as it stan
 There is a crucial subtlety here, which is the essential place where concurrency control enters the system:
 The \code{test-and-set!} operation must be performed \newterm{atomically}.
 That is, we must guarantee that, once a process has tested the cell and found it to be false, the cell contents will actually be set to true before any other process can test the cell.
-If we do not make this guarantee, then the mutex can fail in a way similar to the bank-account failure in \link{Figure 3.29}.
-(See \link{Exercise 3.46}.)
+If we do not make this guarantee, then the mutex can fail in a way similar to the bank-account failure in \cref{Figure 3.29}.
+(See \cref{Exercise 3.46}.)
 
 The actual implementation of \code{test-and-set!} depends on the details of how our system runs concurrent processes.
 For example, we might be executing concurrent processes on a sequential processor using a time-slicing mechanism that cycles through the processes, permitting each process to run for a short time before interrupting it and moving on to the next process.
@@ -471,7 +471,7 @@ Alternatively, multiprocessing computers provide instructions that support atomi
 \begin{exercise}
 	\label{Exercise 3.46}
 	Suppose that we implement \code{test-and-set!}  using an ordinary procedure as shown in the text, without attempting to make the operation atomic.
-	Draw a timing diagram like the one in \link{Figure 3.29} to demonstrate how the mutex implementation can fail by allowing two processes to acquire the mutex at the same time.
+	Draw a timing diagram like the one in \cref{Figure 3.29} to demonstrate how the mutex implementation can fail by allowing two processes to acquire the mutex at the same time.
 \end{exercise}
 
 
@@ -508,11 +508,11 @@ Deadlock is always a danger in systems that provide concurrent access to multipl
 
 One way to avoid the deadlock in this situation is to give each account a unique identification number and rewrite \code{serialized-exchange} so that a process will always attempt to enter a procedure protecting the lowest-numbered account first.
 Although this method works well for the exchange problem, there are other situations that require more sophisticated deadlock-avoidance techniques, or where deadlock cannot be avoided at all.
-(See \link{Exercise 3.48} and \link{Exercise 3.49}.)%
+(See \cref{Exercise 3.48} and \cref{Exercise 3.49}.)%
 \footnote{
-	The general technique for avoiding deadlock by numbering the shared resources and acquiring them in order is due to \link{Havender (1968)}.
+	The general technique for avoiding deadlock by numbering the shared resources and acquiring them in order is due to \cref{Havender (1968)}.
 	Situations where deadlock cannot be avoided require \newterm{deadlock-recovery} methods, which entail having processes “back out” of the deadlocked state and try again.
-	Deadlock-recovery mechanisms are widely used in database management systems, a topic that is treated in detail in \link{Gray and Reuter 1993}.
+	Deadlock-recovery mechanisms are widely used in database management systems, a topic that is treated in detail in \cref{Gray and Reuter 1993}.
 }
 
 
@@ -567,7 +567,7 @@ Questions about the “real” account balance or the order of events between sy
 The basic phenomenon here is that synchronizing different processes, establishing shared state, or imposing an order on events requires communication among the processes.
 In essence, any notion of time in concurrency control must be intimately tied to communication.%
 \footnote{
-	For distributed systems, this perspective was pursued by \link{Lamport (1978)}, who showed how to use communication to establish “global clocks” that can be used to establish orderings on events in distributed systems.
+	For distributed systems, this perspective was pursued by \cref{Lamport (1978)}, who showed how to use communication to establish “global clocks” that can be used to establish orderings on events in distributed systems.
 }
 It is intriguing that a similar connection between time and communication also arises in the Theory of Relativity, where the speed of light (the fastest signal that can be used to synchronize events) is a fundamental constant relating time and space.
 The complexities we encounter in dealing with time and state in our computational models may in fact mirror a fundamental complexity of the physical universe.

@@ -1,9 +1,9 @@
 \subsection{Modularity of Functional Programs and Modularity of Objects}
 \label{Section 3.5.5}
 
-As we saw in \link{Section 3.1.2}, one of the major benefits of introducing assignment is that we can increase the modularity of our systems by encapsulating, or “hiding,” parts of the state of a large system within local variables.
+As we saw in \cref{Section 3.1.2}, one of the major benefits of introducing assignment is that we can increase the modularity of our systems by encapsulating, or “hiding,” parts of the state of a large system within local variables.
 Stream models can provide an equivalent modularity without the use of assignment.
-As an illustration, we can reimplement the Monte Carlo estimation of \( π \), which we examined in \link{Section 3.1.2}, from a stream-processing point of view.
+As an illustration, we can reimplement the Monte Carlo estimation of \( π \), which we examined in \cref{Section 3.1.2}, from a stream-processing point of view.
 
 The key modularity issue was that we wished to hide the internal state of a random-number generator from programs that used random numbers.
 We began with a procedure \code{rand-update}, whose successive values furnished our supply of random numbers, and used this to produce a random-number generator:
@@ -62,7 +62,7 @@ Yet there is no assignment or local state.
 
 \begin{exercise}
 	\label{Exercise 3.81}
-	\link{Exercise 3.6} discussed generalizing the random-number generator to allow one to reset the random-number sequence so as to produce repeatable sequences of “random” numbers.
+	\cref{Exercise 3.6} discussed generalizing the random-number generator to allow one to reset the random-number sequence so as to produce repeatable sequences of “random” numbers.
 	Produce a stream formulation of this same generator that operates on an input stream of requests to \code{generate} a new random number or to \code{reset} the sequence to a specified value and that produces the desired stream of random numbers.
 	Don’t use assignment in your solution.
 \end{exercise}
@@ -70,7 +70,7 @@ Yet there is no assignment or local state.
 
 
 \begin{exercise}
-	\label{Exercise 3.82} Redo \link{Exercise 3.5} on Monte Carlo integration in terms of streams.
+	\label{Exercise 3.82} Redo \cref{Exercise 3.5} on Monte Carlo integration in terms of streams.
 	The stream version of \code{estimate-integral} will not have an argument telling how many trials to perform.
 	Instead, it will produce a stream of estimates based on successively more trials.
 \end{exercise}
@@ -90,7 +90,7 @@ In essence, we represent time explicitly, using streams, so that we decouple tim
 Indeed, because of the presence of \code{delay} there may be little relation between simulated time in the model and the order of events during the evaluation.
 
 In order to contrast these two approaches to modeling, let us reconsider the implementation of a “withdrawal processor” that monitors the balance in a bank account.
-In \link{Section 3.1.3} we implemented a simplified version of such a processor:
+In \cref{Section 3.1.3} we implemented a simplified version of such a processor:
 \begin{scheme}
   (define (make-simplified-withdraw balance)
     (lambda (amount)
@@ -113,7 +113,7 @@ Alternatively, we can model a withdrawal processor as a procedure that takes as 
 \code{stream-withdraw} implements a well-defined mathematical function whose output is fully determined by its input.
 Suppose, however, that the input \code{amount-stream} is the stream of successive values typed by the user and that the resulting stream of balances is displayed.
 Then, from the perspective of the user who is typing values and watching results, the stream process has the same behavior as the object created by \code{make-simplified-withdraw}.
-However, with the stream version, there is no assignment, no local state variable, and consequently none of the theoretical difficulties that we encountered in \link{Section 3.1.3}.
+However, with the stream version, there is no assignment, no local state variable, and consequently none of the theoretical difficulties that we encountered in \cref{Section 3.1.3}.
 Yet the system has state!
 
 This is really remarkable.
@@ -138,16 +138,16 @@ In such a language, all procedures implement well-defined mathematical functions
 The functional approach is extremely attractive for dealing with concurrent systems.%
 \footnote{
 	John Backus, the inventor of Fortran, gave high visibility to functional programming when he was awarded the \acronym{ACM} Turing award in 1978.
-	His acceptance speech (\link{Backus 1978}) strongly advocated the functional approach.
-	A good overview of functional programming is given in \link{Henderson 1980} and in \link{Darlington et al. 1982}.
+	His acceptance speech (\cref{Backus 1978}) strongly advocated the functional approach.
+	A good overview of functional programming is given in \cref{Henderson 1980} and in \cref{Darlington et al. 1982}.
 }
 
 On the other hand, if we look closely, we can see time-related problems creeping into functional models as well.
 One particularly troublesome area arises when we wish to design interactive systems, especially ones that model interactions between independent entities.
 For instance, consider once more the implementation a banking system that permits joint bank accounts.
-In a conventional system using assignment and objects, we would model the fact that Peter and Paul share an account by having both Peter and Paul send their transaction requests to the same bank-account object, as we saw in \link{Section 3.1.3}.
+In a conventional system using assignment and objects, we would model the fact that Peter and Paul share an account by having both Peter and Paul send their transaction requests to the same bank-account object, as we saw in \cref{Section 3.1.3}.
 From the stream point of view, where there are no “objects” \emph{per se}, we have already indicated that a bank account can be modeled as a process that operates on a stream of transaction requests to produce a stream of responses.
-Accordingly, we could model the fact that Peter and Paul have a joint bank account by merging Peter’s stream of transaction requests with Paul’s stream of requests and feeding the result to the bank-account stream process, as shown in \link{Figure 3.38}.
+Accordingly, we could model the fact that Peter and Paul have a joint bank account by merging Peter’s stream of transaction requests with Paul’s stream of requests and feeding the result to the bank-account stream process, as shown in \cref{Figure 3.38}.
 
 \begin{figure}[tb]
 	\centering
@@ -166,11 +166,11 @@ However such a merge is implemented, it must interleave the two transaction stre
 \footnote{
 	Observe that, for any two streams, there is in general more than one acceptable order of interleaving.
 	Thus, technically, “merge” is a relation rather than a function---the answer is not a deterministic function of the inputs.
-	We already mentioned (\link{Footnote 39}) that nondeterminism is essential when dealing with concurrency.
+	We already mentioned (\cref{Footnote 39}) that nondeterminism is essential when dealing with concurrency.
 	The merge relation illustrates the same essential nondeterminism, from the functional perspective.
-	In \link{Section 4.3}, we will look at nondeterminism from yet another point of view.
+	In \cref{Section 4.3}, we will look at nondeterminism from yet another point of view.
 }
-This is precisely the same constraint that we had to deal with in \link{Section 3.4.1}, where we found the need to introduce explicit synchronization to ensure a “correct” order of events in concurrent processing of objects with state.
+This is precisely the same constraint that we had to deal with in \cref{Section 3.4.1}, where we found the need to introduce explicit synchronization to ensure a “correct” order of events in concurrent processing of objects with state.
 Thus, in an attempt to support the functional style, the need to merge inputs from different agents reintroduces the same problems that the functional style was meant to eliminate.
 
 We began this chapter with the goal of building computational models whose structure matches our perception of the real world we are trying to model.

@@ -2,10 +2,10 @@
 \label{Section 2.4}
 
 We have introduced data abstraction, a methodology for structuring systems in such a way that much of a program can be specified independent of the choices involved in implementing the data objects that the program manipulates.
-For example, we saw in \link{Section 2.1.1} how to separate the task of designing a program that uses rational numbers from the task of implementing rational numbers in terms of the computer language’s primitive mechanisms for constructing compound data.
+For example, we saw in \cref{Section 2.1.1} how to separate the task of designing a program that uses rational numbers from the task of implementing rational numbers in terms of the computer language’s primitive mechanisms for constructing compound data.
 The key idea was to erect an abstraction barrier---in this case, the selectors and constructors for rational numbers (\code{make-rat}, \code{numer}, \code{denom})---that isolates the way rational numbers are used from their underlying representation in terms of list structure.
 A similar abstraction barrier isolates the details of the procedures that perform rational arithmetic (\code{add-rat}, \code{sub-rat}, \code{mul-rat}, and \code{div-rat}) from the “higher-level” procedures that use rational numbers.
-The resulting program has the structure shown in \link{Figure 2.1}.
+The resulting program has the structure shown in \cref{Figure 2.1}.
 
 These data-abstraction barriers are powerful tools for controlling complexity.
 By isolating the underlying representations of data objects, we can divide the task of designing a large program into smaller tasks that can be performed separately.
@@ -30,8 +30,8 @@ We will also discuss \newterm{data-directed} programming, a powerful and conveni
 We begin with the simple complex-number example.
 We will see how type tags and data-directed style enable us to design separate rectangular and polar representations for complex numbers while maintaining the notion of an abstract “complex-number” data object.
 We will accomplish this by defining arithmetic procedures for complex numbers (\code{add-complex}, \code{sub-complex}, \code{mul-complex}, and \code{div-complex}) in terms of generic selectors that access parts of a complex number independent of how the number is represented.
-The resulting complex-number system, as shown in \link{Figure 2.19}, contains two different kinds of abstraction barriers.
-The “horizontal” abstraction barriers play the same role as the ones in \link{Figure 2.1}.
+The resulting complex-number system, as shown in \cref{Figure 2.19}, contains two different kinds of abstraction barriers.
+The “horizontal” abstraction barriers play the same role as the ones in \cref{Figure 2.1}.
 They isolate “higher-level” operations from  “lower-level” representations.
 In addition, there is a “vertical” barrier that gives us the ability to separately design and install alternative representations.
 
@@ -44,9 +44,9 @@ In addition, there is a “vertical” barrier that gives us the ability to sepa
 	\label{Figure 2.19}
 \end{figure}
 
-In \link{Section 2.5} we will show how to use type tags and data-directed style to develop a generic arithmetic package.
+In \cref{Section 2.5} we will show how to use type tags and data-directed style to develop a generic arithmetic package.
 This provides procedures (\code{add}, \code{mul}, and so on) that can be used to manipulate all sorts of “numbers” and can be easily extended when a new kind of number is needed.
-In \link{Section 2.5.3}, we’ll show how to use generic arithmetic in a system that performs symbolic algebra.
+In \cref{Section 2.5.3}, we’ll show how to use generic arithmetic in a system that performs symbolic algebra.
 
 \input{content/2.4.1_representations_for_complex_numbers.tex}
 \input{content/2.4.2_tagged_data.tex}

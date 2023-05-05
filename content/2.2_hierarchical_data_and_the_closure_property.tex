@@ -2,16 +2,16 @@
 \label{Section 2.2}
 
 As we have seen, pairs provide a primitive “glue” that we can use to construct compound data objects.
-\link{Figure 2.2} shows a standard way to visualize a pair---in this case, the pair formed by \code{(cons 1 2)}.
+\cref{Figure 2.2} shows a standard way to visualize a pair---in this case, the pair formed by \code{(cons 1 2)}.
 In this representation, which is called \newterm{box-and-pointer notation}, each object is shown as a \newterm{pointer} to a box.
 The box for a primitive object contains a representation of the object.
 For example, the box for a number contains a numeral.
 The box for a pair is actually a double box, the left part containing (a pointer to) the \code{car} of the pair and the right part containing the \code{cdr}.
 
 We have already seen that \code{cons} can be used to combine not only numbers but pairs as well.
-(You made use of this fact, or should have, in doing \link{Exercise 2.2} and \link{Exercise 2.3}.)
+(You made use of this fact, or should have, in doing \cref{Exercise 2.2} and \cref{Exercise 2.3}.)
 As a consequence, pairs provide a universal building block from which we can construct all sorts of data structures.
-\link{Figure 2.3} shows two ways to use pairs to combine the numbers \( 1 \), \( 2 \), \( 3 \), and \( 4 \).
+\cref{Figure 2.3} shows two ways to use pairs to combine the numbers \( 1 \), \( 2 \), \( 3 \), and \( 4 \).
 
 \begin{figure}[tb]
 	\centering
@@ -42,7 +42,7 @@ In general, an operation for combining data objects satisfies the closure proper
 }
 Closure is the key to power in any means of combination because it permits us to create \newterm{hierarchical} structures---structures made up of parts, which themselves are made up of parts, and so on.
 
-From the outset of \link{Chapter 1}, we’ve made essential use of closure in dealing with procedures, because all but the very simplest programs rely on the fact that the elements of a combination can themselves be combinations.
+From the outset of \cref{Chapter 1}, we’ve made essential use of closure in dealing with procedures, because all but the very simplest programs rely on the fact that the elements of a combination can themselves be combinations.
 In this section, we take up the consequences of closure for compound data.
 We describe some conventional techniques for using pairs to represent sequences and trees, and we exhibit a graphics language that illustrates closure in a vivid way.%
 \footnote{

@@ -20,7 +20,7 @@ If we add the stipulation that \( 1! \) is equal to \( 1 \), this observation tr
         1
         (* n (factorial (- n 1)))))
 \end{scheme}
-We can use the substitution model of \link{Section 1.1.5} to watch this procedure in action computing \( 6! \), as shown in \link{Figure 1.3}.
+We can use the substitution model of \cref{Section 1.1.5} to watch this procedure in action computing \( 6! \), as shown in \cref{Figure 1.3}.
 
 \begin{figure}[tb]
 	\centering
@@ -76,7 +76,7 @@ Once again, we can recast our description as a procedure for computing factorial
                    (+ counter 1)
                    max-count)))
 \end{scheme}
-As before, we can use the substitution model to visualize the process of computing \( 6! \), as shown in \link{Figure 1.4}.
+As before, we can use the substitution model to visualize the process of computing \( 6! \), as shown in \cref{Figure 1.4}.
 
 Compare the two processes.
 From one point of view, they seem hardly different at all.
@@ -85,7 +85,7 @@ Indeed, both processes even carry out the same sequence of multiplications, obta
 On the other hand, when we consider the “shapes” of the two processes, we find that they evolve quite differently.
 
 Consider the first process.
-The substitution model reveals a shape of expansion followed by contraction, indicated by the arrow in \link{Figure 1.3}.
+The substitution model reveals a shape of expansion followed by contraction, indicated by the arrow in \cref{Figure 1.3}.
 The expansion occurs as the process builds up a chain of \newterm{deferred operations} (in this case, a chain of multiplications).
 The contraction occurs as the operations are actually performed.
 This type of process, characterized by a chain of deferred operations, is called a \newterm{recursive process}.
@@ -107,7 +107,7 @@ Not so with the recursive process.
 In this case there is some additional “hidden” information, maintained by the interpreter and not contained in the program variables, which indicates “where the process is” in negotiating the chain of deferred operations.
 The longer the chain, the more information must be maintained.%
 \footnote{
-	When we discuss the implementation of procedures on register machines in \link{Chapter 5}, we will see that any iterative process can be realized “in hardware” as a machine that has a fixed set of registers and no auxiliary memory.
+	When we discuss the implementation of procedures on register machines in \cref{Chapter 5}, we will see that any iterative process can be realized “in hardware” as a machine that has a fixed set of registers and no auxiliary memory.
 	In contrast, realizing a recursive process requires a machine that uses an auxiliary data structure known as a \newterm{stack}.
 }
 
@@ -120,15 +120,15 @@ Its state is captured completely by its three state variables, and an interprete
 
 One reason that the distinction between process and procedure may be confusing is that most implementations of common languages (including Ada, Pascal, and C) are designed in such a way that the interpretation of any recursive procedure consumes an amount of memory that grows with the number of procedure calls, even when the process described is, in principle, iterative.
 As a consequence, these languages can describe iterative processes only by resorting to special-purpose “looping constructs” such as \code{do}, \code{repeat}, \code{until}, \code{for}, and \code{while}.
-The implementation of Scheme we shall consider in \link{Chapter 5} does not share this defect.
+The implementation of Scheme we shall consider in \cref{Chapter 5} does not share this defect.
 It will execute an iterative process in constant space, even if the iterative process is described by a recursive procedure.
 An implementation with this property is called \newterm{tail-recursive}.
 With a tail-recursive implementation, iteration can be expressed using the ordinary procedure call mechanism, so that special iteration constructs are useful only as syntactic sugar.%
 \footnote{
 	Tail recursion has long been known as a compiler optimization trick.
-	A coherent semantic basis for tail recursion was provided by Carl \link{Hewitt (1977)}, who explained it in terms of the “message-passing” model of computation that we shall discuss in \link{Chapter 3}.
-	Inspired by this, Gerald Jay Sussman and Guy Lewis Steele Jr. (see \link{Steele and Sussman 1975}) constructed a tail-recursive interpreter for Scheme.
-	Steele later showed how tail recursion is a consequence of the natural way to compile procedure calls (\link{Steele 1977}).
+	A coherent semantic basis for tail recursion was provided by Carl \cref{Hewitt (1977)}, who explained it in terms of the “message-passing” model of computation that we shall discuss in \cref{Chapter 3}.
+	Inspired by this, Gerald Jay Sussman and Guy Lewis Steele Jr. (see \cref{Steele and Sussman 1975}) constructed a tail-recursive interpreter for Scheme.
+	Steele later showed how tail recursion is a consequence of the natural way to compile procedure calls (\cref{Steele 1977}).
   The \acronym{IEEE} standard for Scheme requires that Scheme implementations be tail-recursive.
 }
 

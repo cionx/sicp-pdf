@@ -7,11 +7,11 @@ However, evaluation is a process, so it is appropriate to describe the evaluatio
 \footnote{
 	Even so, there will remain important aspects of the evaluation process that are not elucidated by our evaluator.
 	The most important of these are the detailed mechanisms by which procedures call other procedures and return values to their callers.
-	We will address these issues in \link{Chapter 5}, where we take a closer look at the evaluation process by implementing the evaluator as a simple register machine.
+	We will address these issues in \cref{Chapter 5}, where we take a closer look at the evaluation process by implementing the evaluator as a simple register machine.
 }
 An evaluator that is written in the same language that it evaluates is said to be \newterm{metacircular}.
 
-The metacircular evaluator is essentially a Scheme formulation of the environment model of evaluation described in \link{Section 3.2}.
+The metacircular evaluator is essentially a Scheme formulation of the environment model of evaluation described in \cref{Section 3.2}.
 Recall that the model has two basic parts:
 \begin{enumerate}
 
@@ -24,7 +24,7 @@ Recall that the model has two basic parts:
 
 \end{enumerate}
 
-These two rules describe the essence of the evaluation process, a basic cycle in which expressions to be evaluated in environments are reduced to procedures to be applied to arguments, which in turn are reduced to new expressions to be evaluated in new environments, and so on, until we get down to symbols, whose values are looked up in the environment, and to primitive procedures, which are applied directly (see \link{Figure 4.1}).%
+These two rules describe the essence of the evaluation process, a basic cycle in which expressions to be evaluated in environments are reduced to procedures to be applied to arguments, which in turn are reduced to new expressions to be evaluated in new environments, and so on, until we get down to symbols, whose values are looked up in the environment, and to primitive procedures, which are applied directly (see \cref{Figure 4.1}).%
 \footnote{
 	If we grant ourselves the ability to apply primitives, then what remains for us to implement in the evaluator?
 The job of the evaluator is not to specify the primitives of the language, but rather to provide the connective tissue---the means of combination and the means of abstraction---that binds a collection of primitives to form a language.
@@ -52,13 +52,13 @@ Specifically:
 
 \end{itemize}
 }
-This evaluation cycle will be embodied by the interplay between the two critical procedures in the evaluator, \code{eval} and \code{apply}, which are described in \link{Section 4.1.1} (see \link{Figure 4.1}).
+This evaluation cycle will be embodied by the interplay between the two critical procedures in the evaluator, \code{eval} and \code{apply}, which are described in \cref{Section 4.1.1} (see \cref{Figure 4.1}).
 
 The implementation of the evaluator will depend upon procedures that define the \newterm{syntax} of the expressions to be evaluated.
 We will use data abstraction to make the evaluator independent of the representation of the language.
 For example, rather than committing to a choice that an assignment is to be represented by a list beginning with the symbol \code{set!} we use an abstract predicate \code{assignment?} to test for an assignment, and we use abstract selectors \code{assignment-variable} and \code{assignment-value} to access the parts of an assignment.
-Implementation of expressions will be described in detail in \link{Section 4.1.2}.
-There are also operations, described in \link{Section 4.1.3}, that specify the representation of procedures and environments.
+Implementation of expressions will be described in detail in \cref{Section 4.1.2}.
+There are also operations, described in \cref{Section 4.1.3}, that specify the representation of procedures and environments.
 For example, \code{make-procedure} constructs compound procedures, \code{lookup-variable-value} accesses the values of variables, and \code{apply-primitive-procedure} applies a primitive procedure to a given list of arguments.
 
 \begin{figure}[tb]

@@ -30,7 +30,7 @@ To handle primitives, we assume that we have available the following procedures:
 		tests whether \code{⟨\var{proc}⟩} is a primitive procedure.
 
 \end{itemize}
-These mechanisms for handling primitives are further described in \link{Section 4.1.4}.
+These mechanisms for handling primitives are further described in \cref{Section 4.1.4}.
 
 Compound procedures are constructed from parameters, procedure bodies, and environments using the constructor \code{make-procedure}:
 \begin{scheme}
@@ -52,7 +52,7 @@ Compound procedures are constructed from parameters, procedure bodies, and envir
 \subsubsection*{Operations on Environments}
 
 The evaluator needs operations for manipulating environments.
-As explained in \link{Section 3.2}, an environment is a sequence of frames, where each frame is a table of bindings that associate variables with their corresponding values.
+As explained in \cref{Section 3.2}, an environment is a sequence of frames, where each frame is a table of bindings that associate variables with their corresponding values.
 We use the following operations for manipulating environments:
 \begin{itemize}
 
@@ -168,13 +168,13 @@ If no such binding exists, we adjoin one to the first frame.
 
 The method described here is only one of many plausible ways to represent environments.
 Since we used data abstraction to isolate the rest of the evaluator from the detailed choice of representation, we could change the environment representation if we wanted to.
-(See \link{Exercise 4.11}.)
+(See \cref{Exercise 4.11}.)
 In a production-quality Lisp system, the speed of the evaluator’s environment operations---especially that of variable lookup---has a major impact on the performance of the system.
 The representation described here, although conceptually simple, is not efficient and would not ordinarily be used in a production system.%
 \footnote{
-	The drawback of this representation (as well as the variant in \link{Exercise 4.11}) is that the evaluator may have to search through many frames in order to find the binding for a given variable.
+	The drawback of this representation (as well as the variant in \cref{Exercise 4.11}) is that the evaluator may have to search through many frames in order to find the binding for a given variable.
 	(Such an approach is referred to as \newterm{deep binding}.)
-	One way to avoid this inefficiency is to make use of a strategy called \newterm{lexical addressing}, which will be discussed in \link{Section 5.5.6}.
+	One way to avoid this inefficiency is to make use of a strategy called \newterm{lexical addressing}, which will be discussed in \cref{Section 5.5.6}.
 }
 
 

@@ -1,7 +1,7 @@
 \subsection{Implementing the Query System}
 \label{Section 4.4.4}
 
-\link{Section 4.4.2} described how the query system works.
+\cref{Section 4.4.2} described how the query system works.
 Now we fill in the details by presenting a complete implementation of the system.
 
 
@@ -42,13 +42,13 @@ These frames are used to form a new stream consisting of copies of the original 
              (query-driver-loop)))))
 \end{scheme}
 Here, as in the other evaluators in this chapter, we use an abstract syntax for the expressions of the query language.
-The implementation of the expression syntax, including the predicate \code{assertion-to-be-added?} and the selector \code{add-assertion-body}, is given in \link{Section 4.4.4.7}.
-\code{add-rule-or-assertion!} is defined in \link{Section 4.4.4.5}.
+The implementation of the expression syntax, including the predicate \code{assertion-to-be-added?} and the selector \code{add-assertion-body}, is given in \cref{Section 4.4.4.7}.
+\code{add-rule-or-assertion!} is defined in \cref{Section 4.4.4.5}.
 
 Before doing any processing on an input expression, the driver loop transforms it syntactically into a form that makes the processing more efficient.
 This involves changing the representation of pattern variables.
 When the query is instantiated, any variables that remain unbound are transformed back to the input representation before being printed.
-These transformations are performed by the two procedures \code{query-syntax-process} and \code{contract-question-mark} (\link{Section 4.4.4.7}).
+These transformations are performed by the two procedures \code{query-syntax-process} and \code{contract-question-mark} (\cref{Section 4.4.4.7}).
 
 To instantiate an expression, we copy it, replacing any variables in the expression by their values in a given frame.
 The values are themselves instantiated, since they could contain variables (for example, if \code{?x} in \code{exp} is bound to \code{?y} as the result of unification and \code{?y} is in turn bound to 5).
@@ -66,7 +66,7 @@ The action to take if a variable cannot be instantiated is given by a procedural
             (else exp)))
     (copy exp))
 \end{scheme}
-The procedures that manipulate bindings are defined in \link{Section 4.4.4.8}.
+The procedures that manipulate bindings are defined in \cref{Section 4.4.4.8}.
 
 
 
@@ -75,7 +75,7 @@ The procedures that manipulate bindings are defined in \link{Section 4.4.4.8}.
 
 The \code{qeval} procedure, called by the \code{query-driver-loop}, is the basic evaluator of the query system.
 It takes as inputs a query and a stream of frames, and it returns a stream of extended frames.
-It identifies special forms by a data-directed dispatch using \code{get} and \code{put}, just as we did in implementing generic operations in \link{Chapter 2}.
+It identifies special forms by a data-directed dispatch using \code{get} and \code{put}, just as we did in implementing generic operations in \cref{Chapter 2}.
 Any query that is not identified as a special form is assumed to be a simple query, to be processed by \code{simple-query}.
 \begin{scheme}
   (define (qeval query frame-stream)
@@ -84,7 +84,7 @@ Any query that is not identified as a special form is assumed to be a simple que
           (qproc (contents query) frame-stream)
           (simple-query query frame-stream))))
 \end{scheme}
-\code{type} and \code{contents}, defined in \link{Section 4.4.4.7}, implement the abstract syntax of the special forms.
+\code{type} and \code{contents}, defined in \cref{Section 4.4.4.7}, implement the abstract syntax of the special forms.
 
 
 
@@ -103,15 +103,15 @@ It takes as arguments a simple query (a pattern) together with a stream of frame
      frame-stream))
 \end{scheme}
 
-For each frame in the input stream, we use \code{find-assertions} (\link{Section 4.4.4.3}) to match the pattern against all assertions in the data base, producing a stream of extended frames, and we use \code{apply-rules} (\link{Section 4.4.4.4}) to apply all possible rules, producing another stream of extended frames.
-These two streams are combined (using \code{stream-append-delayed}, \link{Section 4.4.4.6}) to make a stream of all the ways that the given pattern can be satisfied consistent with the original frame (see \link{Exercise 4.71}).
-The streams for the individual input frames are combined using \code{stream-flatmap} (\link{Section 4.4.4.6}) to form one large stream of all the ways that any of the frames in the original input stream can be extended to produce a match with the given pattern.
+For each frame in the input stream, we use \code{find-assertions} (\cref{Section 4.4.4.3}) to match the pattern against all assertions in the data base, producing a stream of extended frames, and we use \code{apply-rules} (\cref{Section 4.4.4.4}) to apply all possible rules, producing another stream of extended frames.
+These two streams are combined (using \code{stream-append-delayed}, \cref{Section 4.4.4.6}) to make a stream of all the ways that the given pattern can be satisfied consistent with the original frame (see \cref{Exercise 4.71}).
+The streams for the individual input frames are combined using \code{stream-flatmap} (\cref{Section 4.4.4.6}) to form one large stream of all the ways that any of the frames in the original input stream can be extended to produce a match with the given pattern.
 
 
 
 \subsubsection*{Compound queries}
 
-\code{and} queries are handled as illustrated in \link{Figure 4.5} by the \code{conjoin} procedure.
+\code{and} queries are handled as illustrated in \cref{Figure 4.5} by the \code{conjoin} procedure.
 \code{conjoin} takes as inputs the conjuncts and the frame stream and returns the stream of extended frames.
 First, \code{conjoin} processes the stream of frames to find the stream of all possible frame extensions that satisfy the first query in the conjunction.
 Then, using this as the new frame stream, it recursively applies \code{conjoin} to the rest of the queries.
@@ -130,9 +130,9 @@ The expression
 \end{scheme}
 sets up \code{qeval} to dispatch to \code{conjoin} when an \code{and} form is encountered.
 
-\code{or} queries are handled similarly, as shown in \link{Figure 4.6}.
-The output streams for the various disjuncts of the \code{or} are computed separately and merged using the \code{interleave-delayed} procedure from \link{Section 4.4.4.6}.
-(See \link{Exercise 4.71} and \link{Exercise 4.72}.)
+\code{or} queries are handled similarly, as shown in \cref{Figure 4.6}.
+The output streams for the various disjuncts of the \code{or} are computed separately and merged using the \code{interleave-delayed} procedure from \cref{Section 4.4.4.6}.
+(See \cref{Exercise 4.71} and \cref{Exercise 4.72}.)
 \begin{scheme}
   (define (disjoin disjuncts frame-stream)
     (if (empty-disjunction? disjuncts)
@@ -142,13 +142,13 @@ The output streams for the various disjuncts of the \code{or} are computed separ
          (delay (disjoin (rest-disjuncts disjuncts) frame-stream)))))
   (put 'or 'qeval disjoin)
 \end{scheme}
-The predicates and selectors for the syntax of conjuncts and disjuncts are given in \link{Section 4.4.4.7}.
+The predicates and selectors for the syntax of conjuncts and disjuncts are given in \cref{Section 4.4.4.7}.
 
 
 
 \subsubsection*{Filters}
 
-\code{not} is handled by the method outlined in \link{Section 4.4.2}.
+\code{not} is handled by the method outlined in \cref{Section 4.4.2}.
 We attempt to extend each frame in the input stream to satisfy the query being negated, and we include a given frame in the output stream only if it cannot be extended.
 \begin{scheme}
   (define (negate operands frame-stream)
@@ -193,22 +193,22 @@ Note that \code{execute} is implemented using \code{eval} and \code{apply} from 
 
 The \code{always-true} special form provides for a query that is always satisfied.
 It ignores its contents (normally empty) and simply passes through all the frames in the input stream.
-\code{always-true} is used by the \code{rule-body} selector (\link{Section 4.4.4.7}) to provide bodies for rules that were defined without bodies (that is, rules whose conclusions are always satisfied).
+\code{always-true} is used by the \code{rule-body} selector (\cref{Section 4.4.4.7}) to provide bodies for rules that were defined without bodies (that is, rules whose conclusions are always satisfied).
 \begin{scheme}
   (define (always-true ignore frame-stream) frame-stream)
 
   (put 'always-true 'qeval always-true)
 \end{scheme}
-The selectors that define the syntax of \code{not} and \code{lisp-value} are given in \link{Section 4.4.4.7}.
+The selectors that define the syntax of \code{not} and \code{lisp-value} are given in \cref{Section 4.4.4.7}.
 
 
 
 \subsubsection{Finding Assertions by Pattern Matching}
 \label{Section 4.4.4.3}
 
-\code{find-assertions}, called by \code{simple-query} (\link{Section 4.4.4.2}), takes as input a pattern and a frame.
+\code{find-assertions}, called by \code{simple-query} (\cref{Section 4.4.4.2}), takes as input a pattern and a frame.
 It returns a stream of frames, each extending the given one by a data-base match of the given pattern.
-It uses \code{fetch-assertions} (\link{Section 4.4.4.5}) to get a stream of all the assertions in the data base that should be checked for a match against the pattern and the frame.
+It uses \code{fetch-assertions} (\cref{Section 4.4.4.5}) to get a stream of all the assertions in the data base that should be checked for a match against the pattern and the frame.
 The reason for \code{fetch-assertions} here is that we can often apply simple tests that will eliminate many of the entries in the data base from the pool of candidates for a successful match.
 The system would still work if we eliminated \code{fetch-assertions} and simply checked a stream of all assertions in the data base, but the computation would be less efficient because we would need to make many more calls to the matcher.
 \begin{scheme}
@@ -262,7 +262,7 @@ Otherwise we match, in the frame, the data against the value of the variable in 
 If the stored value contains only constants, as it must if it was stored during pattern matching by \code{extend-if-consistent}, then the match simply tests whether the stored and new values are the same.
 If so, it returns the unmodified frame;
 if not, it returns a failure indication.
-The stored value may, however, contain pattern variables if it was stored during unification (see \link{Section 4.4.4.4}).
+The stored value may, however, contain pattern variables if it was stored during unification (see \cref{Section 4.4.4.4}).
 The recursive match of the stored pattern against the new data will add or check bindings for the variables in this pattern.
 For example, suppose we have a frame in which \code{?x} is bound to \code{(f ?y)} and \code{?y} is unbound, and we wish to augment this frame by a binding of \code{?x} to \code{(f b)}.
 We look up \code{?x} and find that it is bound to \code{(f ?y)}.
@@ -271,13 +271,13 @@ Eventually this match extends the frame by adding a binding of \code{?y} to \cod
 \code{?X} remains bound to \code{(f ?y)}.
 We never modify a stored binding and we never store more than one binding for a given variable.
 
-The procedures used by \code{extend-if-consistent} to manipulate bindings are defined in \link{Section 4.4.4.8}.
+The procedures used by \code{extend-if-consistent} to manipulate bindings are defined in \cref{Section 4.4.4.8}.
 
 
 
 \subsubsection*{Patterns with dotted tails}
 
-If a pattern contains a dot followed by a pattern variable, the pattern variable matches the rest of the data list (rather than the next element of the data list), just as one would expect with the dotted-tail notation described in \link{Exercise 2.20}.
+If a pattern contains a dot followed by a pattern variable, the pattern variable matches the rest of the data list (rather than the next element of the data list), just as one would expect with the dotted-tail notation described in \cref{Exercise 2.20}.
 Although the pattern matcher we have just implemented doesn’t look for dots, it does behave as we want.
 This is because the Lisp \code{read} primitive, which is used by \code{query-driver-loop} to read the query and represent it as a list structure, treats dots in a special way.
 
@@ -292,9 +292,9 @@ For example, matching the pattern \code{(computer . ?type)} against \code{(compu
 \subsubsection{Rules and Unification}
 \label{Section 4.4.4.4}
 
-\code{apply-rules} is the rule analog of \code{find-assertions} (\link{Section 4.4.4.3}).
+\code{apply-rules} is the rule analog of \code{find-assertions} (\cref{Section 4.4.4.3}).
 It takes as input a pattern and a frame, and it forms a stream of extension frames by applying rules from the data base.
-\code{stream-flatmap} maps \code{apply-a-rule} down the stream of possibly applicable rules (selected by \code{fetch-rules}, \link{Section 4.4.4.5}) and combines the resulting streams of frames.
+\code{stream-flatmap} maps \code{apply-a-rule} down the stream of possibly applicable rules (selected by \code{fetch-rules}, \cref{Section 4.4.4.5}) and combines the resulting streams of frames.
 \begin{scheme}
   (define (apply-rules pattern frame)
     (stream-flatmap (lambda (rule)
@@ -302,7 +302,7 @@ It takes as input a pattern and a frame, and it forms a stream of extension fram
                     (fetch-rules pattern frame)))
 \end{scheme}
 
-\code{apply-a-rule} applies rules using the method outlined in \link{Section 4.4.2}.
+\code{apply-a-rule} applies rules using the method outlined in \cref{Section 4.4.2}.
 It first augments its argument frame by unifying the rule conclusion with the pattern in the given frame.
 If this succeeds, it evaluates the rule body in this new frame.
 
@@ -312,7 +312,7 @@ For instance, if two rules both use a variable named \code{?x}, then each one ma
 These two \code{?x}’s have nothing to do with each other, and we should not be fooled into thinking that the two bindings must be consistent.
 Rather than rename variables, we could devise a more clever environment structure;
 however, the renaming approach we have chosen here is the most straightforward, even if not the most efficient.
-(See \link{Exercise 4.79}.)
+(See \cref{Exercise 4.79}.)
 Here is the \code{apply-a-rule} procedure:
 \begin{scheme}
   (define (apply-a-rule rule query-pattern query-frame)
@@ -325,11 +325,11 @@ Here is the \code{apply-a-rule} procedure:
             (qeval (rule-body clean-rule)
                    (singleton-stream unify-result))))))
 \end{scheme}
-The selectors \code{rule-body} and \code{conclusion} that extract parts of a rule are defined in \link{Section 4.4.4.7}.
+The selectors \code{rule-body} and \code{conclusion} that extract parts of a rule are defined in \cref{Section 4.4.4.7}.
 
 We generate unique variable names by associating a unique identifier (such as a number) with each rule application and combining this identifier with the original variable names.
 For example, if the rule-application identifier is 7, we might change each \code{?x} in the rule to \code{?x-7} and each \code{?y} in the rule to \code{?y-7}.
-(\code{make-new-variable} and \code{new-rule-application-id} are included with the syntax procedures in \link{Section 4.4.4.7}.)
+(\code{make-new-variable} and \code{new-rule-application-id} are included with the syntax procedures in \cref{Section 4.4.4.7}.)
 \begin{scheme}
   (define (rename-variables-in rule)
     (let ((rule-application-id (new-rule-application-id)))
@@ -581,7 +581,7 @@ The index will be used to retrieve items that might match a pattern if the patte
 	What is the purpose of the \code{let} bindings in the procedures \code{add-assertion!} and \code{add-rule!} ?
 	What would be wrong with the following implementation of \code{add-assertion!} ?
 	Hint:
-	Recall the definition of the infinite stream of ones in \link{Section 3.5.2}:
+	Recall the definition of the infinite stream of ones in \cref{Section 3.5.2}:
 	\code{(define ones (cons-stream 1 ones))}.
 	\begin{scheme}
 	  (define (add-assertion! assertion)
@@ -597,10 +597,10 @@ The index will be used to retrieve items that might match a pattern if the patte
 \subsubsection{Stream Operations}
 \label{Section 4.4.4.6}
 
-The query system uses a few stream operations that were not presented in \link{Chapter 3}.
+The query system uses a few stream operations that were not presented in \cref{Chapter 3}.
 
-\code{stream-append-delayed} and \code{interleave-delayed} are just like \code{stream-append} and \code{interleave} (\link{Section 3.5.3}), except that they take a delayed argument (like the \code{integral} procedure in \link{Section 3.5.4}).
-This postpones looping in some cases (see \link{Exercise 4.71}).
+\code{stream-append-delayed} and \code{interleave-delayed} are just like \code{stream-append} and \code{interleave} (\cref{Section 3.5.3}), except that they take a delayed argument (like the \code{integral} procedure in \cref{Section 3.5.4}).
+This postpones looping in some cases (see \cref{Exercise 4.71}).
 \begin{scheme}
   (define (stream-append-delayed s1 delayed-s2)
     (if (stream-null? s1)
@@ -621,8 +621,8 @@ This postpones looping in some cases (see \link{Exercise 4.71}).
           (delay (stream-cdr s1))))))
 \end{scheme}
 
-\code{stream-flatmap}, which is used throughout the query evaluator to map a procedure over a stream of frames and combine the resulting streams of frames, is the stream analog of the \code{flatmap} procedure introduced for ordinary lists in \link{Section 2.2.3}.
-Unlike ordinary \code{flatmap}, however, we accumulate the streams with an interleaving process, rather than simply appending them (see \link{Exercise 4.72} and \link{Exercise 4.73}).
+\code{stream-flatmap}, which is used throughout the query evaluator to map a procedure over a stream of frames and combine the resulting streams of frames, is the stream analog of the \code{flatmap} procedure introduced for ordinary lists in \cref{Section 2.2.3}.
+Unlike ordinary \code{flatmap}, however, we accumulate the streams with an interleaving process, rather than simply appending them (see \cref{Exercise 4.72} and \cref{Exercise 4.73}).
 \begin{scheme}
   (define (stream-flatmap proc s)
     (flatten-stream (stream-map proc s)))
@@ -646,8 +646,8 @@ The evaluator also uses the following simple procedure to generate a stream cons
 \subsubsection{Query Syntax Procedures}
 \label{Section 4.4.4.7}
 
-\code{type} and \code{contents}, used by \code{qeval} (\link{Section 4.4.4.2}), specify that a special form is identified by the symbol in its \code{car}.
-They are the same as the \code{type-tag} and \code{contents} procedures in \link{Section 2.4.2}, except for the error message.
+\code{type} and \code{contents}, used by \code{qeval} (\cref{Section 4.4.4.2}), specify that a special form is identified by the symbol in its \code{car}.
+They are the same as the \code{type-tag} and \code{contents} procedures in \cref{Section 2.4.2}, except for the error message.
 
 \begin{scheme}
   (define (type exp)
@@ -661,7 +661,7 @@ They are the same as the \code{type-tag} and \code{contents} procedures in \link
         (error "Unknown expression CONTENTS" exp)))
 \end{scheme}
 
-The following procedures, used by \code{query-driver-loop} (in \link{Section 4.4.4.1}), specify that rules and assertions are added to the data base by expressions of the form \code{(assert! ⟨\var{rule-or-assertion}⟩)}:
+The following procedures, used by \code{query-driver-loop} (in \cref{Section 4.4.4.1}), specify that rules and assertions are added to the data base by expressions of the form \code{(assert! ⟨\var{rule-or-assertion}⟩)}:
 \begin{scheme}
   (define (assertion-to-be-added? exp)
     (eq? (type exp) 'assert!))
@@ -669,7 +669,7 @@ The following procedures, used by \code{query-driver-loop} (in \link{Section 4.4
   (define (add-assertion-body exp) (car (contents exp)))
 \end{scheme}
 
-Here are the syntax definitions for the \code{and}, \code{or}, \code{not}, and \code{lisp-value} special forms (\link{Section 4.4.4.2}):
+Here are the syntax definitions for the \code{and}, \code{or}, \code{not}, and \code{lisp-value} special forms (\cref{Section 4.4.4.2}):
 \begin{scheme}
   (define (empty-conjunction? exps) (null? exps))
   (define (first-conjunct exps) (car exps))
@@ -696,7 +696,7 @@ The following three procedures define the syntax of rules:
     (if (null? (cddr rule)) '(always-true) (caddr rule)))
 \end{scheme}
 
-\code{query-driver-loop} (\link{Section 4.4.4.1}) calls \code{query-syntax-process} to transform pattern variables in the expression, which have the form \code{?symbol}, into the internal format \code{(? symbol)}.
+\code{query-driver-loop} (\cref{Section 4.4.4.1}) calls \code{query-syntax-process} to transform pattern variables in the expression, which have the form \code{?symbol}, into the internal format \code{(? symbol)}.
 That is to say, a pattern such as \code{(job ?x ?y)} is actually represented internally by the system as \code{(job (? x) (? y))}.
 This increases the efficiency of query processing, since it means that the system can check to see if an expression is a pattern variable by checking whether the \code{car} of the expression is the symbol \code{?}, rather than having to extract characters from the symbol.
 The syntax transformation is accomplished by the following procedure:%
@@ -730,14 +730,14 @@ The syntax transformation is accomplished by the following procedure:%
           symbol)))
 \end{scheme}
 
-Once the variables are transformed in this way, the variables in a pattern are lists starting with \code{?}, and the constant symbols (which need to be recognized for data-base indexing, \link{Section 4.4.4.5}) are just the symbols.
+Once the variables are transformed in this way, the variables in a pattern are lists starting with \code{?}, and the constant symbols (which need to be recognized for data-base indexing, \cref{Section 4.4.4.5}) are just the symbols.
 \begin{scheme}
   (define (var? exp) (tagged-list? exp '?))
 
   (define (constant-symbol? exp) (symbol? exp))
 \end{scheme}
 
-Unique variables are constructed during rule application (in \link{Section 4.4.4.4}) by means of the following procedures.
+Unique variables are constructed during rule application (in \cref{Section 4.4.4.4}) by means of the following procedures.
 The unique identifier for a rule application is a number, which is incremented each time a rule is applied.
 \begin{scheme}
   (define rule-counter 0)
@@ -787,7 +787,7 @@ Frames are represented as lists of bindings, which are variable-value pairs:
 
 \begin{exercise}
 	\label{Exercise 4.71}
-	Louis Reasoner wonders why the \code{simple-query} and \code{disjoin} procedures (\link{Section 4.4.4.2}) are implemented using explicit \code{delay} operations, rather than being defined as follows:
+	Louis Reasoner wonders why the \code{simple-query} and \code{disjoin} procedures (\cref{Section 4.4.4.2}) are implemented using explicit \code{delay} operations, rather than being defined as follows:
 	\begin{scheme}
 	  (define (simple-query query-pattern frame-stream)
 	    (stream-flatmap
@@ -816,7 +816,7 @@ Frames are represented as lists of bindings, which are variable-value pairs:
 	\label{Exercise 4.72}
 	Why do \code{disjoin} and \code{stream-flatmap} interleave the streams rather than simply append them?
 	Give examples that illustrate why interleaving works better.
-	(Hint: Why did we use \code{interleave} in \link{Section 3.5.3}?)
+	(Hint: Why did we use \code{interleave} in \cref{Section 3.5.3}?)
 \end{exercise}
 
 \begin{exercise}
@@ -907,7 +907,7 @@ Frames are represented as lists of bindings, which are variable-value pairs:
 
 \begin{exercise}
 	\label{Exercise 4.76}
-	Our implementation of \code{and} as a series combination of queries (\link{Figure 4.5}) is elegant, but it is inefficient because in processing the second query of the \code{and} we must scan the data base for each frame produced by the first query.
+	Our implementation of \code{and} as a series combination of queries (\cref{Figure 4.5}) is elegant, but it is inefficient because in processing the second query of the \code{and} we must scan the data base for each frame produced by the first query.
 	If the data base has \( n \) elements, and a typical query produces a number of output frames proportional to \( n \) (say \( n / k \)), then scanning the data base for each frame produced by the first query will require \( n^2 / k \) calls to the pattern matcher.
 	Another approach would be to process the two clauses of the \code{and} separately, then look for all pairs of output frames that are compatible.
 	If each query produces \( n / k \) output frames, then this means that we must perform \( n^2 / k^2 \) compatibility checks---a factor of \( k \) fewer than the number of matches required in our current method.
@@ -921,7 +921,7 @@ Frames are represented as lists of bindings, which are variable-value pairs:
 
 \begin{exercise}
 	\label{Exercise 4.77}
-	In \link{Section 4.4.3} we saw that \code{not} and \code{lisp-value} can cause the query language to give “wrong” answers if these filtering operations are applied to frames in which variables are unbound.
+	In \cref{Section 4.4.3} we saw that \code{not} and \code{lisp-value} can cause the query language to give “wrong” answers if these filtering operations are applied to frames in which variables are unbound.
 	Devise a way to fix this shortcoming.
 	One idea is to perform the filtering in a “delayed” manner by appending to the frame a “promise” to filter that is fulfilled only when enough variables have been bound to make the operation possible.
 	We could wait to perform filtering until all other operations have been performed.
@@ -932,7 +932,7 @@ Frames are represented as lists of bindings, which are variable-value pairs:
 
 \begin{exercise}
 	\label{Exercise 4.78}
-	Redesign the query language as a nondeterministic program to be implemented using the evaluator of \link{Section 4.3}, rather than as a stream process.
+	Redesign the query language as a nondeterministic program to be implemented using the evaluator of \cref{Section 4.3}, rather than as a stream process.
 	In this approach, each query will produce a single answer (rather than the stream of all answers) and the user can type \code{try-again} to see more answers.
 	You should find that much of the mechanism we built in this section is subsumed by nondeterministic search and backtracking.
 	You will probably also find, however, that your new query language has subtle differences in behavior from the one implemented here.
@@ -943,7 +943,7 @@ Frames are represented as lists of bindings, which are variable-value pairs:
 
 \begin{exercise}
 	\label{Exercise 4.79}
-	When we implemented the Lisp evaluator in \link{Section 4.1}, we saw how to use local environments to avoid name conflicts between the parameters of procedures.
+	When we implemented the Lisp evaluator in \cref{Section 4.1}, we saw how to use local environments to avoid name conflicts between the parameters of procedures.
 	For example, in evaluating
 	\begin{scheme}
 	  (define (square x) (* x x))

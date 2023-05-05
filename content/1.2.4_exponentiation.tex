@@ -79,13 +79,13 @@ The difference between \( Θ(\log n) \) growth and \( Θ(n) \) growth becomes st
 For example, \code{fast-expt} for \( n = 1000 \) requires only 14 multiplications.%
 \footnote{
 	You may wonder why anyone would care about raising numbers to the 1000th power.
-	See \link{Section 1.2.6}.
+	See \cref{Section 1.2.6}.
 }
-It is also possible to use the idea of successive squaring to devise an iterative algorithm that computes exponentials with a logarithmic number of steps (see \link{Exercise 1.16}), although, as is often the case with iterative algorithms, this is not written down so straightforwardly as the recursive algorithm.%
+It is also possible to use the idea of successive squaring to devise an iterative algorithm that computes exponentials with a logarithmic number of steps (see \cref{Exercise 1.16}), although, as is often the case with iterative algorithms, this is not written down so straightforwardly as the recursive algorithm.%
 \footnote{
 	This iterative algorithm is ancient.
 	It appears in the \booktitle{Chandah-sutra} by Áchárya Pingala, written before 200~\acronym{B.C.}
-	See \link{Knuth 1981}, Section 4.6.3, for a full discussion and analysis of this and other methods of exponentiation.
+	See \cref{Knuth 1981}, Section 4.6.3, for a full discussion and analysis of this and other methods of exponentiation.
 }
 
 
@@ -121,7 +121,7 @@ It is also possible to use the idea of successive squaring to devise an iterativ
 
 \begin{exercise}
 	\label{Exercise 1.18}
-	Using the results of \link{Exercise 1.16} and \link{Exercise 1.17}, devise a procedure that generates an iterative process for multiplying two integers in terms of adding, doubling, and halving and uses a logarithmic number of steps.%
+	Using the results of \cref{Exercise 1.16} and \cref{Exercise 1.17}, devise a procedure that generates an iterative process for multiplying two integers in terms of adding, doubling, and halving and uses a logarithmic number of steps.%
 	\footnote{
 		This algorithm, which is sometimes known as the “Russian peasant method” of multiplication, is ancient.
 		Examples of its use are found in the Rhind Papyrus, one of the two oldest mathematical documents in existence, written about 1700~\acronym{B.C.} (and copied from an even older document) by an Egyptian scribe named A’h-mose.
@@ -133,7 +133,7 @@ It is also possible to use the idea of successive squaring to devise an iterativ
 \begin{exercise}
 	\label{Exercise 1.19}
 	There is a clever algorithm for computing the Fibonacci numbers in a logarithmic number of steps.
-	Recall the transformation of the state variables \( a \) and \( b \) in the \code{fib-iter} process of \link{Section 1.2.2}:
+	Recall the transformation of the state variables \( a \) and \( b \) in the \code{fib-iter} process of \cref{Section 1.2.2}:
 	\( a \gets a + b \) and \( b \gets a \).
 	Call this transformation \( T \), and observe that applying \( T \) over and over again \( n \) times, starting with \( 1 \) and \( 0 \), produces the pair \( \Fib (n + 1) \) and \( \Fib(n) \).
 	In other words, the Fibonacci numbers are produced by applying \( T^n \), the \( n \)\nth{th} power of the transformation \( T \), starting with the pair \( (1, 0) \).
@@ -142,7 +142,7 @@ It is also possible to use the idea of successive squaring to devise an iterativ
 	This gives us an explicit way to square these transformations, and thus we can compute \( T^n \) using successive squaring, as in the \code{fast-expt} procedure.
 	Put this all together to complete the following procedure, which runs in a logarithmic number of steps:%
 	\footnote{
-		This exercise was suggested to us by Joe Stoy, based on an example in \link{Kaldewaij 1990}.
+		This exercise was suggested to us by Joe Stoy, based on an example in \cref{Kaldewaij 1990}.
 	}
 	\begin{scheme}
 	  (define (fib n)
@@ -153,8 +153,8 @@ It is also possible to use the idea of successive squaring to devise an iterativ
 	          ((even? count)
 	           (fib-iter a
 	                     b
-	                     ~\cvar{⟨??⟩}~   ; compute ~\( p' \)~
-	                     ~\cvar{⟨??⟩}~   ; compute ~\( q' \)~
+	                     ~\cvar{⟨??⟩}~   ; ~\textrm{compute \( p' \)}~
+	                     ~\cvar{⟨??⟩}~   ; ~\textrm{compute \( q' \)}~
 	                     (/ count 2)))
 	          (else (fib-iter (+ (* b q) (* a q) (* a p))
 	                          (+ (* b p) (* a q))

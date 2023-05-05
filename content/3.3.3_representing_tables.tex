@@ -1,8 +1,8 @@
 \subsection{Representing Tables}
 \label{Section 3.3.3}
 
-When we studied various ways of representing sets in \link{Chapter 2}, we mentioned in \link{Section 2.3.3} the task of maintaining a table of records indexed by identifying keys.
-In the implementation of data-directed programming in \link{Section 2.4.3}, we made extensive use of two-dimensional tables, in which information is stored and retrieved using two keys.
+When we studied various ways of representing sets in \cref{Chapter 2}, we mentioned in \cref{Section 2.3.3} the task of maintaining a table of records indexed by identifying keys.
+In the implementation of data-directed programming in \cref{Section 2.4.3}, we made extensive use of two-dimensional tables, in which information is stored and retrieved using two keys.
 Here we see how to build tables as mutable list structures.
 
 \begin{figure}[tb]
@@ -20,7 +20,7 @@ The records are glued together to form a list by pairs whose \code{car}s point t
 These gluing pairs are called the \newterm{backbone} of the table.
 In order to have a place that we can change when we add a new record to the table, we build the table as a \newterm{headed list}.
 A headed list has a special backbone pair at the beginning, which holds a dummy “record”---in this case the arbitrarily chosen symbol \code{*table*}.
-\link{Figure 3.22} shows the box-and-pointer diagram for the table
+\cref{Figure 3.22} shows the box-and-pointer diagram for the table
 \begin{scheme}
   a:  1
   b:  2
@@ -81,7 +81,7 @@ To construct a new table, we simply create a list containing the symbol \code{*t
 
 In a two-dimensional table, each value is indexed by two keys.
 We can construct such a table as a one-dimensional table in which each key identifies a subtable.
-\link{Figure 3.23} shows the box-and-pointer diagram for the table
+\cref{Figure 3.23} shows the box-and-pointer diagram for the table
 \begin{example}
 	math:    +:  43        letters:    a:  97
 	         -:  45                    b:  98
@@ -177,7 +177,7 @@ Here is a generator for two-dimensional tables represented in this fashion:
       dispatch))
 \end{scheme}
 
-Using \code{make-table}, we could implement the \code{get} and \code{put} operations used in \link{Section 2.4.3} for data-directed programming, as follows:
+Using \code{make-table}, we could implement the \code{get} and \code{put} operations used in \cref{Section 2.4.3} for data-directed programming, as follows:
 \begin{scheme}
   (define operation-table (make-table))
   (define get (operation-table 'lookup-proc))
@@ -210,10 +210,10 @@ Both operations access the same local table, which is encapsulated within the ob
 \begin{exercise}
 	\label{Exercise 3.26}
 	To search a table as implemented above, one needs to scan through the list of records.
-	This is basically the unordered list representation of \link{Section 2.3.3}.
+	This is basically the unordered list representation of \cref{Section 2.3.3}.
 	For large tables, it may be more efficient to structure the table in a different manner.
 	Describe a table implementation where the (key, value) records are organized using a binary tree, assuming that keys can be ordered in some way (e.g., numerically or alphabetically).
-	(Compare \link{Exercise 2.66} of \link{Chapter 2}.)
+	(Compare \cref{Exercise 2.66} of \cref{Chapter 2}.)
 \end{exercise}
 
 
@@ -225,7 +225,7 @@ Both operations access the same local table, which is encapsulated within the ob
 	A memoized procedure maintains a table in which values of previous calls are stored using as keys the arguments that produced the values.
 	When the memoized procedure is asked to compute a value, it first checks the table to see if the value is already there and, if so, just returns that value.
 	Otherwise, it computes the new value in the ordinary way and stores this in the table.
-	As an example of memoization, recall from \link{Section 1.2.2} the exponential process for computing Fibonacci numbers:
+	As an example of memoization, recall from \cref{Section 1.2.2} the exponential process for computing Fibonacci numbers:
 	\begin{scheme}
 	  (define (fib n)
 	    (cond ((= n 0) 0)

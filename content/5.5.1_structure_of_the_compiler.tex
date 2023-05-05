@@ -1,14 +1,14 @@
 \subsection{Structure of the Compiler}
 \label{Section 5.5.1}
 
-In \link{Section 4.1.7} we modified our original metacircular interpreter to separate analysis from execution.
+In \cref{Section 4.1.7} we modified our original metacircular interpreter to separate analysis from execution.
 We analyzed each expression to produce an execution procedure that took an environment as argument and performed the required operations.
 In our compiler, we will do essentially the same analysis.
 Instead of producing execution procedures, however, we will generate sequences of instructions to be run by our register machine.
 
 The procedure \code{compile} is the top-level dispatch in the compiler.
-It corresponds to the \code{eval} procedure of \link{Section 4.1.1}, the \code{analyze} procedure of \link{Section 4.1.7}, and the \code{eval-dispatch} entry point of the explicit-control-evaluator in \link{Section 5.4.1}.
-The compiler, like the interpreters, uses the expression-syntax procedures defined in \link{Section 4.1.2}.%
+It corresponds to the \code{eval} procedure of \cref{Section 4.1.1}, the \code{analyze} procedure of \cref{Section 4.1.7}, and the \code{eval-dispatch} entry point of the explicit-control-evaluator in \cref{Section 5.4.1}.
+The compiler, like the interpreters, uses the expression-syntax procedures defined in \cref{Section 4.1.2}.%
 \footnote{
 	Notice, however, that our compiler is a Scheme program, and the syntax procedures that it uses to manipulate expressions are the actual Scheme procedures used with the metacircular evaluator.
 	For the explicit-control evaluator, in contrast, we assumed that equivalent syntax operations were available as operations for the register machine.
@@ -207,7 +207,7 @@ We sometimes need to construct an instruction sequence with no statements:
   (define (empty-instruction-sequence)
     (make-instruction-sequence '() '() '()))
 \end{scheme}
-The procedures for combining instruction sequences are shown in \link{Section 5.5.4}.
+The procedures for combining instruction sequences are shown in \cref{Section 5.5.4}.
 
 
 
@@ -229,7 +229,7 @@ The procedures for combining instruction sequences are shown in \link{Section 5.
 	\label{Exercise 5.32}
 	Using the \code{preserving} mechanism, the compiler will avoid saving and restoring \code{env} around the evaluation of the operator of a combination in the case where the operator is a symbol.
 	We could also build such optimizations into the evaluator.
-	Indeed, the explicit-control evaluator of \link{Section 5.4} already performs a similar optimization, by treating combinations with no operands as a special case.
+	Indeed, the explicit-control evaluator of \cref{Section 5.4} already performs a similar optimization, by treating combinations with no operands as a special case.
 	\begin{enumerate}[label = \alph*., leftmargin = *]
 
 		\item

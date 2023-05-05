@@ -99,7 +99,7 @@ Moreover, \code{cons} can be used to form pairs whose elements are pairs, and so
   (car (cdr z))
   ~\outprint{3}~
 \end{scheme}
-In \link{Section 2.2} we will see how this ability to combine pairs means that pairs can be used as general-purpose building blocks to create all sorts of complex data structures.
+In \cref{Section 2.2} we will see how this ability to combine pairs means that pairs can be used as general-purpose building blocks to create all sorts of complex data structures.
 The single compound-data primitive \newterm{pair}, implemented by the procedures \code{cons}, \code{car}, and \code{cdr}, is the only glue we need.
 Data objects constructed from pairs are called \newterm{list-structured} data.
 
@@ -169,7 +169,7 @@ Now we can try our rational-number procedures:
 
 As the final example shows, our rational-number implementation does not reduce rational numbers to lowest terms.
 We can remedy this by changing \code{make-rat}.
-If we have a \code{gcd} procedure like the one in \link{Section 1.2.5} that produces the greatest common divisor of two integers, we can use \code{gcd} to reduce the numerator and the denominator to lowest terms before constructing the pair:
+If we have a \code{gcd} procedure like the one in \cref{Section 1.2.5} that produces the greatest common divisor of two integers, we can use \code{gcd} to reduce the numerator and the denominator to lowest terms before constructing the pair:
 \begin{scheme}
   (define (make-rat n d)
     (let ((g (gcd n d)))

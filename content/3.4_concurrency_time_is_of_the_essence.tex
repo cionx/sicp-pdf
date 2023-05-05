@@ -2,12 +2,12 @@
 \label{Section 3.4}
 
 We’ve seen the power of computational objects with local state as tools for modeling.
-Yet, as \link{Section 3.1.3} warned, this power extracts a price:
+Yet, as \cref{Section 3.1.3} warned, this power extracts a price:
 the loss of referential transparency, giving rise to a thicket of questions about sameness and change, and the need to abandon the substitution model of evaluation in favor of the more intricate environment model.
 
 The central issue lurking beneath the complexity of state, sameness, and change is that by introducing assignment we are forced to admit \newterm{time} into our computational models.
 Before we introduced assignment, all our programs were timeless, in the sense that any expression that has a value always has the same value.
-In contrast, recall the example of modeling withdrawals from a bank account and returning the resulting balance, introduced at the beginning of \link{Section 3.1.1}:
+In contrast, recall the example of modeling withdrawals from a bank account and returning the resulting balance, introduced at the beginning of \cref{Section 3.1.1}:
 \begin{scheme}
   (withdraw 25)
   ~\outprint{75}~

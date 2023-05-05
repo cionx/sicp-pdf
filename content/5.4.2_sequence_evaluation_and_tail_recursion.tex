@@ -49,7 +49,7 @@ Rather than setting up \code{continue} to arrange for \code{eval-dispatch} to re
 
 \subsubsection*{Tail recursion}
 
-In \link{Chapter 1} we said that the process described by a procedure such as
+In \cref{Chapter 1} we said that the process described by a procedure such as
 \begin{scheme}
   (define (sqrt-iter guess x)
     (if (good-enough? guess x)
@@ -59,11 +59,11 @@ In \link{Chapter 1} we said that the process described by a procedure such as
 is an iterative process.
 Even though the procedure is syntactically recursive (defined in terms of itself), it is not logically necessary for an evaluator to save information in passing from one call to \code{sqrt-iter} to the next.%
 \footnote{
-	We saw in \link{Section 5.1} how to implement such a process with a register machine that had no stack;
+	We saw in \cref{Section 5.1} how to implement such a process with a register machine that had no stack;
 	the state of the process was stored in a fixed set of registers.
 }
 An evaluator that can execute a procedure such as \code{sqrt-iter} without requiring increasing storage as the procedure continues to call itself is called a \newterm{tail-recursive} evaluator.
-The metacircular implementation of the evaluator in \link{Chapter 4} does not specify whether the evaluator is tail-recursive, because that evaluator inherits its mechanism for saving state from the underlying Scheme.
+The metacircular implementation of the evaluator in \cref{Chapter 4} does not specify whether the evaluator is tail-recursive, because that evaluator inherits its mechanism for saving state from the underlying Scheme.
 With the explicit-control evaluator, however, we can trace through the evaluation process to see when procedure calls cause a net accumulation of information on the stack.
 
 Our evaluator is tail-recursive, because in order to evaluate the final expression of a sequence we transfer directly to \code{eval-dispatch} without saving any information on the stack.

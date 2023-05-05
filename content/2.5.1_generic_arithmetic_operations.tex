@@ -3,7 +3,7 @@
 
 The task of designing generic arithmetic operations is analogous to that of designing the generic complex-number operations.
 We would like, for instance, to have a generic addition procedure \code{add} that acts like ordinary primitive addition \code{+} on ordinary numbers, like \code{add-rat} on rational numbers, and like \code{add-complex} on complex numbers.
-We can implement \code{add}, and the other generic arithmetic operations, by following the same strategy we used in \link{Section 2.4.3} to implement the generic selectors for complex numbers.
+We can implement \code{add}, and the other generic arithmetic operations, by following the same strategy we used in \cref{Section 2.4.3} to implement the generic selectors for complex numbers.
 We will attach a type tag to each kind of number and cause the generic procedure to dispatch to an appropriate package according to the data type of its arguments.
 
 The generic arithmetic procedures are defined as follows:
@@ -41,7 +41,7 @@ Users of the Scheme-number package will create (tagged) ordinary numbers by mean
 
 Now that the framework of the generic arithmetic system is in place, we can readily include new kinds of numbers.
 Here is a package that performs rational arithmetic.
-Notice that, as a benefit of additivity, we can use without modification the rational-number code from \link{Section 2.1.1} as the internal procedures in the package:
+Notice that, as a benefit of additivity, we can use without modification the rational-number code from \cref{Section 2.1.1} as the internal procedures in the package:
 \begin{scheme}
   (define (install-rational-package)
     ~\textrm{;; internal procedures}~
@@ -84,7 +84,7 @@ Notice that, as a benefit of additivity, we can use without modification the rat
 
 We can install a similar package to handle complex numbers, using the tag \code{complex}.
 In creating the package, we extract from the table the operations \code{make-from-real-imag} and \code{make-from-mag-ang} that were defined by the rectangular and polar packages.
-Additivity permits us to use, as the internal operations, the same \code{add-complex}, \code{sub-complex}, \code{mul-complex}, and \code{div-complex} procedures from \link{Section 2.4.1}.
+Additivity permits us to use, as the internal operations, the same \code{add-complex}, \code{sub-complex}, \code{mul-complex}, and \code{div-complex} procedures from \cref{Section 2.4.1}.
 
 \begin{scheme}
   (define (install-complex-package)
@@ -135,7 +135,7 @@ Notice how the underlying procedures, originally defined in the rectangular and 
 \end{scheme}
 
 What we have here is a two-level tag system.
-A typical complex number, such as \( 3 + 4i \) in rectangular form, would be represented as shown in \link{Figure 2.24}.
+A typical complex number, such as \( 3 + 4i \) in rectangular form, would be represented as shown in \cref{Figure 2.24}.
 The outer tag (\code{complex}) is used to direct the number to the complex package.
 Once within the complex package, the next tag (\code{rectangular}) is used to direct the number to the rectangular package.
 In a large and complicated system there might be many levels, each interfaced with the next by means of generic operations.
@@ -156,7 +156,7 @@ we could simply name them \code{add}, \code{sub}, \code{mul}, and \code{div} in 
 
 \begin{exercise}
 	\label{Exercise 2.77}
-	Louis Reasoner tries to evaluate the expression \code{(magnitude z)} where \code{z} is the object shown in \link{Figure 2.24}.
+	Louis Reasoner tries to evaluate the expression \code{(magnitude z)} where \code{z} is the object shown in \cref{Figure 2.24}.
 	To his surprise, instead of the answer 5 he gets an error message from \code{apply-generic}, saying there is no method for the operation \code{magnitude} on the types \code{(complex)}.
 	He shows this interaction to Alyssa P.
 	Hacker, who says “The problem is that the complex-number selectors were never defined for \code{complex} numbers, just for \code{polar} and \code{rectangular} numbers.
@@ -168,7 +168,7 @@ we could simply name them \code{add}, \code{sub}, \code{mul}, and \code{div} in 
 	  (put 'angle '(complex) angle)
 	\end{scheme}
 	Describe in detail why this works.
-	As an example, trace through all the procedures called in evaluating the expression \code{(magnitude z)} where \code{z} is the object shown in \link{Figure 2.24}.
+	As an example, trace through all the procedures called in evaluating the expression \code{(magnitude z)} where \code{z} is the object shown in \cref{Figure 2.24}.
 	In particular, how many times is \code{apply-generic} invoked?
 	What procedure is dispatched to in each case?
 \end{exercise}
@@ -181,7 +181,7 @@ we could simply name them \code{add}, \code{sub}, \code{mul}, and \code{div} in 
 	It was not possible to use the primitives of the language directly because our type-tag system requires that each data object have a type attached to it.
 	In fact, however, all Lisp implementations do have a type system, which they use internally.
 	Primitive predicates such as \code{symbol?} and \code{number?}  determine whether data objects have particular types.
-	Modify the definitions of \code{type-tag}, \code{contents}, and \code{attach-tag} from \link{Section 2.4.2} so that our generic system takes advantage of Scheme’s internal type system.
+	Modify the definitions of \code{type-tag}, \code{contents}, and \code{attach-tag} from \cref{Section 2.4.2} so that our generic system takes advantage of Scheme’s internal type system.
 	That is to say, the system should work as before except that ordinary numbers should be represented simply as Scheme numbers rather than as pairs whose \code{car} is the symbol \code{scheme-number}.
 \end{exercise}
 

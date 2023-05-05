@@ -33,7 +33,7 @@ For example, evaluating
      (+ 3 5 7))
 \end{scheme}
 requires that the evaluation rule be applied to four different combinations.
-We can obtain a picture of this process by representing the combination in the form of a tree, as shown in \link{Figure 1.1}.
+We can obtain a picture of this process by representing the combination in the form of a tree, as shown in \cref{Figure 1.1}.
 Each combination is represented by a node with branches corresponding to the operator and the operands of the combination stemming from it.
 The terminal nodes (that is, nodes with no branches stemming from them) represent either operators or numbers.
 Viewing evaluation in terms of the tree, we can imagine that the values of the operands percolate upward, starting from the terminal nodes and then combining at higher and higher levels.
@@ -68,7 +68,7 @@ We take care of the primitive cases by stipulating that
 We may regard the second rule as a special case of the third one by stipulating that symbols such as \code{+} and \code{*} are also included in the global environment, and are associated with the sequences of machine instructions that are their “values.”
 The key point to notice is the role of the environment in determining the meaning of the symbols in expressions.
 In an interactive language such as Lisp, it is meaningless to speak of the value of an expression such as \code{(+ x 1)} without specifying any information about the environment that would provide a meaning for the symbol \code{x} (or even for the symbol \code{+}).
-As we shall see in \link{Chapter 3}, the general notion of the environment as providing a context in which evaluation takes place will play an important role in our understanding of program execution.
+As we shall see in \cref{Chapter 3}, the general notion of the environment as providing a context in which evaluation takes place will play an important role in our understanding of program execution.
 
 Notice that the evaluation rule given above does not handle definitions.
 For instance, evaluating \code{(define x 3)} does not apply \code{define} to two arguments, one of which is the value of the symbol \code{x} and the other of which is \( 3 \), since the purpose of the \code{define} is precisely to associate \code{x} with a value.

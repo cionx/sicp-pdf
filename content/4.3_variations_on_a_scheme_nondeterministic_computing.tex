@@ -2,13 +2,13 @@
 \label{Section 4.3}
 
 In this section, we extend the Scheme evaluator to support a programming paradigm called \newterm{nondeterministic computing} by building into the evaluator a facility to support automatic search.
-This is a much more profound change to the language than the introduction of lazy evaluation in \link{Section 4.2}.
+This is a much more profound change to the language than the introduction of lazy evaluation in \cref{Section 4.2}.
 
 Nondeterministic computing, like stream processing, is useful for “generate and test” applications.
 Consider the task of starting with two lists of positive integers and finding a pair of integers---one from the first list and one from the second list---whose sum is prime.
-We saw how to handle this with finite sequence operations in \link{Section 2.2.3} and with infinite streams in \link{Section 3.5.3}.
+We saw how to handle this with finite sequence operations in \cref{Section 2.2.3} and with infinite streams in \cref{Section 3.5.3}.
 Our approach was to generate the sequence of all possible pairs and filter these to select the pairs whose sum is prime.
-Whether we actually generate the entire sequence of pairs first as in \link{Chapter 2}, or interleave the generating and filtering as in \link{Chapter 3}, is immaterial to the essential image of how the computation is organized.
+Whether we actually generate the entire sequence of pairs first as in \cref{Chapter 2}, or interleave the generating and filtering as in \cref{Chapter 3}, is immaterial to the essential image of how the computation is organized.
 
 The nondeterministic approach evokes a different image.
 Imagine simply that we choose (in some way) a number from the first list and a number from the second list and require (using some mechanism) that their sum be prime.
@@ -24,10 +24,10 @@ It might seem as if this procedure merely restates the problem, rather than spec
 Nevertheless, this is a legitimate nondeterministic program.%
 \footnote{
 	We assume that we have previously defined a procedure \code{prime?} that tests whether numbers are prime.
-	Even with \code{prime?} defined, the \code{prime-sum-pair} procedure may look suspiciously like the unhelpful “pseudo-Lisp” attempt to define the square-root function, which we described at the beginning of \link{Section 1.1.7}.
+	Even with \code{prime?} defined, the \code{prime-sum-pair} procedure may look suspiciously like the unhelpful “pseudo-Lisp” attempt to define the square-root function, which we described at the beginning of \cref{Section 1.1.7}.
 	In fact, a square-root procedure along those lines can actually be formulated as a nondeterministic program.
 	By incorporating a search mechanism into the evaluator, we are eroding the distinction between purely declarative descriptions and imperative specifications of how to compute answers.
-	We’ll go even farther in this direction in \link{Section 4.4}.
+	We’ll go even farther in this direction in \cref{Section 4.4}.
 }
 
 The key idea here is that expressions in a nondeterministic language can have more than one possible value.
@@ -55,8 +55,8 @@ We can type the above definition of \code{prime-sum-pair} at the \code{amb} eval
 \end{scheme}
 The value returned was obtained after the evaluator repeatedly chose elements from each of the lists, until a successful choice was made.
 
-\link{Section 4.3.1} introduces \code{amb} and explains how it supports nondeterminism through the evaluator’s automatic search mechanism.
-\link{Section 4.3.2} presents examples of nondeterministic programs, and \link{Section 4.3.3} gives the details of how to implement the \code{amb} evaluator by modifying the ordinary Scheme evaluator.
+\cref{Section 4.3.1} introduces \code{amb} and explains how it supports nondeterminism through the evaluator’s automatic search mechanism.
+\cref{Section 4.3.2} presents examples of nondeterministic programs, and \cref{Section 4.3.3} gives the details of how to implement the \code{amb} evaluator by modifying the ordinary Scheme evaluator.
 
 \input{content/4.3.1_amb_and_search.tex}
 \input{content/4.3.2_examples_of_nondeterministic_programs.tex}

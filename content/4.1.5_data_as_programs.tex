@@ -10,11 +10,11 @@ For example, consider the familiar program to compute factorials:
 \end{scheme}
 We may regard this program as the description of a machine containing parts that decrement, multiply, and test for equality, together with a two-position switch and another factorial machine.
 (The factorial machine is infinite because it contains another factorial machine within it.)
-\link{Figure 4.2} is a flow diagram for the factorial machine, showing how the parts are wired together.
+\cref{Figure 4.2} is a flow diagram for the factorial machine, showing how the parts are wired together.
 
 In a similar way, we can regard the evaluator as a very special machine that takes as input a description of a machine.
 Given this input, the evaluator configures itself to emulate the machine described.
-For example, if we feed our evaluator the definition of \code{factorial}, as shown in \link{Figure 4.3}, the evaluator will be able to compute factorials.
+For example, if we feed our evaluator the definition of \code{factorial}, as shown in \cref{Figure 4.3}, the evaluator will be able to compute factorials.
 
 \begin{figure}[tb]
 	\centering
@@ -38,10 +38,10 @@ It mimics other machines when these are described as Lisp programs.%
 	In the paper, Turing presented a simple computational model---now known as a \newterm{Turing machine}---and argued that any “effective process” can be formulated as a program for such a machine.
 	(This argument is known as the \newterm{Church-Turing thesis}.)
 	Turing then implemented a universal machine, i.e., a Turing machine that behaves as an evaluator for Turing-machine programs.
-	He used this framework to demonstrate that there are well-posed problems that cannot be computed by Turing machines (see \link{Exercise 4.15}), and so by implication cannot be formulated as “effective processes.”
+	He used this framework to demonstrate that there are well-posed problems that cannot be computed by Turing machines (see \cref{Exercise 4.15}), and so by implication cannot be formulated as “effective processes.”
 	Turing went on to make fundamental contributions to practical computer science as well.
 	For example, he invented the idea of structuring programs using general-purpose subroutines.
-	See \link{Hodges 1983} for a biography of Turing.
+	See \cref{Hodges 1983} for a biography of Turing.
 }
 This is striking.
 Try to imagine an analogous evaluator for electrical circuits.
@@ -53,7 +53,7 @@ It is remarkable that the program evaluator is a rather simple program.%
 	Some people find it counterintuitive that an evaluator, which is implemented by a relatively simple procedure, can emulate programs that are more complex than the evaluator itself.
 	The existence of a universal evaluator machine is a deep and wonderful property of computation.
 	\newterm{Recursion theory}, a branch of mathematical logic, is concerned with logical limits of computation.
-	Douglas Hofstadter’s beautiful book \textit{Gödel, Escher, Bach} explores some of these ideas (\link{Hofstadter 1979}).
+	Douglas Hofstadter’s beautiful book \textit{Gödel, Escher, Bach} explores some of these ideas (\cref{Hofstadter 1979}).
 }
 
 \begin{figure}[tb]
@@ -76,10 +76,10 @@ In fact, it is sometimes convenient to ignore this distinction, and to give the 
 Many Lisp dialects provide a primitive \code{eval} procedure that takes as arguments an expression and an environment and evaluates the expression relative to the environment.%
 \footnote{
 	Warning:
-	This \code{eval} primitive is not identical to the \code{eval} procedure we implemented in \link{Section 4.1.1}, because it uses \emph{actual} Scheme environments rather than the sample environment structures we built in \link{Section 4.1.3}.
+	This \code{eval} primitive is not identical to the \code{eval} procedure we implemented in \cref{Section 4.1.1}, because it uses \emph{actual} Scheme environments rather than the sample environment structures we built in \cref{Section 4.1.3}.
 	These actual environments cannot be manipulated by the user as ordinary lists;
 	they must be accessed via \code{eval} or other special operations.
-	Similarly, the \code{apply} primitive we saw earlier is not identical to the metacircular \code{apply}, because it uses actual Scheme procedures rather than the procedure objects we constructed in \link{Section 4.1.3} and \link{Section 4.1.4}.
+	Similarly, the \code{apply} primitive we saw earlier is not identical to the metacircular \code{apply}, because it uses actual Scheme procedures rather than the procedure objects we constructed in \cref{Section 4.1.3} and \cref{Section 4.1.4}.
 }
 Thus,
 \begin{scheme}

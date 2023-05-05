@@ -2,7 +2,7 @@
 \label{Section 5.1.2}
 
 We will often define a machine to include “primitive” operations that are actually very complex.
-For example, in \link{Section 5.4} and \link{Section 5.5} we will treat Scheme’s environment manipulations as primitive.
+For example, in \cref{Section 5.4} and \cref{Section 5.5} we will treat Scheme’s environment manipulations as primitive.
 Such abstraction is valuable because it allows us to ignore the details of parts of a machine so that we can concentrate on other aspects of the design.
 The fact that we have swept a lot of complexity under the rug, however, does not mean that a machine design is unrealistic.
 We can always replace the complex “primitives” by simpler primitive operations.
@@ -27,12 +27,12 @@ Indeed, we can write a Scheme procedure that finds remainders in this way:
         (remainder (- n d) d)))
 \end{scheme}
 We can thus replace the remainder operation in the \acronym{GCD} machine’s data paths with a subtraction operation and a comparison test.
-\link{Figure 5.5} shows the data paths and controller for the elaborated machine.
+\cref{Figure 5.5} shows the data paths and controller for the elaborated machine.
 The instruction
 \begin{scheme}
   (assign t (op rem) (reg a) (reg b))
 \end{scheme}
-in the \acronym{GCD} controller definition is replaced by a sequence of instructions that contains a loop, as shown in \link{Figure 5.6}.
+in the \acronym{GCD} controller definition is replaced by a sequence of instructions that contains a loop, as shown in \cref{Figure 5.6}.
 
 
 
@@ -55,7 +55,7 @@ in the \acronym{GCD} controller definition is replaced by a sequence of instruct
 	              gcd-done)
 	\end{scheme}
 	\caption{
-		Controller instruction sequence for the \acronym{GCD} machine in \link{Figure 5.5}.
+		Controller instruction sequence for the \acronym{GCD} machine in \cref{Figure 5.5}.
 	}
 	\label{Figure 5.6}
 \end{figure}
@@ -64,7 +64,7 @@ in the \acronym{GCD} controller definition is replaced by a sequence of instruct
 
 \begin{exercise}
 	\label{Exercise 5.3}
-	Design a machine to compute square roots using Newton’s method, as described in \link{Section 1.1.7}:
+	Design a machine to compute square roots using Newton’s method, as described in \cref{Section 1.1.7}:
 	\begin{scheme}
 	  (define (sqrt x)
 	    (define (good-enough? guess)

@@ -8,7 +8,7 @@ For example, we can regard the object \code{((1 2) 3 4)} constructed by
 \end{scheme}
 as a list of three items, the first of which is itself a list, \code{(1 2)}.
 Indeed, this is suggested by the form in which the result is printed by the interpreter.
-\link{Figure 2.5} shows the representation of this structure in terms of pairs.
+\cref{Figure 2.5} shows the representation of this structure in terms of pairs.
 
 \begin{figure}[tb]
 	\centering
@@ -21,7 +21,7 @@ Indeed, this is suggested by the form in which the result is printed by the inte
 
 Another way to think of sequences whose elements are sequences is as \newterm{trees}.
 The elements of the sequence are the branches of the tree, and elements that are themselves sequences are subtrees.
-\link{Figure 2.6} shows the structure in \link{Figure 2.5} viewed as a tree.
+\cref{Figure 2.6} shows the structure in \cref{Figure 2.5} viewed as a tree.
 
 
 \begin{figure}[tb]
@@ -29,11 +29,11 @@ The elements of the sequence are the branches of the tree, and elements that are
 	\centering
 	\includesvg[width=22mm]{fig/chap2/Fig2.6a.svg}
 	\caption{
-		The list structure in \link{Figure 2.5} viewed as a tree.
+		The list structure in \cref{Figure 2.5} viewed as a tree.
 	}
 \end{figure}
 Recursion is a natural tool for dealing with tree structures, since we can often reduce operations on trees to operations on their branches, which reduce in turn to operations on the branches of the branches, and so on, until we reach the leaves of the tree.
-As an example, compare the \code{length} procedure of \link{Section 2.2.1} with the \code{count-leaves} procedure, which returns the total number of leaves of a tree:
+As an example, compare the \code{length} procedure of \cref{Section 2.2.1} with the \code{count-leaves} procedure, which returns the total number of leaves of a tree:
 \begin{scheme}
   (define x (cons (list 1 2) (list 3 4)))
 
@@ -105,7 +105,7 @@ Here is the complete procedure:%
 \begin{exercise}
 	\label{Exercise 2.24}
 	Suppose we evaluate the expression \code{(list 1 (list 2 (list 3 4)))}.
-	Give the result printed by the interpreter, the corresponding box-and-pointer structure, and the interpretation of this as a tree (as in \link{Figure 2.6}).
+	Give the result printed by the interpreter, the corresponding box-and-pointer structure, and the interpretation of this as a tree (as in \cref{Figure 2.6}).
 \end{exercise}
 
 
@@ -147,7 +147,7 @@ Here is the complete procedure:%
 
 \begin{exercise}
 	\label{Exercise 2.27}
-	Modify your \code{reverse} procedure of \link{Exercise 2.18} to produce a \code{deep-reverse} procedure that takes a list as argument and returns as its value the list with its elements reversed and with all sublists deep-reversed as well.
+	Modify your \code{reverse} procedure of \cref{Exercise 2.18} to produce a \code{deep-reverse} procedure that takes a list as argument and returns as its value the list with its elements reversed and with all sublists deep-reversed as well.
 	For example,
 	\begin{scheme}
 	  (define x (list (list 1 2) (list 3 4)))
@@ -226,7 +226,7 @@ Here is the complete procedure:%
 \subsubsection*{Mapping over trees}
 
 Just as \code{map} is a powerful abstraction for dealing with sequences, \code{map} together with recursion is a powerful abstraction for dealing with trees.
-For instance, the \code{scale-tree} procedure, analogous to \code{scale-list} of \link{Section 2.2.1}, takes as arguments a numeric factor and a tree whose leaves are numbers.
+For instance, the \code{scale-tree} procedure, analogous to \code{scale-list} of \cref{Section 2.2.1}, takes as arguments a numeric factor and a tree whose leaves are numbers.
 It returns a tree of the same shape, where each number is multiplied by the factor.
 The recursive plan for \code{scale-tree} is similar to the one for \code{count-leaves}:
 \begin{scheme}
@@ -257,7 +257,7 @@ Many tree operations can be implemented by similar combinations of sequence oper
 
 \begin{exercise}
 	\label{Exercise 2.30}
-	Define a procedure \code{square-tree} analogous to the \code{square-list} procedure of \link{Exercise 2.21}.
+	Define a procedure \code{square-tree} analogous to the \code{square-list} procedure of \cref{Exercise 2.21}.
 	That is, \code{square-tree} should behave as follows:
 	\begin{scheme}
 	  (square-tree
@@ -273,7 +273,7 @@ Many tree operations can be implemented by similar combinations of sequence oper
 
 \begin{exercise}
 	\label{Exercise 2.31}
-	Abstract your answer to \link{Exercise 2.30} to produce a procedure \code{tree-map} with the property that \code{square-tree} could be defined as
+	Abstract your answer to \cref{Exercise 2.30} to produce a procedure \code{tree-map} with the property that \code{square-tree} could be defined as
 	\begin{scheme}
 	  (define (square-tree tree) (tree-map square tree))
 	\end{scheme}
