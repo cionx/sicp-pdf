@@ -4,21 +4,28 @@
 This section provides practice in the use of list structure and data abstraction to manipulate sets and trees.
 The application is to methods for representing data as sequences of ones and zeros (bits).
 For example, the \acronym{ASCII} standard code used to represent text in computers encodes each character as a sequence of seven bits.
-Using seven bits allows us to distinguish \( 2^7 \), or 128, possible different characters.
+Using seven bits allows us to distinguish \( 2^7 \), or \( 128 \), possible different characters.
 In general, if we want to distinguish \( n \) different symbols, we will need to use \( \log_2 n \) bits per symbol.
 If all our messages are made up of the eight symbols A, B, C, D, E, F, G, and H, we can choose a code with three bits per character, for example
-\begin{example}
-	A 000    C 010    E 100    G 110
-	B 001    D 011    F 101    H 111
-\end{example}
+\begin{center}
+	\begingroup
+	\setlength{\tabcolsep}{18pt}
+	\begin{tabular}{c@{\enspace}lc@{\enspace}lc@{\enspace}lc@{\enspace}l}
+		\toprule
+		A & \bitcode{000} & C & \bitcode{010} & E & \bitcode{100} & G & \bitcode{110} \\
+		B & \bitcode{100} & D & \bitcode{011} & F & \bitcode{101} & H & \bitcode{111} \\
+		\bottomrule
+	\end{tabular}
+	\endgroup
+\end{center}
 With this code, the message
-\begin{example}
+\begin{center}
 	BACADAEAFABBAAAGAH
-\end{example}
-is encoded as the string of 54 bits
-\begin{example}
-	001000010000011000100000101000001001000000000110000111
-\end{example}
+\end{center}
+is encoded as the string of \( 54 \) bits
+\begin{center}
+	\bitcode{001000010000011000100000101000001001000000000110000111}
+\end{center}
 
 Codes such as \acronym{ASCII} and the A-through-H code above are known as \newterm{fixed-length} codes, because they represent each symbol in the message with the same number of bits.
 It is sometimes advantageous to use \newterm{variable-length} codes, in which different symbols may be represented by different numbers of bits.
@@ -26,21 +33,28 @@ For example, Morse code does not use the same number of dots and dashes for each
 In particular, E, the most frequent letter, is represented by a single dot.
 In general, if our messages are such that some symbols appear very frequently and some very rarely, we can encode data more efficiently (i.e., using fewer bits per message) if we assign shorter codes to the frequent symbols.
 Consider the following alternative code for the letters A through H:
-\begin{example}
-	A 0      C 1010    E 1100    G 1110
-	B 100    D 1011    F 1101    H 1111
-\end{example}
+\begin{center}
+	\begingroup
+	\setlength{\tabcolsep}{18pt}
+	\begin{tabular}{c@{\enspace}lc@{\enspace}lc@{\enspace}lc@{\enspace}l}
+		\toprule
+		A & \bitcode{0}   & C & \bitcode{1010} & E & \bitcode{1100} & G & \bitcode{1110} \\
+		B & \bitcode{100} & D & \bitcode{1011} & F & \bitcode{1101} & H & \bitcode{1111} \\
+		\bottomrule
+	\end{tabular}
+	\endgroup
+\end{center}
 With this code, the same message as above is encoded as the string
-\begin{example}
-	100010100101101100011010100100000111001111
-\end{example}
+\begin{center}
+	\bitcode{100010100101101100011010100100000111001111}
+\end{center}
 This string contains \( 42 \) bits, so it saves more than \( 20\% \) in space in comparison with the fixed-length code shown above.
 
 One of the difficulties of using a variable-length code is knowing when you have reached the end of a symbol in reading a sequence of zeros and ones.
 Morse code solves this problem by using a special \newterm{separator code} (in this case, a pause) after the sequence of dots and dashes for each letter.
 Another solution is to design the code in such a way that no complete code for any symbol is the beginning (or \newterm{prefix}) of the code for another symbol.
 Such a code is called a \newterm{prefix code}.
-In the example above, A is encoded by 0 and B is encoded by 100, so no other symbol can have a code that begins with 0 or with 100.
+In the example above, A is encoded by \bitcode{0} and B is encoded by \bitcode{100}, so no other symbol can have a code that begins with \bitcode{0} or with \bitcode{100}.
 
 In general, we can attain significant savings if we use variable-length prefix codes that take advantage of the relative frequencies of the symbols in the messages to be encoded.
 One particular scheme for doing this is called the Huffman encoding method, after its discoverer, David Huffman.
@@ -51,7 +65,7 @@ The weights are not used in the encoding or the decoding process.
 We will see below how they are used to help construct the tree.
 
 \link{Figure 2.18} shows the Huffman tree for the A-through-H code given above.
-The weights at the leaves indicate that the tree was designed for messages in which A appears with relative frequency 8, B with relative frequency 3, and the other letters each with relative frequency 1.
+The weights at the leaves indicate that the tree was designed for messages in which A appears with relative frequency~\( 8 \), B with relative frequency~\( 3 \), and the other letters each with relative frequency~\( 1 \).
 
 \begin{figure}[tb]
 	\centering
@@ -63,19 +77,19 @@ The weights at the leaves indicate that the tree was designed for messages in wh
 \end{figure}
 
 Given a Huffman tree, we can find the encoding of any symbol by starting at the root and moving down until we reach the leaf that holds the symbol.
-Each time we move down a left branch we add a 0 to the code, and each time we move down a right branch we add a 1.
+Each time we move down a left branch we add a \bitcode{0} to the code, and each time we move down a right branch we add a \bitcode{1}.
 (We decide which branch to follow by testing to see which branch either is the leaf node for the symbol or contains the symbol in its set.)
 For example, starting from the root of the tree in \link{Figure 2.18}, we arrive at the leaf for D by following a right branch, then a left branch, then a right branch, then a right branch;
-hence, the code for D is 1011.
+hence, the code for D is \bitcode{1011}.
 
 To decode a bit sequence using a Huffman tree, we begin at the root and use the successive zeros and ones of the bit sequence to determine whether to move down the left or the right branch.
 Each time we come to a leaf, we have generated a new symbol in the message, at which point we start over from the root of the tree to find the next symbol.
-For example, suppose we are given the tree above and the sequence 10001010.
-Starting at the root, we move down the right branch, (since the first bit of the string is 1), then down the left branch (since the second bit is 0), then down the left branch (since the third bit is also 0).
+For example, suppose we are given the tree above and the sequence \bitcode{10001010}.
+Starting at the root, we move down the right branch, (since the first bit of the string is \bitcode{1}), then down the left branch (since the second bit is \bitcode{0}), then down the left branch (since the third bit is also \bitcode{0}).
 This brings us to the leaf for B, so the first symbol of the decoded message is B.
-Now we start again at the root, and we make a left move because the next bit in the string is 0.
+Now we start again at the root, and we make a left move because the next bit in the string is \bitcode{0}.
 This brings us to the leaf for A.
-Then we start again at the root with the rest of the string 1010, so we move right, left, right, left and reach C.
+Then we start again at the root with the rest of the string \bitcode{1010}, so we move right, left, right, left and reach C.
 Thus, the entire message is BAC.
 
 
@@ -100,16 +114,19 @@ Now continue this process.
 At each step, merge two nodes with the smallest weights, removing them from the set and replacing them with a node that has these two as its left and right branches.
 The process stops when there is only one node left, which is the root of the entire tree.
 Here is how the Huffman tree of \link{Figure 2.18} was generated:
-\begin{example}
-	Initial leaves  {(A 8) (B 3) (C 1) (D 1) (E 1) (F 1) (G 1) (H 1)}
-	         Merge  {(A 8) (B 3) ({C D} 2) (E 1) (F 1) (G 1) (H 1)}
-	         Merge  {(A 8) (B 3) ({C D} 2) ({E F} 2) (G 1) (H 1)}
-	         Merge  {(A 8) (B 3) ({C D} 2) ({E F} 2) ({G H} 2)}
-	         Merge  {(A 8) (B 3) ({C D} 2) ({E F G H} 4)}
-	         Merge  {(A 8) ({B C D} 5) ({E F G H} 4)}
-	         Merge  {(A 8) ({B C D E F G H} 9)}
-	   Final merge  {({A B C D E F G H} 17)}
-\end{example}
+\begin{center}
+	\begin{tabular}{ll}
+		Initial leaves & (A \( 8 \)) (B \( 3 \)) (C \( 1 \)) (D \( 1 \)) (E \( 1 \)) (F \( 1 \)) (G \( 1 \)) (H \( 1 \))  \\
+		Merge          & (A \( 8 \)) (B \( 3 \)) (\{C D\} \( 2 \)) (E \( 1 \)) (F \( 1 \)) (G \( 1 \)) (H \( 1 \))        \\
+		Merge          & (A \( 8 \)) (B \( 3 \)) (\{C D\} \( 2 \)) (\{E F\} \( 2 \)) (G \( 1 \)) (H \( 1 \))              \\
+		Merge          & (A \( 8 \)) (B \( 3 \)) (\{C D\} \( 2 \)) (\{E F\} \( 2 \)) (\{G H\} \( 2 \))                    \\
+		Merge          & (A \( 8 \)) (B \( 3 \)) (\{C D\} \( 2 \)) (\{E F G H\} \( 4 \))                                  \\
+		Merge          & (A \( 8 \)) (\{B C D\} \( 5 \)) (\{E F G H\} \( 4 \))                                            \\
+		Merge          & (A \( 8 \)) (\{B C D E F G H\} \( 9 \))                                                          \\
+		Final merge    & (\{A B C D E F G H\} \( 17 \))
+	\end{tabular}
+\end{center}
+
 The algorithm does not always specify a unique tree, because there may not be unique smallest-weight nodes at each step.
 Also, the choice of the order in which the two nodes are merged (i.e., which will be the right branch and which will be the left branch) is arbitrary.
 
@@ -122,7 +139,8 @@ We will begin by discussing how trees are represented.
 
 Leaves of the tree are represented by a list consisting of the symbol \code{leaf}, the symbol at the leaf, and the weight:
 \begin{scheme}
-  (define (make-leaf symbol weight) (list 'leaf symbol weight))
+  (define (make-leaf symbol weight)
+    (list 'leaf symbol weight))
 
   (define (leaf? object) (eq? (car object) 'leaf))
 
@@ -216,8 +234,8 @@ The following procedure takes a list of symbol-frequency pairs such as \code{((A
     (if (null? pairs)
         '()
         (let ((pair (car pairs)))
-          (adjoin-set (make-leaf (car pair)    ~\textrm{; symbol}~
-                                 (cadr pair))  ~\textrm{; frequency}~
+          (adjoin-set (make-leaf (car pair)    ; ~\textrm{symbol}~
+                                 (cadr pair))  ; ~\textrm{frequency}~
                       (make-leaf-set (cdr pairs))))))
 \end{scheme}
 
@@ -234,6 +252,7 @@ The following procedure takes a list of symbol-frequency pairs such as \code{((A
 	                     (make-code-tree
 	                      (make-leaf 'D 1)
 	                      (make-leaf 'C 1)))))
+
 	  (define sample-message '(0 1 1 0 0 1 0 1 0 1 1 1 0))
 	\end{scheme}
 	Use the \code{decode} procedure to decode the message, and give the result.
@@ -278,19 +297,26 @@ The following procedure takes a list of symbol-frequency pairs such as \code{((A
 	\label{Exercise 2.70}
 	The following eight-symbol alphabet with associated relative frequencies was designed to efficiently encode the lyrics of 1950s rock songs.
 	(Note that the “symbols” of an “alphabet” need not be individual letters.)
-	\begin{example}
-		A    2   GET 2   SHA 3   WAH 1
-		BOOM 1   JOB 2   NA 16   YIP 9
-	\end{example}
+	\begin{center}
+		\begingroup
+		\setlength{\tabcolsep}{18pt}
+		\begin{tabular}{l@{\enspace}>{$}r<{$}l@{\enspace}>{$}r<{$}l@{\enspace}>{$}r<{$}l@{\enspace}>{$}r<{$}}
+			\toprule
+			A    & 2 & GET & 2 & NA  & 16 & YIP & 9 \\
+			BOOM & 1 & JOB & 2 & SHA &  3 & WAH & 1 \\
+			\bottomrule
+		\end{tabular}
+		\endgroup
+	\end{center}
 	Use \code{generate-huffman-tree} (\link{Exercise 2.69}) to generate a corresponding Huffman tree, and use \code{encode} (\link{Exercise 2.68}) to encode the following message:
-	\begin{example}
-		Get a job
-		Sha na na na na na na na na
-		Get a job
-		Sha na na na na na na na na
-		Wah yip yip yip yip yip yip yip yip yip
+	\begin{quote}
+		Get a job \\
+		Sha na na na na na na na na \\
+		Get a job \\
+		Sha na na na na na na na na \\
+		Wah yip yip yip yip yip yip yip yip yip \\
 		Sha boom
-	\end{example}
+	\end{quote}
 	How many bits are required for the encoding?
 	What is the smallest number of bits that would be needed to encode this song if we used a fixed-length code for the eight-symbol alphabet?
 \end{exercise}

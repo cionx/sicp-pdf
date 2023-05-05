@@ -7,27 +7,22 @@ In one of these examples we had the choice of simplifying (reducing) the express
 When we turn to the representation of sets, the choice of a representation is not so obvious.
 Indeed, there are a number of possible representations, and they differ significantly from one another in several ways.
 
-Informally, a set is simply a collection of distinct objects.  To give a more
-precise definition we can employ the method of data abstraction.  That is, we
-define “set” by specifying the operations that are to be used on sets.  These
-are \code{union-set}, \code{intersection-set}, \code{element-of-set?}, and
-\code{adjoin-set}.  \code{element-of-set?} is a predicate that determines
-whether a given element is a member of a set.  \code{adjoin-set} takes an
-object and a set as arguments and returns a set that contains the elements of
-the original set and also the adjoined element.  \code{union-set} computes the
-union of two sets, which is the set containing each element that appears in
-either argument.  \code{intersection-set} computes the intersection of two
-sets, which is the set containing only elements that appear in both arguments.
-From the viewpoint of data abstraction, we are free to design any
-representation that implements these operations in a way consistent with the
-interpretations given above.%
+Informally, a set is simply a collection of distinct objects.
+To give a more precise definition we can employ the method of data abstraction.
+That is, we define “set” by specifying the operations that are to be used on sets.
+These are \code{union-set}, \code{intersection-set}, \code{element-of-set?}, and \code{adjoin-set}.
+\code{element-of-set?} is a predicate that determines whether a given element is a member of a set.
+\code{adjoin-set} takes an object and a set as arguments and returns a set that contains the elements of the original set and also the adjoined element.
+\code{union-set} computes the union of two sets, which is the set containing each element that appears in either argument.
+\code{intersection-set} computes the intersection of two sets, which is the set containing only elements that appear in both arguments.
+From the viewpoint of data abstraction, we are free to design any representation that implements these operations in a way consistent with the interpretations given above.%
 \footnote{
 	If we want to be more formal, we can specify “consistent with the interpretations given above” to mean that the operations satisfy a collection of rules such as these:
 	\begin{itemize}
 
 		\item
-			For any set \code{S} and any object \code{x},  \code{(element-of-set? x (adjoin-set x S))} is true (informally:
-			“Adjoining an object to a set produces a set that contains the object”).
+			For any set \code{S} and any object \code{x}, \code{(element-of-set? x (adjoin-set x S))} is true
+			(informally: “Adjoining an object to a set produces a set that contains the object”).
 
 		\item
 			For any sets \code{S} and \code{T} and any object \code{x}, \code{(element-of-set? x (union-set S T))} is equal to \code{(or (element-of-set? x S) (element-of-set? x T))}
@@ -46,7 +41,7 @@ interpretations given above.%
 One way to represent a set is as a list of its elements in which no element appears more than once.
 The empty set is represented by the empty list.
 In this representation, \code{element-of-set?} is similar to the procedure \code{memq} of \link{Section 2.3.1}.
-It uses \code{equal?}  instead of \code{eq?} so that the set elements need not be symbols:
+It uses \code{equal?} instead of \code{eq?} so that the set elements need not be symbols:
 \begin{scheme}
   (define (element-of-set? x set)
     (cond ((null? set) false)
@@ -70,7 +65,8 @@ Here is the resulting procedure:
   (define (intersection-set set1 set2)
     (cond ((or (null? set1) (null? set2)) '())
           ((element-of-set? (car set1) set2)
-           (cons (car set1) (intersection-set (cdr set1) set2)))
+           (cons (car set1)
+                 (intersection-set (cdr set1) set2)))
           (else (intersection-set (cdr set1) set2))))
 \end{scheme}
 
@@ -79,7 +75,7 @@ Consider the number of steps required by our set operations.
 Since they all use \code{element-of-set?}, the speed of this operation has a major impact on the efficiency of the set implementation as a whole.
 Now, in order to check whether an object is a member of a set, \code{element-of-set?} may have to scan the entire set.
 (In the worst case, the object turns out not to be in the set.)
-Hence, if the set has \( n \) elements, \code{element-of-set?}  might take up to \( n \) steps.
+Hence, if the set has \( n \) elements, \code{element-of-set?} might take up to \( n \) steps.
 Thus, the number of steps required grows as \( Θ(n) \).
 The number of steps required by \code{adjoin-set}, which uses this operation, also grows as \( Θ(n) \).
 For \code{intersection-set}, which does an \code{element-of-set?} check for each element of \code{set1}, the number of steps required grows as the product of the sizes of the sets involved, or \( Θ(n^2) \) for two sets of size \( n \).
@@ -130,7 +126,7 @@ In the worst case, the item we are looking for may be the largest one in the set
 On the other hand, if we search for items of many different sizes we can expect that sometimes we will be able to stop searching at a point near the beginning of the list and that other times we will still need to examine most of the list.
 On the average we should expect to have to examine about half of the items in the set.
 Thus, the average number of steps required will be about \( n / 2 \).
-This is still \( Θ(n) \) growth, but it does save us, on the average, a factor of 2 in number of steps over the previous implementation.
+This is still \( Θ(n) \) growth, but it does save us, on the average, a factor of \( 2 \) in number of steps over the previous implementation.
 
 We obtain a more impressive speedup with \code{intersection-set}.
 In the unordered representation this operation required \( Θ(n^2) \) steps, because we performed a complete scan of \code{set2} for each element of \code{set1}.
@@ -181,7 +177,7 @@ This is \( Θ(n) \) growth rather than \( Θ(n^2) \)---a considerable speedup, e
 We can do better than the ordered-list representation by arranging the set elements in the form of a tree.
 Each node of the tree holds one element of the set, called the “entry” at that node, and a link to each of two other (possibly empty) nodes.
 The “left” link points to elements smaller than the one at the node, and the “right” link to elements greater than the one at the node.
-\link{Figure 2.16} shows some trees that represent the set \( \{1, 3, 5, 7, 9, 11\} \).
+\link{Figure 2.16} shows some trees that represent the set \( \{ 1, 3, 5, 7, 9, 11 \} \).
 The same set may be represented by a tree in a number of different ways.
 The only thing we require for a valid representation is that all elements in the left subtree be smaller than the node entry and that all elements in the right subtree be larger.
 
@@ -189,7 +185,7 @@ The only thing we require for a valid representation is that all elements in the
 	\centering
 	\includesvg[width=70mm]{fig/chap2/Fig2.16b.svg}
 	\caption{
-		Various binary trees that represent the set \( \{1, 3, 5, 7, 9, 11\} \).
+		Various binary trees that represent the set \( \{ 1, 3, 5, 7, 9, 11 \} \).
 	}
 	\label{Figure 2.16}
 \end{figure}
@@ -227,8 +223,7 @@ We can describe this representation by the following procedures:%
     (list entry left right))
 \end{scheme}
 
-Now we can write the \code{element-of-set?} procedure using the strategy
-described above:
+Now we can write the \code{element-of-set?} procedure using the strategy described above:
 \begin{scheme}
   (define (element-of-set? x set)
     (cond ((null? set) false)
@@ -253,7 +248,8 @@ Here is the procedure:
                       (adjoin-set x (left-branch set))
                       (right-branch set)))
           ((> x (entry set))
-           (make-tree (entry set) (left-branch set)
+           (make-tree (entry set)
+                      (left-branch set)
                       (adjoin-set x (right-branch set))))))
 \end{scheme}
 
@@ -293,8 +289,7 @@ There are also other ways to solve this problem, most of which involve designing
 	        '()
 	        (append (tree->list-1 (left-branch tree))
 	                (cons (entry tree)
-	                      (tree->list-1
-	                        (right-branch tree))))))
+	                      (tree->list-1 (right-branch tree))))))
 
 	  (define (tree->list-2 tree)
 	    (define (copy-to-list tree result-list)
@@ -302,9 +297,8 @@ There are also other ways to solve this problem, most of which involve designing
 	          result-list
 	          (copy-to-list (left-branch tree)
 	                        (cons (entry tree)
-	                              (copy-to-list
-	                                (right-branch tree)
-	                                result-list)))))
+	                              (copy-to-list (right-branch tree)
+	                                            result-list)))))
 	    (copy-to-list tree '()))
 	\end{scheme}
 	\begin{enumerate}[label = \alph*., leftmargin = *]

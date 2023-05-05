@@ -155,27 +155,6 @@
 \setlength{\DefaultFindent}{1pt}
 \setlength{\DefaultNindent}{0em}
 
-
-\newcommand{\acronym}[1]{\textsc{\fontspec[Numbers={OldStyle}]{Libertinus Serif}\MakeLowercase{#1}}}
-\newcommand{\booktitle}{\emph}
-\newcommand{\dollar}[1]{\$#1}
-\newcommand{\heading}[1]{{\sffamily\bfseries #1}}
-\newcommand{\link}[1]{\hyperref[#1]{#1}}
-\newcommand{\mono}[1]{\hbox{\ttfamily\scriptsize #1}}
-\newcommand{\monoit}[1]{\hbox{\ttfamily\itshape\scriptsize #1}}
-\newcommand{\newterm}[1]{\index{#1}\emph{#1}}
-\newcommand{\nth}[1]{#1}
-\newcommand{\outprint}[1]{{\fontseries{l}\selectfont\textsl{#1}}}
-\newcommand{\uppersc}[1]{{\fontspec[Letters=UppercaseSmallCaps]{Libertinus Serif}#1}}
-
-\newcommand{\code}{\texttt}
-\newcommand{\dark}[1]{#1}
-\newcommand{\var}[1]{\textsl{\texttt{#1}}}
-\newcommand{\cvar}{\color{DefaultVariable}\var}
-\newcommand{\cproc}{\color{DefaultProcedure}\var}
-\newcommand{\ind}[1]{\textsubscript{\ttfamily \indint{#1}}}
-\newcommand{\indint}[1]{\IfInteger{#1}{\textup{#1}}{#1}}
-
 \setcounter{secnumdepth}{3}
 \setcounter{tocdepth}{3}
 
@@ -191,6 +170,27 @@
 	leftmargin = *,
 	labelsep = 0pt
 }
+
+
+\newcommand{\acronym}[1]{\textsc{\fontspec[Numbers={OldStyle}]{Libertinus Serif}\MakeLowercase{#1}}}
+\newcommand{\booktitle}{\emph}
+\newcommand{\dollar}[1]{\$#1}
+\newcommand{\heading}[1]{{\sffamily\bfseries #1}}
+\newcommand{\link}[1]{\hyperref[#1]{#1}}
+\newcommand{\newterm}[1]{\index{#1}\emph{#1}}
+\newcommand{\nth}[1]{#1}
+\newcommand{\outprint}[1]{{\fontseries{l}\selectfont\textsl{#1}}}
+
+\newcommand{\bitcode}{\texttt}
+\newcommand{\code}{\texttt}
+\newcommand{\dark}[1]{#1}
+\newcommand{\cvar}{\color{DefaultVariable}\var}
+\newcommand{\cproc}{\color{DefaultProcedure}\var}
+\newcommand{\ind}[1]{\textsubscript{\ttfamily \indint{#1}}}
+\newcommand{\indint}[1]{\IfInteger{#1}{\textup{#1}}{#1}}
+\newcommand{\var}[1]{\textsl{\texttt{#1}}}
+
+\newcommand{\deriv}[2]{\frac{\mathrm{d} #1}{\mathrm{d} #2}}
 
 \DeclareMathOperator{\Angle}{Angle}
 \DeclareMathOperator{\Imagpart}{Imaginary-part}

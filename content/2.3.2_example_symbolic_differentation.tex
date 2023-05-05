@@ -21,16 +21,16 @@ Differentiation of any such expression can be carried out by applying the follow
 \begin{itemize}
 
 	\item
-		\( \frac{dc}{dx} = 0 \) for \( c \) a constant or a variable different from \( x \),
+		\( \deriv{c}{x} = 0 \) for \( c \) a constant or a variable different from \( x \),
 
 	\item
-		\( \frac{dx}{dx} = 1 \),
+		\( \deriv{x}{x} = 1 \),
 
 	\item
-		\( \frac{d(u + v)}{dx} = \frac{du}{dx} + \frac{dv}{dx} \),
+		\( \deriv{(u + v)}{x} = \deriv{u}{x} + \deriv{v}{x} \),
 
 	\item
-		\( \frac{d(uv)}{dx} = u \Bigl( \frac{dv}{dx} \Bigr) + v \Bigl( \frac{du}{dx} \Bigr) \).
+		\( \deriv{(uv)}{x} = u \Bigl( \deriv{v}{x} \Bigr) + \Bigl( \deriv{u}{x} \Bigr) v \).
 \end{itemize}
 
 Observe that the latter two rules are recursive in nature.
@@ -45,33 +45,35 @@ For a sum, for example we want to be able to extract the addend (first term) and
 We should also be able to construct expressions from parts.
 Let us assume that we already have procedures to implement the following selectors, constructors, and predicates:
 
-\begin{scheme}
-  (variable? e)            ~\textrm{Is \code{e} a variable?}~
-  (same-variable? v1 v2)   ~\textrm{Are \code{v1} and \code{v2} the same variable?}~
-
-  (sum? e)                 ~\textrm{Is \code{e} a sum?}~
-  (addend e)               ~\textrm{Addend of the sum \code{e}.}~
-  (augend e)               ~\textrm{Augend of the sum \code{e}.}~
-  (make-sum a1 a2)         ~\textrm{Construct the sum of \code{a1} and \code{a2}.}~
-
-  (product? e)             ~\textrm{Is \code{e} a product?}~
-  (multiplier e)           ~\textrm{Multiplier of the product \code{e}.}~
-  (multiplicand e)         ~\textrm{Multiplicand of the product \code{e}.}~
-  (make-product m1 m2)     ~\textrm{Construct the product of \code{m1} and \code{m2}.}~
-\end{scheme}
+\begin{center}
+	\begin{tabular}{ll}
+		\code{(variable? e)}          & Is \code{e} a variable?                           \\
+		\code{(same-variable? v1 v2)} & Are \code{v1} and \code{v2} the same variable?    \\[0.6em]
+		\code{(sum? e)}               & Is \code{e} a sum?                                \\
+		\code{(addend e)}             & Addend of the sum \code{e}.                       \\
+		\code{(augend e}              & Augend of the sum \code{e}.                       \\
+		\code{(make-sum a1 a2)}       & Construct the sum of \code{a1} and \code{a2}.     \\[0.6em]
+		\code{(product? e)}           & Is \code{e} a product?                            \\
+		\code{(multiplier e)}         & Multiplier of the product \code{e}.               \\
+		\code{(multiplicand e)}       & Multiplicand of the product \code{e}.             \\
+		\code{(make-product m1 m2)}   & Construct the product of \code{m1} and \code{m2}. \\
+	\end{tabular}
+\end{center}
 Using these, and the primitive predicate \code{number?}, which identifies numbers, we can express the differentiation rules as the following procedure:
 \begin{scheme}
   (define (deriv exp var)
     (cond ((number? exp) 0)
-          ((variable? exp) (if (same-variable? exp var) 1 0))
-          ((sum? exp) (make-sum (deriv (addend exp) var)
-                                (deriv (augend exp) var)))
+          ((variable? exp)
+           (if (same-variable? exp var) 1 0))
+          ((sum? exp)
+           (make-sum (deriv (addend exp) var)
+                     (deriv (augend exp) var)))
           ((product? exp)
            (make-sum
-             (make-product (multiplier exp)
-                           (deriv (multiplicand exp) var))
-             (make-product (deriv (multiplier exp) var)
-                           (multiplicand exp))))
+            (make-product (multiplier exp)
+                          (deriv (multiplicand exp) var))
+            (make-product (deriv (multiplier exp) var)
+                          (multiplicand exp))))
           (else
            (error "unknown expression type: DERIV" exp))))
 \end{scheme}
@@ -167,7 +169,7 @@ The program produces answers that are correct;
 however, they are unsimplified.
 It is true that
 \[
-	\frac{d(xy)}{x} = x ⋅ 0 + 1 ⋅ y
+	\deriv{(xy)}{x} = x ⋅ 0 + 1 ⋅ y
 \]
 but we would like the program to know that \( x ⋅ 0 = 0 \), \( 1 ⋅ y = y \), and \( 0 + y = y \).
 The answer for the second example should have been simply \code{y}.
@@ -184,13 +186,13 @@ Also, if one of the summands is 0, then \code{make-sum} will return the other su
   (define (make-sum a1 a2)
     (cond ((=number? a1 0) a2)
           ((=number? a2 0) a1)
-          ((and (number? a1) (number? a2))
-           (+ a1 a2))
+          ((and (number? a1) (number? a2)) (+ a1 a2))
           (else (list '+ a1 a2))))
 \end{scheme}
 This uses the procedure \code{=number?}, which checks whether an expression is equal to a given number:
 \begin{scheme}
-  (define (=number? exp num) (and (number? exp) (= exp num)))
+  (define (=number? exp num)
+    (and (number? exp) (= exp num)))
 \end{scheme}
 Similarly, we will change \code{make-product} to build in the rules that \( 0 \) times anything is \( 0 \) and \( 1 \) times anything is the thing itself:
 \begin{scheme}
@@ -222,7 +224,7 @@ The problem of algebraic simplification is complex because, among other reasons,
 	Show how to extend the basic differentiator to handle more kinds of expressions.
 	For instance, implement the differentiation rule
 	\[
-		\frac{d(u^n)}{dx} = n u^{n-1} \Bigl( \frac{du}{dx} \Bigr)
+		\deriv{(u^n)}{x} = n u^{n-1} \Bigl( \deriv{u}{x} \Bigr)
 	\]
 	by adding a new clause to the \code{deriv} program and defining appropriate procedures \code{exponentiation?}, \code{base}, \code{exponent}, and \code{make-exponentiation}.
 	(You may use the symbol \code{**} to denote exponentiation.)
@@ -251,7 +253,7 @@ The problem of algebraic simplification is complex because, among other reasons,
 	\begin{enumerate}[label = \alph*., leftmargin = *]
 
 		\item
-			Show how to do this in order to differentiate algebraic expressions presented  in infix form, such as \code{(x + (3 * (x + (y + 2))))}.
+			Show how to do this in order to differentiate algebraic expressions presented in infix form, such as \code{(x + (3 * (x + (y + 2))))}.
 			To simplify the task, assume that \code{+} and \code{*} always take two arguments and that expressions are fully parenthesized.
 
 		\item
