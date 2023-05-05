@@ -17,7 +17,7 @@ Suppose that Peter and Paul, and other people besides, are accessing the same ba
 The actual sequence of balances in the account will depend critically on the detailed timing of the accesses and the details of the communication among the machines.
 
 This indeterminacy in the order of events can pose serious problems in the design of concurrent systems.
-For instance, suppose that the withdrawals made by Peter and Paul are implemented as two separate processes sharing a common variable \code{balance}, each process specified by the procedure given in \link{Section 3.1.1}:
+For instance, suppose that the withdrawals made by Peter and Paul are implemented as two separate processes sharing a common variable \code{balance}, each process specified by the procedure given in \cref{Section 3.1.1}:
 \begin{scheme}
   (define (withdraw amount)
     (if (>= balance amount)
@@ -50,7 +50,7 @@ If Peter and Paul’s withdrawals execute this statement concurrently, then the 
 	\label{Figure 3.29}
 \end{figure}
 
-The timing diagram in \link{Figure 3.29} depicts an order of events where \code{balance} starts at 100, Peter withdraws 10, Paul withdraws 25, and yet the final value of \code{balance} is 75.
+The timing diagram in \cref{Figure 3.29} depicts an order of events where \code{balance} starts at 100, Peter withdraws 10, Paul withdraws 25, and yet the final value of \code{balance} is 75.
 As shown in the diagram, the reason for this anomaly is that Paul’s assignment of 75 to \code{balance} is made under the assumption that the value of \code{balance} to be decremented is 100.
 That assumption, however, became invalid when Peter changed \code{balance} to 90.
 This is a catastrophic failure for the banking system, because the total amount of money in the system is not conserved.
@@ -75,7 +75,7 @@ The above example typifies the subtle bugs that can creep into concurrent progra
 The root of this complexity lies in the assignments to variables that are shared among the different processes.
 We already know that we must be careful in writing programs that use \code{set!}, because the results of a computation depend on the order in which the assignments occur.%
 \footnote{
-	The factorial program in \link{Section 3.1.3} illustrates this for a single sequential process.
+	The factorial program in \cref{Section 3.1.3} illustrates this for a single sequential process.
 }
 With concurrent processes we must be especially careful about assignments, because we may not be able to control the order of the assignments made by the different processes.
 If several such changes might be made concurrently (as with two depositors accessing a joint account) we need some way to ensure that our system behaves correctly.
@@ -86,7 +86,7 @@ One possible restriction on concurrency would stipulate that no two operations t
 This is an extremely stringent requirement.
 For distributed banking, it would require the system designer to ensure that only one transaction could proceed at a time.
 This would be both inefficient and overly conservative.
-\link{Figure 3.30} shows Peter and Paul sharing a bank account, where Paul has a private account as well.
+\cref{Figure 3.30} shows Peter and Paul sharing a bank account, where Paul has a private account as well.
 The diagram illustrates two withdrawals from the shared account (one by Peter and one by Paul) and a deposit to Paul’s private account.%
 \footnote{
 	The columns show the contents of Peter’s wallet, the joint account (in Bank1), Paul’s wallet, and Paul’s private account (in Bank2), before and after each withdrawal (W) and deposit (D).
@@ -108,14 +108,14 @@ But there should be no problem permitting Paul’s deposit to his private accoun
 A less stringent restriction on concurrency would ensure that a concurrent system produces the same result as if the processes had run sequentially in some order.
 There are two important aspects to this requirement.
 First, it does not require the processes to actually run sequentially, but only to produce results that are the same \emph{as if} they had run sequentially.
-For the example in \link{Figure 3.30}, the designer of the bank account system can safely allow Paul’s deposit and Peter’s withdrawal to happen concurrently, because the net result will be the same as if the two operations had happened sequentially.
+For the example in \cref{Figure 3.30}, the designer of the bank account system can safely allow Paul’s deposit and Peter’s withdrawal to happen concurrently, because the net result will be the same as if the two operations had happened sequentially.
 Second, there may be more than one possible “correct” result produced by a concurrent program, because we require only that the result be the same as for \emph{some} sequential order.
 For example, suppose that Peter and Paul’s joint account starts out with \dollar{100}, and Peter deposits \dollar{40} while Paul concurrently withdraws half the money in the account.
-Then sequential execution could result in the account balance being either \dollar{70} or \dollar{90} (see \link{Exercise 3.38}).%
+Then sequential execution could result in the account balance being either \dollar{70} or \dollar{90} (see \cref{Exercise 3.38}).%
 \footnote{
 	\label{Footnote 39} A more formal way to express this idea is to say that concurrent programs are inherently \newterm{nondeterministic}.
 	That is, they are described not by single-valued functions, but by functions whose results are sets of possible values.
-	In \link{Section 4.3} we will study a language for expressing nondeterministic computations.
+	In \cref{Section 4.3} we will study a language for expressing nondeterministic computations.
 }
 
 There are still weaker requirements for correct execution of concurrent programs.
@@ -142,7 +142,7 @@ there is no need for any restrictions on concurrent use of the shared values.
 
 		\item
 			What are some other values that could be produced if the system allows the processes to be interleaved?
-			Draw timing diagrams like the one in \link{Figure 3.29} to explain how these values can occur.
+			Draw timing diagrams like the one in \cref{Figure 3.29} to explain how these values can occur.
 
 	\end{enumerate}
 \end{exercise}

@@ -1,7 +1,7 @@
 \subsection{Maintaining the Illusion of Infinite Memory}
 \label{Section 5.3.2}
 
-The representation method outlined in \link{Section 5.3.1} solves the problem of implementing list structure, provided that we have an infinite amount of memory.
+The representation method outlined in \cref{Section 5.3.1} solves the problem of implementing list structure, provided that we have an infinite amount of memory.
 With a real computer we will eventually run out of free space in which to construct new pairs.%
 \footnote{
 	This may not be true eventually, because memories may get large enough so that it would be impossible to run out of free memory in the lifetime of the computer.
@@ -24,7 +24,7 @@ In order to recycle pairs, we must have a way to determine which allocated pairs
 The method we shall examine for accomplishing this is known as \newterm{garbage collection}.
 Garbage collection is based on the observation that, at any moment in a Lisp interpretation, the only objects that can affect the future of the computation are those that can be reached by some succession of \code{car} and \code{cdr} operations starting from the pointers that are currently in the machine registers.%
 \footnote{
-	We assume here  that the stack is represented as a list as described in \link{Section 5.3.1}, so that items on the stack are accessible via the pointer in the stack register.
+	We assume here  that the stack is represented as a list as described in \cref{Section 5.3.1}, so that items on the stack are accessible via the pointer in the stack register.
 }
 Any memory cell that is not so accessible may be recycled.
 
@@ -42,14 +42,14 @@ new pairs will be allocated in the new working memory (which was the old free me
 When this is full, we can copy the useful pairs into the new free memory (which was the old working memory).%
 \footnote{
 	This idea was invented and first implemented by Minsky, as part of the implementation of Lisp for the \acronym{PDP-1} at the \acronym{MIT} Research Laboratory of Electronics.
-	It was further developed by \link{Fenichel and Yochelson (1969)} for use in the Lisp implementation for the Multics time-sharing system.
-	Later, \link{Baker (1978)} developed a “real-time” version of the method, which does not require the computation to stop during garbage collection.
-	Baker’s idea was extended by Hewitt, Lieberman, and Moon (see \link{Lieberman and Hewitt 1983}) to take advantage of the fact that some structure is more volatile and other structure is more permanent.
+	It was further developed by \cref{Fenichel and Yochelson (1969)} for use in the Lisp implementation for the Multics time-sharing system.
+	Later, \cref{Baker (1978)} developed a “real-time” version of the method, which does not require the computation to stop during garbage collection.
+	Baker’s idea was extended by Hewitt, Lieberman, and Moon (see \cref{Lieberman and Hewitt 1983}) to take advantage of the fact that some structure is more volatile and other structure is more permanent.
 
 	An alternative commonly used garbage-collection technique is the \newterm{mark-sweep} method.
 	This consists of tracing all the structure accessible from the machine registers and marking each pair we reach.
 	We then scan all of memory, and any location that is unmarked is “swept up” as garbage and made available for reuse.
-	A full discussion of the mark-sweep method can be found in \link{Allen 1978}.
+	A full discussion of the mark-sweep method can be found in \cref{Allen 1978}.
 
 	The Minsky-Fenichel-Yochelson algorithm is the dominant algorithm in use for large-memory systems because it examines only the useful part of memory.
 	This is in contrast to mark-sweep, in which the sweep phase must check all of memory.
@@ -74,7 +74,7 @@ This can be arranged by storing the contents of all the machine registers in a p
 Garbage collection is triggered when we exhaust the free cells in the current working memory, that is, when a \code{cons} operation attempts to increment the \code{free} pointer beyond the end of the memory vector.
 When the garbage-collection process is complete, the \code{root} pointer will point into the new memory, all objects accessible from the \code{root} will have been moved to the new memory, and the \code{free} pointer will indicate the next place in the new memory where a new pair can be allocated.
 In addition, the roles of working memory and new memory will have been interchanged---new pairs will be constructed in the new memory, beginning at the place indicated by \code{free}, and the (previous) working memory will be available as the new memory for the next garbage collection.
-\link{Figure 5.15} shows the arrangement of memory just before and just after garbage collection.
+\cref{Figure 5.15} shows the arrangement of memory just before and just after garbage collection.
 
 \begin{figure}[tp]
 	\centering
@@ -169,7 +169,7 @@ with the main loop.
 The subroutine \code{relocate-old-result-in-new} relocates objects as follows:
 If the object to be relocated (pointed at by \code{old}) is not a pair, then we return the same pointer to the object unchanged (in \code{new}).
 (For example, we may be scanning a pair whose \code{car} is the number 4.
-If we represent the \code{car} by \code{n4}, as described in \link{Section 5.3.1}, then we want the “relocated” \code{car} pointer to still be \code{n4}.)
+If we represent the \code{car} by \code{n4}, as described in \cref{Section 5.3.1}, then we want the “relocated” \code{car} pointer to still be \code{n4}.)
 Otherwise, we must perform the relocation.
 If the \code{car} position of the pair to be relocated contains a broken-heart tag, then the pair has in fact already been moved, so we retrieve the forwarding address (from the \code{cdr} position of the broken heart) and return this in \code{new}.
 If the pointer in \code{old} points at a yet-unmoved pair, then we move the pair to the first free cell in new memory (pointed at by \code{free}) and set up the broken heart by storing a broken-heart tag and forwarding address at the old location.

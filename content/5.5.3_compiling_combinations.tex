@@ -93,7 +93,7 @@ In order to process the arguments from last to first, we must reverse the list o
 \subsubsection*{Applying procedures}
 
 After evaluating the elements of a combination, the compiled code must apply the procedure in \code{proc} to the arguments in \code{argl}.
-The code performs essentially the same dispatch as the \code{apply} procedure in the metacircular evaluator of \link{Section 4.1.1} or the \code{apply-dispatch} entry point in the explicit-control evaluator of \link{Section 5.4.1}.
+The code performs essentially the same dispatch as the \code{apply} procedure in the metacircular evaluator of \cref{Section 4.1.1} or the \code{apply-dispatch} entry point in the explicit-control evaluator of \cref{Section 5.4.1}.
 It checks whether the procedure to be applied is a primitive procedure or a compiled procedure.
 For a primitive procedure, it uses \code{apply-primitive-procedure};
 we will see shortly how it handles compiled procedures.
@@ -215,9 +215,9 @@ These extra saves would accumulate during a nest of procedure calls.%
 	The Scheme implementations described in this book store arguments and variables in memory to be garbage-collected.
 	The reason for using the stack for variables and arguments is that it avoids the need for garbage collection in languages that would not otherwise require it, and is generally believed to be more efficient.
 	Sophisticated Lisp compilers can, in fact, use the stack for arguments without destroying tail recursion.
-	(See \link{Hanson 1990} for a description.)
+	(See \cref{Hanson 1990} for a description.)
 	There is also some debate about whether stack allocation is actually more efficient than garbage collection in the first place, but the details seem to hinge on fine points of computer architecture.
-	(See \link{Appel 1987} and \link{Miller and Rozas 1994} for opposing views on this issue.)
+	(See \cref{Appel 1987} and \cref{Miller and Rozas 1994} for opposing views on this issue.)
 }
 
 \code{compile-proc-appl} generates the above procedure-application code by considering four cases, depending on whether the target for the call is \code{val} and whether the linkage is \code{return}.

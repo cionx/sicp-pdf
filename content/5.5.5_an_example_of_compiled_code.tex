@@ -120,7 +120,7 @@ The true branch, which is the constant \( 1 \), compiles (with target \code{val}
 \end{scheme}
 The code for the false branch is another procedure call, where the procedure is the value of the symbol \code{*}, and the arguments are \code{n} and the result of another procedure call (a call to \code{factorial}).
 Each of these calls sets up \code{proc} and \code{argl} and its own primitive and compound branches.
-\link{Figure 5.17} shows the complete compilation of the definition of the \code{factorial} procedure.
+\cref{Figure 5.17} shows the complete compilation of the definition of the \code{factorial} procedure.
 Notice that the possible \code{save} and \code{restore} of \code{continue} and \code{env} around the predicate, shown above, are in fact generated, because these registers are modified by the procedure call in the predicate and needed for the procedure call and the \code{return} linkage in the branches.
 
 
@@ -312,7 +312,7 @@ Notice that the possible \code{save} and \code{restore} of \code{continue} and \
 
 \begin{exercise}
 	\label{Exercise 5.35}
-	What expression was compiled to produce the code shown in \link{Figure 5.18}?
+	What expression was compiled to produce the code shown in \cref{Figure 5.18}?
 \end{exercise}
 
 
@@ -412,7 +412,7 @@ Notice that the possible \code{save} and \code{restore} of \code{continue} and \
 	\end{smallscheme}
 	\caption{
 		An example of compiler output.
-		See \link{Exercise 5.35}.
+		See \cref{Exercise 5.35}.
 	}
 	\label{Figure 5.18}
 \end{figure}
@@ -425,7 +425,7 @@ Notice that the possible \code{save} and \code{restore} of \code{continue} and \
 	Is it left-to-right, right-to-left, or some other order?
 	Where in the compiler is this order determined?
 	Modify the compiler so that it produces some other order of evaluation.
-	(See the discussion of order of evaluation for the explicit-control evaluator in \link{Section 5.4.1}.)
+	(See the discussion of order of evaluation for the explicit-control evaluator in \cref{Section 5.4.1}.)
 	How does changing the order of operand evaluation affect the efficiency of the code that constructs the argument list?
 \end{exercise}
 
@@ -470,7 +470,7 @@ Notice that the possible \code{save} and \code{restore} of \code{continue} and \
 	\footnote{
 		Making the primitives into reserved words is in general a bad idea, since a user cannot then rebind these names to different procedures.
 		Moreover, if we add reserved words to a compiler that is in use, existing programs that define procedures with these names will stop working.
-		See \link{Exercise 5.44} for ideas on how to avoid this problem.
+		See \cref{Exercise 5.44} for ideas on how to avoid this problem.
 	}
 	For each special form our compiler has a code generator.
 	In this exercise we will construct a family of code generators for the open-coded primitives.

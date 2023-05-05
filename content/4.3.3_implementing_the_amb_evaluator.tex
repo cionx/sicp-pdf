@@ -5,10 +5,10 @@ The evaluation of an ordinary Scheme expression may return a value, may never te
 In nondeterministic Scheme the evaluation of an expression may in addition result in the discovery of a dead end, in which case evaluation must backtrack to a previous choice point.
 The interpretation of nondeterministic Scheme is complicated by this extra case.
 
-We will construct the \code{amb} evaluator for nondeterministic Scheme by modifying the analyzing evaluator of \link{Section 4.1.7}.%
+We will construct the \code{amb} evaluator for nondeterministic Scheme by modifying the analyzing evaluator of \cref{Section 4.1.7}.%
 \footnote{
-	We chose to implement the lazy evaluator in \link{Section 4.2} as a modification of the ordinary metacircular evaluator of \link{Section 4.1.1}.
-	In contrast, we will base the \code{amb} evaluator on the analyzing evaluator of \link{Section 4.1.7}, because the execution procedures in that evaluator provide a convenient framework for implementing backtracking.
+	We chose to implement the lazy evaluator in \cref{Section 4.2} as a modification of the ordinary metacircular evaluator of \cref{Section 4.1.1}.
+	In contrast, we will base the \code{amb} evaluator on the analyzing evaluator of \cref{Section 4.1.7}, because the execution procedures in that evaluator provide a convenient framework for implementing backtracking.
 }
 	As in the analyzing evaluator, evaluation of an expression is accomplished by calling an execution procedure produced by analysis of that expression.
 	The difference between the interpretation of ordinary Scheme and the interpretation of nondeterministic Scheme will be entirely in the execution procedures.
@@ -35,7 +35,7 @@ The evaluation of such an expression must proceed with one of the indicated alte
 To deal with this, the evaluator picks one of the alternatives and passes this value to the success continuation.
 Together with this value, the evaluator constructs and passes along a failure continuation that can be called later to choose a different alternative.
 
-A failure is triggered during evaluation (that is, a failure continuation is called) when a user program explicitly rejects the current line of attack (for example, a call to \code{require} may result in execution of \code{(amb)}, an expression that always fails---see \link{Section 4.3.1}).
+A failure is triggered during evaluation (that is, a failure continuation is called) when a user program explicitly rejects the current line of attack (for example, a call to \code{require} may result in execution of \code{(amb)}, an expression that always fails---see \cref{Section 4.3.1}).
 The failure continuation in hand at that point will cause the most recent choice point to choose another alternative.
 If there are no more alternatives to be considered at that choice point, a failure at an earlier choice point is triggered, and so on.
 Failure continuations are also invoked by the driver loop in response to a \code{try-again} request, to find another value of the expression.
@@ -83,9 +83,9 @@ Failure continuations are also called during processing of a failure:
 
 \subsubsection*{Structure of the evaluator}
 
-The syntax- and data-representation procedures for the \code{amb} evaluator, and also the basic \code{analyze} procedure, are identical to those in the evaluator of \link{Section 4.1.7}, except for the fact that we need additional syntax procedures to recognize the \code{amb} special form:%
+The syntax- and data-representation procedures for the \code{amb} evaluator, and also the basic \code{analyze} procedure, are identical to those in the evaluator of \cref{Section 4.1.7}, except for the fact that we need additional syntax procedures to recognize the \code{amb} special form:%
 \footnote{
-	We assume that the evaluator supports \code{let} (see \link{Exercise 4.22}), which we have used in our nondeterministic programs.
+	We assume that the evaluator supports \code{let} (see \cref{Exercise 4.22}), which we have used in our nondeterministic programs.
 }
 \begin{scheme}
   (define (amb? exp) (tagged-list? exp 'amb))
@@ -98,7 +98,7 @@ We must also add to the dispatch in \code{analyze} a clause that will recognize 
 \end{scheme}
 
 The top-level procedure \code{ambeval} (similar to the version of \code{eval}
-given in \link{Section 4.1.7}) analyzes the given expression and applies the
+given in \cref{Section 4.1.7}) analyzes the given expression and applies the
 resulting execution procedure to the given environment, together with two given
 continuations:
 \begin{scheme}
@@ -128,7 +128,7 @@ will attempt to evaluate the given expression and will return either the express
 The call to \code{ambeval} in the driver loop shown below uses much more complicated continuation procedures, which continue the loop and support the \code{try-again} request.
 
 Most of the complexity of the \code{amb} evaluator results from the mechanics of passing the continuations around as the execution procedures call each other.
-In going through the following code, you should compare each of the execution procedures with the corresponding procedure for the ordinary evaluator given in \link{Section 4.1.7}.
+In going through the following code, you should compare each of the execution procedures with the corresponding procedure for the ordinary evaluator given in \cref{Section 4.1.7}.
 
 
 
@@ -239,7 +239,7 @@ If this evaluation of \code{vproc} fails, the assignment fails.
 If \code{vproc} succeeds, however, and we go on to make the assignment, we must consider the possibility that this branch of the computation might later fail, which will require us to backtrack out of the assignment.
 Thus, we must arrange to undo the assignment as part of the backtracking process.%
 \footnote{
-	We didn’t worry about undoing definitions, since we can assume that internal definitions are scanned out (\link{Section 4.1.6}).
+	We didn’t worry about undoing definitions, since we can assume that internal definitions are scanned out (\cref{Section 4.1.6}).
 }
 
 This is accomplished by giving \code{vproc} a success continuation (marked with the comment “*1*” below) that saves the old value of the variable before assigning the new value to the variable and proceeding from the assignment.
@@ -413,7 +413,7 @@ is no evaluation in progress.
 \begin{exercise}
 	\label{Exercise 4.50}
 	Implement a new special form \code{ramb} that is like \code{amb} except that it searches alternatives in a random order, rather than from left to right.
-	Show how this can help with Alyssa’s problem in \link{Exercise 4.49}.
+	Show how this can help with Alyssa’s problem in \cref{Exercise 4.49}.
 \end{exercise}
 
 
@@ -475,7 +475,7 @@ is no evaluation in progress.
 
 \begin{exercise}
 	\label{Exercise 4.53}
-	With \code{permanent-set!} as described in \link{Exercise 4.51} and \code{if-fail} as in \link{Exercise 4.52}, what will be the result of evaluating
+	With \code{permanent-set!} as described in \cref{Exercise 4.51} and \code{if-fail} as in \cref{Exercise 4.52}, what will be the result of evaluating
 	\begin{scheme}
 	  (let ((pairs '()))
 	    (if-fail

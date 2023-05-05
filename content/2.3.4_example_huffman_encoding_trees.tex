@@ -64,7 +64,7 @@ In addition, each symbol at a leaf is assigned a weight (which is its relative f
 The weights are not used in the encoding or the decoding process.
 We will see below how they are used to help construct the tree.
 
-\link{Figure 2.18} shows the Huffman tree for the A-through-H code given above.
+\cref{Figure 2.18} shows the Huffman tree for the A-through-H code given above.
 The weights at the leaves indicate that the tree was designed for messages in which A appears with relative frequency~\( 8 \), B with relative frequency~\( 3 \), and the other letters each with relative frequency~\( 1 \).
 
 \begin{figure}[tb]
@@ -79,7 +79,7 @@ The weights at the leaves indicate that the tree was designed for messages in wh
 Given a Huffman tree, we can find the encoding of any symbol by starting at the root and moving down until we reach the leaf that holds the symbol.
 Each time we move down a left branch we add a \bitcode{0} to the code, and each time we move down a right branch we add a \bitcode{1}.
 (We decide which branch to follow by testing to see which branch either is the leaf node for the symbol or contains the symbol in its set.)
-For example, starting from the root of the tree in \link{Figure 2.18}, we arrive at the leaf for D by following a right branch, then a left branch, then a right branch, then a right branch;
+For example, starting from the root of the tree in \cref{Figure 2.18}, we arrive at the leaf for D by following a right branch, then a left branch, then a right branch, then a right branch;
 hence, the code for D is \bitcode{1011}.
 
 To decode a bit sequence using a Huffman tree, we begin at the root and use the successive zeros and ones of the bit sequence to determine whether to move down the left or the right branch.
@@ -101,7 +101,7 @@ Given an “alphabet” of symbols and their relative frequencies, how do we con
 Huffman gave an algorithm for doing this and showed that the resulting code is indeed the best variable-length code for messages where the relative frequency of the symbols matches the frequencies with which the code was constructed.
 We will not prove this optimality of Huffman codes here, but we will show how Huffman trees are constructed.%
 \footnote{
-	See \link{Hamming 1980} for a discussion of the mathematical properties of Huffman codes.
+	See \cref{Hamming 1980} for a discussion of the mathematical properties of Huffman codes.
 }
 
 The algorithm for generating a Huffman tree is very simple.
@@ -113,7 +113,7 @@ Remove the two leaves from the original set and replace them by this new node.
 Now continue this process.
 At each step, merge two nodes with the smallest weights, removing them from the set and replacing them with a node that has these two as its left and right branches.
 The process stops when there is only one node left, which is the root of the entire tree.
-Here is how the Huffman tree of \link{Figure 2.18} was generated:
+Here is how the Huffman tree of \cref{Figure 2.18} was generated:
 \begin{center}
 	\begin{tabular}{ll}
 		Initial leaves & (A \( 8 \)) (B \( 3 \)) (C \( 1 \)) (D \( 1 \)) (E \( 1 \)) (F \( 1 \)) (G \( 1 \)) (H \( 1 \))  \\
@@ -151,7 +151,7 @@ Leaves of the tree are represented by a list consisting of the symbol \code{leaf
 A general tree will be a list of a left branch, a right branch, a set of symbols, and a weight.
 The set of symbols will be simply a list of the symbols, rather than some more sophisticated set representation.
 When we make a tree by merging two nodes, we obtain the weight of the tree as the sum of the weights of the nodes, and the set of symbols as the union of the sets of symbols for the nodes.
-Since our symbol sets are represented as lists, we can form the union by using the \code{append} procedure we defined in \link{Section 2.2.1}:
+Since our symbol sets are represented as lists, we can form the union by using the \code{append} procedure we defined in \cref{Section 2.2.1}:
 \begin{scheme}
   (define (make-code-tree left right)
     (list left
@@ -176,7 +176,7 @@ If we make a tree in this way, we have the following selectors:
         (cadddr tree)))
 \end{scheme}
 The procedures \code{symbols} and \code{weight} must do something slightly different depending on whether they are called with a leaf or a general tree.
-These are simple examples of \newterm{generic procedures} (procedures that can handle more than one kind of data), which we will have much more to say about in \link{Section 2.4} and \link{Section 2.5}.
+These are simple examples of \newterm{generic procedures} (procedures that can handle more than one kind of data), which we will have much more to say about in \cref{Section 2.4} and \cref{Section 2.5}.
 
 
 
@@ -218,7 +218,7 @@ However, the tree-generating algorithm discussed above requires that we also wor
 Since we will be required to repeatedly find the smallest item in a set, it is convenient to use an ordered representation for this kind of set.
 
 We will represent a set of leaves and trees as a list of elements, arranged in increasing order of weight.
-The following \code{adjoin-set} procedure for constructing sets is similar to the one described in \link{Exercise 2.61};
+The following \code{adjoin-set} procedure for constructing sets is similar to the one described in \cref{Exercise 2.61};
 however, items are compared by their weights, and the element being added to the set is never already in it.
 \begin{scheme}
   (define (adjoin-set x set)
@@ -272,7 +272,7 @@ The following procedure takes a list of symbol-frequency pairs such as \code{((A
 	\end{scheme}
 	\code{encode-symbol} is a procedure, which you must write, that returns the list of bits that encodes a given symbol according to a given tree.
 	You should design \code{encode-symbol} so that it signals an error if the symbol is not in the tree at all.
-	Test your procedure by encoding the result you obtained in \link{Exercise 2.67} with the sample tree and seeing whether it is the same as the original sample message.
+	Test your procedure by encoding the result you obtained in \cref{Exercise 2.67} with the sample tree and seeing whether it is the same as the original sample message.
 \end{exercise}
 
 
@@ -308,7 +308,7 @@ The following procedure takes a list of symbol-frequency pairs such as \code{((A
 		\end{tabular}
 		\endgroup
 	\end{center}
-	Use \code{generate-huffman-tree} (\link{Exercise 2.69}) to generate a corresponding Huffman tree, and use \code{encode} (\link{Exercise 2.68}) to encode the following message:
+	Use \code{generate-huffman-tree} (\cref{Exercise 2.69}) to generate a corresponding Huffman tree, and use \code{encode} (\cref{Exercise 2.68}) to encode the following message:
 	\begin{quote}
 		Get a job \\
 		Sha na na na na na na na na \\
@@ -336,9 +336,9 @@ The following procedure takes a list of symbol-frequency pairs such as \code{((A
 
 \begin{exercise}
 	\label{Exercise 2.72}
-	Consider the encoding procedure that you designed in \link{Exercise 2.68}.
+	Consider the encoding procedure that you designed in \cref{Exercise 2.68}.
 	What is the order of growth in the number of steps needed to encode a symbol?
 	Be sure to include the number of steps needed to search the symbol list at each node encountered.
 	To answer this question in general is difficult.
-	Consider the special case where the relative frequencies of the \( n \) symbols are as described in \link{Exercise 2.71}, and give the order of growth (as a function of \( n \)) of the number of steps needed to encode the most frequent and least frequent symbols in the alphabet.
+	Consider the special case where the relative frequencies of the \( n \) symbols are as described in \cref{Exercise 2.71}, and give the order of growth (as a function of \( n \)) of the number of steps needed to encode the most frequent and least frequent symbols in the alphabet.
 \end{exercise}

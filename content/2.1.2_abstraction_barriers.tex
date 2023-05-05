@@ -14,7 +14,7 @@ In general, the underlying idea of data abstraction is to identify for each type
 	\label{Figure 2.1}
 \end{figure}
 
-We can envision the structure of the rational-number system as shown in \link{Figure 2.1}.
+We can envision the structure of the rational-number system as shown in \cref{Figure 2.1}.
 The horizontal lines represent \newterm{abstraction barriers} that isolate different “levels” of the system.
 At each level, the barrier separates the programs (above) that use the data abstraction from the programs (below) that implement the data abstraction.
 Programs that use rational numbers manipulate them solely in terms of the procedures supplied “for public use” by the rational-number package:
@@ -79,7 +79,7 @@ The data-abstraction methodology gives us a way to defer that decision without l
 \begin{exercise}
 	\label{Exercise 2.3}
 	Implement a representation for rectangles in a plane.
-	(Hint: You may want to make use of \link{Exercise 2.2}.)
+	(Hint: You may want to make use of \cref{Exercise 2.2}.)
 	In terms of your constructors and selectors, create procedures that compute the perimeter and the area of a given rectangle.
 	Now implement a different representation for rectangles.
 	Can you design your system with suitable abstraction barriers, so that the same perimeter and area procedures will work using either representation?

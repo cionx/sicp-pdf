@@ -1,19 +1,19 @@
 \subsection{How the Query System Works}
 \label{Section 4.4.2}
 
-In \link{Section 4.4.4} we will present an implementation of the query interpreter as a collection of procedures.
+In \cref{Section 4.4.4} we will present an implementation of the query interpreter as a collection of procedures.
 In this section we give an overview that explains the general structure of the system independent of low-level implementation details.
 After describing the implementation of the interpreter, we will be in a position to understand some of its limitations and some of the subtle ways in which the query language’s logical operations differ from the operations of mathematical logic.
 
 It should be apparent that the query evaluator must perform some kind of search in order to match queries against facts and rules in the data base.
-One way to do this would be to implement the query system as a nondeterministic program, using the \code{amb} evaluator of \link{Section 4.3} (see \link{Exercise 4.78}).
+One way to do this would be to implement the query system as a nondeterministic program, using the \code{amb} evaluator of \cref{Section 4.3} (see \cref{Exercise 4.78}).
 Another possibility is to manage the search with the aid of streams.
 Our implementation follows this second approach.
 
 The query system is organized around two central operations called \newterm{pattern matching} and \newterm{unification}.
 We first describe pattern matching and explain how this operation, together with the organization of information in terms of streams of frames, enables us to implement both simple and compound queries.
 We next discuss unification, a generalization of pattern matching needed to implement rules.
-Finally, we show how the entire query interpreter fits together through a procedure that classifies expressions in a manner analogous to the way \code{eval} classifies expressions for the interpreter described in \link{Section 4.1}.
+Finally, we show how the entire query interpreter fits together through a procedure that classifies expressions in a manner analogous to the way \code{eval} classifies expressions for the interpreter described in \cref{Section 4.1}.
 
 
 
@@ -58,10 +58,10 @@ The result is a stream of all the frames that extend the given frame via a match
 	With care, we can arrange our data base so that some of the work of coarse matching can be done when the data base is constructed rather then when we want to select the candidates.
 	This is called \newterm{indexing} the data base.
 	There is a vast technology built around data-base-indexing schemes.
-	Our implementation, described in \link{Section 4.4.4}, contains a simple-minded form of such an optimization.
+	Our implementation, described in \cref{Section 4.4.4}, contains a simple-minded form of such an optimization.
 }
 
-In our system, a query takes an input stream of frames and performs the above matching operation for every frame in the stream, as indicated in \link{Figure 4.4}.
+In our system, a query takes an input stream of frames and performs the above matching operation for every frame in the stream, as indicated in \cref{Figure 4.4}.
 That is, for each frame in the input stream, the query generates a new stream consisting of all extensions to that frame by matches to assertions in the data base.
 All these streams are then combined to form one huge stream, which contains all possible extensions of every frame in the input stream.
 This stream is the output of the query.
@@ -101,7 +101,7 @@ Then for each frame in the stream we find all entries that match
 \end{scheme}
 in a way that is consistent with the given binding for \code{?x}.
 Each such match will produce a frame containing bindings for \code{?x} and \code{?person}.
-The \code{and} of two queries can be viewed as a series combination of the two component queries, as shown in \link{Figure 4.5}.
+The \code{and} of two queries can be viewed as a series combination of the two component queries, as shown in \cref{Figure 4.5}.
 The frames that pass through the first query filter are filtered and further extended by the second query.
 
 \begin{figure}[tb]
@@ -122,12 +122,12 @@ The frames that pass through the first query filter are filtered and further ext
 	\label{Figure 4.6}
 \end{figure}
 
-\link{Figure 4.6} shows the analogous method for computing the \code{or} of two queries as a parallel combination of the two component queries.
+\cref{Figure 4.6} shows the analogous method for computing the \code{or} of two queries as a parallel combination of the two component queries.
 The input stream of frames is extended separately by each query.
 The two resulting streams are then merged to produce the final output stream.
 
 Even from this high-level description, it is apparent that the processing of compound queries can be slow.
-For example, since a query may produce more than one output frame for each input frame, and each query in an \code{and} gets its input frames from the previous query, an \code{and} query could, in the worst case, have to perform a number of matches that is exponential in the number of queries (see \link{Exercise 4.76}).%
+For example, since a query may produce more than one output frame for each input frame, and each query in an \code{and} gets its input frames from the previous query, an \code{and} query could, in the worst case, have to perform a number of matches that is exponential in the number of queries (see \cref{Exercise 4.76}).%
 \footnote{
 	But this kind of exponential explosion is not common in \code{and} queries because the added conditions tend to reduce rather than expand the number of frames produced.
 }
@@ -153,7 +153,7 @@ the first clause will generate frames with bindings for \code{?x} and \code{?y}.
 The \code{not} clause will then filter these by removing all frames in which the binding for \code{?x} satisfies the restriction that \code{?x} is a computer programmer.%
 \footnote{
 	There is a subtle difference between this filter implementation of \code{not} and the usual meaning of \code{not} in mathematical logic.
-	See \link{Section 4.4.3}.
+	See \cref{Section 4.4.3}.
 }
 
 The \code{lisp-value} special form is implemented as a similar filter on frame streams.
@@ -302,7 +302,7 @@ These streams (one for each frame in the input stream) are now all combined to f
 Despite the complexity of the underlying matching operations, the system is organized much like an evaluator for any language.
 The procedure that coordinates the matching operations is called \code{qeval}, and it plays a role analogous to that of the \code{eval} procedure for Lisp.
 \code{qeval} takes as inputs a query and a stream of frames.
-Its output is a stream of frames, corresponding to successful matches to the query pattern, that extend some frame in the input stream, as indicated in \link{Figure 4.4}.
+Its output is a stream of frames, corresponding to successful matches to the query pattern, that extend some frame in the input stream, as indicated in \cref{Figure 4.4}.
 Like \code{eval}, \code{qeval} classifies the different types of expressions (queries) and dispatches to an appropriate procedure for each.
 There is a procedure for each special form (\code{and}, \code{or}, \code{not}, and \code{lisp-value}) and one for simple queries.
 

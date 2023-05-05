@@ -58,13 +58,13 @@ the names of the two types:
 Generally some of the slots in the table will be empty, because it is not generally possible to coerce an arbitrary data object of each type into all other types.
 For example, there is no way to coerce an arbitrary complex number to an ordinary number, so there will be no general \code{complex->scheme-number} procedure included in the table.
 
-Once the coercion table has been set up, we can handle coercion in a uniform   manner by modifying the \code{apply-generic} procedure of \link{Section 2.4.3}.
+Once the coercion table has been set up, we can handle coercion in a uniform   manner by modifying the \code{apply-generic} procedure of \cref{Section 2.4.3}.
 When asked to apply an operation, we first check whether the operation is defined for the arguments’ types, just as before.
 If so, we dispatch to the procedure found in the operation-and-type table.
 Otherwise, we try coercion.
 For simplicity, we consider only the case where there are two arguments.%
 \footnote{
-	See \link{Exercise 2.82} for generalizations.
+	See \cref{Exercise 2.82} for generalizations.
 }
 We check the coercion table to see if objects of the first type can be coerced to the second type.
 If so, we coerce the first argument and try the operation again.
@@ -119,7 +119,7 @@ In such a system, it is quite natural to regard an integer as a special kind of 
 What we actually have is a so-called \newterm{hierarchy of types}, in which, for example, integers are a \newterm{subtype} of rational numbers (i.e., any operation that can be applied to a rational number can automatically be applied to an integer).
 Conversely, we say that rational numbers form a \newterm{supertype} of integers.
 The particular hierarchy we have here is of a very simple kind, in which each type has at most one supertype and at most one subtype.
-Such a structure, called a \newterm{tower}, is illustrated in \link{Figure 2.25}.
+Such a structure, called a \newterm{tower}, is illustrated in \cref{Figure 2.25}.
 
 \begin{figure}[tb]
 	\centering
@@ -136,7 +136,7 @@ We then allow the system to transform the integer into a complex number through 
 We can redesign our \code{apply-generic} procedure in the following way:
 For each type, we need to supply a \code{raise} procedure, which “raises” objects of that type one level in the tower.
 Then when the system is required to operate on objects of different types it can successively raise the lower types until all the objects are at the same level in the tower.
-(\link{Exercise 2.83} and \link{Exercise 2.84} concern the details of implementing such a strategy.)
+(\cref{Exercise 2.83} and \cref{Exercise 2.84} concern the details of implementing such a strategy.)
 
 Another advantage of a tower is that we can easily implement the notion that every type “inherits” all operations defined on a supertype.
 For instance, if we do not supply a special procedure for finding the real part of an integer, we should nevertheless expect that \code{real-part} will be defined for integers by virtue of the fact that integers are a subtype of complex numbers.
@@ -146,7 +146,7 @@ We thus crawl up the tower, transforming our argument as we go, until we either 
 
 Yet another advantage of a tower over a more general hierarchy is that it gives us a simple way to “lower” a data object to the simplest representation.
 For example, if we add \( 2 + 3i \) to \( 4 - 3i \), it would be nice to obtain the answer as the integer 6 rather than as the complex number \( 6 + 0i \).
-\link{Exercise 2.85} discusses a way to implement such a lowering operation.
+\cref{Exercise 2.85} discusses a way to implement such a lowering operation.
 (The trick is that we need a general way to distinguish those objects that can be lowered, such as \( 6 + 0i \), from those that cannot, such as \( 6 + 2i \).)
 
 
@@ -162,7 +162,7 @@ For example, if we add \( 2 + 3i \) to \( 4 - 3i \), it would be nice to obtain 
 
 If the data types in our system can be naturally arranged in a tower, this greatly simplifies the problems of dealing with generic operations on different types, as we have seen.
 Unfortunately, this is usually not the case.
-\link{Figure 2.26} illustrates a more complex arrangement of mixed types, this one showing relations among different types of geometric figures.
+\cref{Figure 2.26} illustrates a more complex arrangement of mixed types, this one showing relations among different types of geometric figures.
 We see that, in general, a type may have more than one subtype.
 Triangles and quadrilaterals, for instance, are both subtypes of polygons.
 In addition, a type may have more than one supertype.
@@ -176,7 +176,7 @@ Dealing with large numbers of interrelated types while still preserving modulari
 	Developing a useful, general framework for expressing the relations among different types of entities (what philosophers call “ontology”) seems intractably difficult.
 	The main difference between the confusion that existed ten years ago and the confusion that exists now is that now a variety of inadequate ontological theories have been embodied in a plethora of correspondingly inadequate programming languages.
 	For example, much of the complexity of object-oriented programming languages---and the subtle and confusing differences among contemporary object-oriented languages---centers on the treatment of generic operations on interrelated types.
-	Our own discussion of computational objects in \link{Chapter 3} avoids these issues entirely.
+	Our own discussion of computational objects in \cref{Chapter 3} avoids these issues entirely.
 	Readers familiar with object-oriented programming will notice that we have much to say in chapter 3 about local state, but we do not even mention “classes” or “inheritance.”
 	In fact, we suspect that these problems cannot be adequately addressed in terms of computer-language design alone, without also drawing on work in knowledge representation and automated reasoning.
 }
@@ -237,7 +237,7 @@ Dealing with large numbers of interrelated types while still preserving modulari
 
 \begin{exercise}
 	\label{Exercise 2.83}
-	Suppose you are designing a generic arithmetic system for dealing with the tower of types shown in \link{Figure 2.25}:
+	Suppose you are designing a generic arithmetic system for dealing with the tower of types shown in \cref{Figure 2.25}:
 	integer, rational, real, complex.
 	For each type (except complex), design a procedure that raises objects of that type one level in the tower.
 	Show how to install a generic \code{raise} operation that will work for each type (except complex).
@@ -247,7 +247,7 @@ Dealing with large numbers of interrelated types while still preserving modulari
 
 \begin{exercise}
 	\label{Exercise 2.84}
-	Using the \code{raise} operation of \link{Exercise 2.83}, modify the \code{apply-generic} procedure so that it coerces its arguments to have the same type by the method of successive raising, as discussed in this section.
+	Using the \code{raise} operation of \cref{Exercise 2.83}, modify the \code{apply-generic} procedure so that it coerces its arguments to have the same type by the method of successive raising, as discussed in this section.
 	You will need to devise a way to test which of two types is higher in the tower.
 	Do this in a manner that is “compatible” with the rest of the system and will not lead to problems in adding new levels to the tower.
 \end{exercise}
@@ -257,7 +257,7 @@ Dealing with large numbers of interrelated types while still preserving modulari
 \begin{exercise}
 	\label{Exercise 2.85}
 	This section mentioned a method for “simplifying” a data object by lowering it in the tower of types as far as possible.
-	Design a procedure \code{drop} that accomplishes this for the tower described in \link{Exercise 2.83}.
+	Design a procedure \code{drop} that accomplishes this for the tower described in \cref{Exercise 2.83}.
 	The key is to decide, in some general way, whether an object can be lowered.
 	For example, the complex number \( 1.5 + 0i \) can be lowered as far as \code{real}, the complex number \( 1 + 0i \) can be lowered as far as \code{integer}, and the complex number \( 2 + 3i \) cannot be lowered at all.
 	Here is a plan for determining whether an object can be lowered:
@@ -270,8 +270,8 @@ Dealing with large numbers of interrelated types while still preserving modulari
 		A real number can be projected to an integer using the \code{round} primitive, which returns the closest integer to its argument.
 	}
 	and install \code{project} as a generic operation in the system.
-	You will also need to make use of a generic equality predicate, such as described in \link{Exercise 2.79}.
-	Finally, use \code{drop} to rewrite \code{apply-generic} from \link{Exercise 2.84} so that it “simplifies” its answers.
+	You will also need to make use of a generic equality predicate, such as described in \cref{Exercise 2.79}.
+	Finally, use \code{drop} to rewrite \code{apply-generic} from \cref{Exercise 2.84} so that it “simplifies” its answers.
 \end{exercise}
 
 

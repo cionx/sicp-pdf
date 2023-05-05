@@ -17,8 +17,8 @@ The output signal is delayed by a time that depends on the type of the function 
 For example, an \newterm{inverter} is a primitive function box that inverts its input.
 If the input signal to an inverter changes to \( 0 \), then one inverter-delay later the inverter will change its output signal to \( 1 \).
 If the input signal to an inverter changes to \( 1 \), then one inverter-delay later the inverter will change its output signal to \( 0 \).
-We draw an inverter symbolically as in \link{Figure 3.24}.
-An \newterm{and-gate}, also shown in \link{Figure 3.24}, is a primitive function box with two inputs and one output.
+We draw an inverter symbolically as in \cref{Figure 3.24}.
+An \newterm{and-gate}, also shown in \cref{Figure 3.24}, is a primitive function box with two inputs and one output.
 It drives its output signal to a value that is the \newterm{logical and} of the inputs.
 That is, if both of its input signals become \( 1 \), then one and-gate-delay time later the and-gate will force its output signal to be \( 1 \);
 otherwise the output will be \( 0 \).
@@ -37,7 +37,7 @@ otherwise the output will become \( 0 \).
 
 We can connect primitive functions together to construct more complex functions.
 To accomplish this we wire the outputs of some function boxes to the inputs of other function boxes.
-For example, the \newterm{half-adder} circuit shown in \link{Figure 3.25} consists of an or-gate, two and-gates, and an inverter.
+For example, the \newterm{half-adder} circuit shown in \cref{Figure 3.25} consists of an or-gate, two and-gates, and an inverter.
 It takes two input signals, A and B, and has two output signals, S and C.
 S will become 1 whenever precisely one of A and B is 1, and C will become 1 whenever A and B are both 1.
 We can see from the figure that, because of the delays involved, the outputs may be generated at different times.
@@ -69,7 +69,7 @@ For example, we can construct six wires as follows:
 
 We attach a function box to a set of wires by calling a procedure that constructs that kind of box.
 The arguments to the constructor procedure are the wires to be attached to the box.
-For example, given that we can construct and-gates, or-gates, and inverters, we can wire together the half-adder shown in \link{Figure 3.25}:
+For example, given that we can construct and-gates, or-gates, and inverters, we can wire together the half-adder shown in \cref{Figure 3.25}:
 \begin{scheme}
   (or-gate a b d)
   ~\outprint{ok}~
@@ -104,7 +104,7 @@ Better yet, we can explicitly name this operation by defining a procedure \code{
       'ok))
 \end{scheme}
 The advantage of making this definition is that we can use \code{half-adder} itself as a building block in creating more complex circuits.
-\link{Figure 3.26}, for example, shows a \newterm{full-adder} composed of two half-adders and an or-gate.%
+\cref{Figure 3.26}, for example, shows a \newterm{full-adder} composed of two half-adders and an or-gate.%
 \footnote{
 	A full-adder is a basic circuit element used in adding two binary numbers.
 	Here \( A \) and \( B \) are the bits at corresponding positions in the two numbers to be added, and \( C_{\mathrm{in}} \) is the carry bit from the addition one place to the right.
@@ -120,10 +120,10 @@ We can construct a full-adder as follows:
       'ok))
 \end{scheme}
 Having defined \code{full-adder} as a procedure, we can now use it as a building block for creating still more complex circuits.
-(For example, see \link{Exercise 3.30}.)
+(For example, see \cref{Exercise 3.30}.)
 
 In essence, our simulator provides us with the tools to construct a language of circuits.
-If we adopt the general perspective on languages with which we approached the study of Lisp in \link{Section 1.1}, we can say that the primitive function boxes form the primitive elements of the language, that wiring boxes together provides a means of combination, and that specifying wiring patterns as procedures serves as a means of abstraction.
+If we adopt the general perspective on languages with which we approached the study of Lisp in \cref{Section 1.1}, we can say that the primitive function boxes form the primitive elements of the language, that wiring boxes together provides a means of combination, and that specifying wiring patterns as procedures serves as a means of abstraction.
 
 
 
@@ -202,7 +202,7 @@ It computes the \code{logical-and} (using a procedure analogous to \code{logical
 
 \begin{exercise}
 	\label{Exercise 3.30}
-	\link{Figure 3.27} shows a \newterm{ripple-carry adder} formed by stringing together \( n \) full-adders.
+	\cref{Figure 3.27} shows a \newterm{ripple-carry adder} formed by stringing together \( n \) full-adders.
 	This is the simplest form of parallel adder for adding two \( n \)-bit binary numbers.
 	The inputs \( A_1, A_2, A_3, \dotsc, A_n \) and \( B_1, B_2, B_3, \dotsc, B_n \) are the two binary numbers to be added (each \( A_k \) and \( B_k \) is a \( 0 \) or a \( 1 \)).
 	The circuit generates \( S_1, S_2, S_3, \dotsc, S_n \), the \( n \) bits of the sum, and \( C \), the carry from the addition.
@@ -229,7 +229,7 @@ It computes the \code{logical-and} (using a procedure analogous to \code{logical
 
 A wire in our simulation will be a computational object with two local state variables:
 a \code{signal-value} (initially taken to be 0) and a collection of \code{action-procedures} to be run when the signal changes value.
-We implement the wire, using message-passing style, as a collection of local procedures together with a \code{dispatch} procedure that selects the appropriate local operation, just as we did with the simple bank-account object in \link{Section 3.1.1}:
+We implement the wire, using message-passing style, as a collection of local procedures together with a \code{dispatch} procedure that selects the appropriate local operation, just as we did with the simple bank-account object in \cref{Section 3.1.1}:
 \begin{scheme}
   (define (make-wire)
     (let ((signal-value 0) (action-procedures '()))
@@ -259,7 +259,7 @@ If so, it runs each of the action procedures, using the following procedure \cod
                (call-each (cdr procedures)))))
 \end{scheme}
 The local procedure \code{accept-action-procedure!} adds the given procedure to the list of procedures to be run, and then runs the new procedure once.
-(See \link{Exercise 3.31}.)
+(See \cref{Exercise 3.31}.)
 
 With the local \code{dispatch} procedure set up as specified, we can provide the following procedures to access the local operations on wires:%
 \footnote{
@@ -380,7 +380,7 @@ Now we define four wires, placing probes on two of them:
   (probe 'carry carry)
   ~\outprint{carry 0  New-value = 0}~
 \end{scheme}
-Next we connect the wires in a half-adder circuit (as in \link{Figure 3.25}), set the signal on \code{input-1} to \( 1 \), and run the simulation:
+Next we connect the wires in a half-adder circuit (as in \cref{Figure 3.25}), set the signal on \code{input-1} to \( 1 \), and run the simulation:
 \begin{scheme}
   (half-adder input-1 input-2 sum carry)
   ~\outprint{ok}~
@@ -428,7 +428,7 @@ time 16.
 Finally, we give details of the agenda data structure, which holds the procedures that are scheduled for future execution.
 
 The agenda is made up of \newterm{time segments}.
-Each time segment is a pair consisting of a number (the time) and a queue (see \link{Exercise 3.32}) that holds the procedures that are scheduled to be run during that time segment.
+Each time segment is a pair consisting of a number (the time) and a queue (see \cref{Exercise 3.32}) that holds the procedures that are scheduled to be run during that time segment.
 \begin{scheme}
   (define (make-time-segment time queue)
     (cons time queue))
@@ -437,14 +437,14 @@ Each time segment is a pair consisting of a number (the time) and a queue (see \
 
   (define (segment-queue s) (cdr s))
 \end{scheme}
-We will operate on the time-segment queues using the queue operations described in \link{Section 3.3.2}.
+We will operate on the time-segment queues using the queue operations described in \cref{Section 3.3.2}.
 
 The agenda itself is a one-dimensional table of time segments.
-It differs from the tables described in \link{Section 3.3.3} in that the segments will be sorted in order of increasing time.
+It differs from the tables described in \cref{Section 3.3.3} in that the segments will be sorted in order of increasing time.
 In addition, we store the \newterm{current time} (i.e., the time of the last action that was processed) at the head of the agenda.
 A newly constructed agenda has no time segments and has a current time of \( 0 \):%
 \footnote{
-	The agenda is a headed list, like the tables in \link{Section 3.3.3}, but since the list is headed by the time, we do not need an additional dummy header (such as the \code{*table*} symbol used with tables).
+	The agenda is a headed list, like the tables in \cref{Section 3.3.3}, but since the list is headed by the time, we do not need an additional dummy header (such as the \code{*table*} symbol used with tables).
 }
 \begin{scheme}
   (define (make-agenda) (list 0))

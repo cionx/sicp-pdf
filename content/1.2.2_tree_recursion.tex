@@ -37,7 +37,7 @@ We can immediately translate this definition into a recursive procedure for comp
 Consider the pattern of this computation.
 To compute \code{(fib 5)}, we compute \code{(fib 4)} and \code{(fib 3)}.
 To compute \code{(fib 4)}, we compute \code{(fib 3)} and \code{(fib 2)}.
-In general, the evolved process looks like a tree, as shown in \link{Figure 1.5}.
+In general, the evolved process looks like a tree, as shown in \cref{Figure 1.5}.
 Notice that the branches split into two at each level (except at the bottom);
 this reflects the fact that the \code{fib} procedure calls itself twice each time it is invoked.
 
@@ -51,10 +51,10 @@ this reflects the fact that the \code{fib} procedure calls itself twice each tim
 \end{figure}
 
 This procedure is instructive as a prototypical tree recursion, but it is a terrible way to compute Fibonacci numbers because it does so much redundant computation.
-Notice in \link{Figure 1.5} that the entire computation of \code{(fib 3)}---almost half the work---is duplicated.
+Notice in \cref{Figure 1.5} that the entire computation of \code{(fib 3)}---almost half the work---is duplicated.
 In fact, it is not hard to show that the number of times the procedure will compute \code{(fib 1)} or \code{(fib 0)} (the number of leaves in the above tree, in general) is precisely \( \Fib (n + 1) \).
 To get an idea of how bad this is, one can show that the value of \( \Fib(n) \) grows exponentially with \( n \).
-More precisely (see \link{Exercise 1.13}), \( \Fib(n) \) is the closest integer to \( ϕ^n / \sqrt{5} \), where
+More precisely (see \cref{Exercise 1.13}), \( \Fib(n) \) is the closest integer to \( ϕ^n / \sqrt{5} \), where
 \[
 	ϕ = \frac{1 + \sqrt{5}}{2} ≈ 1.6180
 \]
@@ -89,7 +89,7 @@ The difference in number of steps required by the two methods---one linear in \(
 One should not conclude from this that tree-recursive processes are useless.
 When we consider processes that operate on hierarchically structured data rather than numbers, we will find that tree recursion is a natural and powerful tool.%
 \footnote{
-	An example of this was hinted at in \link{Section 1.1.3}.
+	An example of this was hinted at in \cref{Section 1.1.3}.
 	The interpreter itself evaluates expressions using a tree-recursive process.
 }
 But even in numerical operations, tree-recursive processes can be useful in helping us to understand and design programs.
@@ -181,7 +181,7 @@ The observation that a tree-recursive process may be highly inefficient but ofte
 	Each time we are asked to apply the procedure to some argument, we first look to see if the value is already stored in the table, in which case we avoid performing the redundant computation.
 	This strategy, known as \newterm{tabulation} or \newterm{memoization}, can be implemented in a straightforward way.
 	Tabulation can sometimes be used to transform processes that require an exponential number of steps (such as \code{count-change}) into processes whose space and time requirements grow linearly with the input.
-	See \link{Exercise 3.27}.
+	See \cref{Exercise 3.27}.
 }
 
 
@@ -218,7 +218,7 @@ The observation that a tree-recursive process may be highly inefficient but ofte
 	\footnote{
 		The elements of Pascal’s triangle are called the \newterm{binomial coefficients}, because the \( n \)\nth{th} row consists of the coefficients of the terms in the expansion of \( (x + y)^n \).
 		This pattern for computing the coefficients appeared in Blaise Pascal’s 1653 seminal work on probability theory, \booktitle{Traité du triangle arithmétique}.
-		According to \link{Knuth (1973)}, the same pattern appears in the \booktitle{Szu-yuen Yü-chien} (“The Precious Mirror of the Four Elements”), published by the Chinese mathematician Chu Shih-chieh in 1303, in the works of the twelfth-century Persian poet and mathematician Omar Khayyam, and in the works of the twelfth-century Hindu mathematician Bháscara Áchárya.
+		According to \cref{Knuth (1973)}, the same pattern appears in the \booktitle{Szu-yuen Yü-chien} (“The Precious Mirror of the Four Elements”), published by the Chinese mathematician Chu Shih-chieh in 1303, in the works of the twelfth-century Persian poet and mathematician Omar Khayyam, and in the works of the twelfth-century Hindu mathematician Bháscara Áchárya.
 	}
 	Write a procedure that computes elements of Pascal’s triangle by means of a recursive process.
 \end{exercise}
@@ -230,5 +230,5 @@ The observation that a tree-recursive process may be highly inefficient but ofte
 	Prove that \( \Fib(n) \) is the closest integer to \( ϕ^n / \sqrt{5} \), where \( ϕ = (1 + \sqrt{5}) / 2 \).
 	Hint:
 	Let \( \psi = (1 - \sqrt{5}) / 2 \).
-	Use induction and the definition of the Fibonacci numbers (see \link{Section 1.2.2}) to prove that \( \Fib(n) = (ϕ^n - \psi^n) / \sqrt{5} \).
+	Use induction and the definition of the Fibonacci numbers (see \cref{Section 1.2.2}) to prove that \( \Fib(n) = (ϕ^n - \psi^n) / \sqrt{5} \).
 \end{exercise}

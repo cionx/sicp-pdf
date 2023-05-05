@@ -17,13 +17,13 @@ then the sequence of values \( x_1, x_2, x_3, \dotsc \) will have the
 desired statistical properties.%
 \footnote{
 	One common way to implement \code{rand-update} is to use the rule that \( x \) is updated to \( a x + b \) modulo \( m \), where \( a \), \( b \), and \( m \) are appropriately chosen integers.
-	Chapter 3 of \link{Knuth 1981} includes an extensive discussion of techniques for generating sequences of random numbers and establishing their statistical properties.
+	Chapter 3 of \cref{Knuth 1981} includes an extensive discussion of techniques for generating sequences of random numbers and establishing their statistical properties.
 	Notice that the \code{rand-update} procedure computes a mathematical function:
 	Given the same input twice, it produces the same output.
 	Therefore, the number sequence produced by \code{rand-update} certainly is not “random,”  if by  “random” we insist that each number in the sequence is unrelated to the preceding number.
 	The relation between “real randomness” and so-called \newterm{pseudo-random} sequences, which are produced by well-determined computations and yet have suitable statistical properties, is a complex question involving difficult issues in mathematics and philosophy.
 	Kolmogorov, Solomonoff, and Chaitin have made great progress in clarifying these issues;
-	a discussion can be found in \link{Chaitin 1975}.
+	a discussion can be found in \cref{Chaitin 1975}.
 }
 
 We can implement \code{rand} as a procedure with a local state variable \code{x} that is initialized to some fixed value \code{random-init}.
@@ -44,7 +44,7 @@ For example, we can approximate \( π \) using the fact that \( 6 / π^2 \) is t
 that is, that their greatest common divisor will be 1.%
 \footnote{
 	This theorem is due to E.~Cesàro.
-	See section 4.5.2 of \link{Knuth 1981} for a discussion and a proof.
+	See section 4.5.2 of \cref{Knuth 1981} for a discussion and a proof.
 }
 To obtain the approximation to \( π \), we perform a large number of experiments.
 In each experiment we choose two integers at random and perform a test to see if their \acronym{GCD} is 1.
@@ -129,10 +129,10 @@ Unfortunately, as we shall see, the story is not so simple.
 	Use your \code{estimate-integral} to produce an estimate of \( π \) by measuring the area of a unit circle.
 
 	You will find it useful to have a procedure that returns a number chosen at random from a given range.
-	The following \code{random-in-range} procedure implements this in terms of the \code{random} procedure used in \link{Section 1.2.6}, which returns a nonnegative number less than its input.%
+	The following \code{random-in-range} procedure implements this in terms of the \code{random} procedure used in \cref{Section 1.2.6}, which returns a nonnegative number less than its input.%
 	\footnote{
 		\acronym{MIT} Scheme provides such a procedure.
-		If \code{random} is given an exact integer (as in \link{Section 1.2.6}) it returns an exact integer, but if it is given a decimal value (as in this exercise) it returns a decimal value.
+		If \code{random} is given an exact integer (as in \cref{Section 1.2.6}) it returns an exact integer, but if it is given a decimal value (as in this exercise) it returns a decimal value.
 	}
 	\begin{scheme}
 	  (define (random-in-range low high)

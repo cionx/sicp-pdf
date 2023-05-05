@@ -3,7 +3,7 @@
 
 To design a register machine, we must design its \newterm{data paths} (registers and operations) and the \newterm{controller} that sequences these operations.
 To illustrate the design of a simple register machine, let us examine Euclid’s Algorithm, which is used to compute the greatest common divisor (\acronym{GCD}) of two integers.
-As we saw in \link{Section 1.2.5}, Euclid’s Algorithm can be carried out by an iterative process, as specified by the following procedure:
+As we saw in \cref{Section 1.2.5}, Euclid’s Algorithm can be carried out by an iterative process, as specified by the following procedure:
 \begin{scheme}
 	(define (gcd a b)
 	  (if (= b 0)
@@ -19,7 +19,7 @@ It would be convenient if these replacements could be done simultaneously, but i
 To accomplish the replacements, our machine will use a third “temporary” register, which we call \code{t}.
 (First the remainder will be placed in \code{t}, then the contents of \code{b} will be placed in \code{a}, and finally the remainder stored in \code{t} will be placed in \code{b}.)
 
-We can illustrate the registers and operations required for this machine by using the data-path diagram shown in \link{Figure 5.1}.
+We can illustrate the registers and operations required for this machine by using the data-path diagram shown in \cref{Figure 5.1}.
 In this diagram, the registers (\code{a}, \code{b}, and \code{t}) are represented by rectangles.
 Each way to assign a value to a register is indicated by an arrow with an \code{X} behind the head, pointing from the source of data to the register.
 We can think of the \code{X} as a button that, when pushed, allows the value at the source to “flow” into the designated register.
@@ -37,7 +37,7 @@ The source of data for a register can be another register (as in the \code{a←b
 \end{figure}
 
 An operation that computes a value from constants and the contents of registers is represented in a data-path diagram by a trapezoid containing a name for the operation.
-For example, the box marked \code{rem} in \link{Figure 5.1} represents an operation that computes the remainder of the contents of the registers \code{a} and \code{b} to which it is attached.
+For example, the box marked \code{rem} in \cref{Figure 5.1} represents an operation that computes the remainder of the contents of the registers \code{a} and \code{b} to which it is attached.
 Arrows (without buttons) point from the input registers and constants to the box, and arrows connect the operation’s output value to registers.
 A test is represented by a circle containing a name for the test.
 For example, our \acronym{GCD} machine has an operation that tests whether the contents of register \code{b} is zero.
@@ -56,7 +56,7 @@ If we view the arrows as wires and the \code{X} buttons as switches, the data-pa
 \end{figure}
 
 In order for the data paths to actually compute \acronym{GCD}s, the buttons must be pushed in the correct sequence.
-We will describe this sequence in terms of a controller diagram, as illustrated in \link{Figure 5.2}.
+We will describe this sequence in terms of a controller diagram, as illustrated in \cref{Figure 5.2}.
 The elements of the controller diagram indicate how the data-path components should be operated.
 The rectangular boxes in the controller diagram identify data-path buttons to be pushed, and the arrows describe the sequencing from one step to the next.
 The diamond in the diagram represents a decision.

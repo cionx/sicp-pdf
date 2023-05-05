@@ -2,10 +2,10 @@
 \label{Section 5.2.2}
 
 The assembler transforms the sequence of controller expressions for a machine into a corresponding list of machine instructions, each with its execution procedure.
-Overall, the assembler is much like the evaluators we studied in \link{Chapter 4}---there is an input language (in this case, the register-machine language) and we must perform an appropriate action for each type of expression in the language.
+Overall, the assembler is much like the evaluators we studied in \cref{Chapter 4}---there is an input language (in this case, the register-machine language) and we must perform an appropriate action for each type of expression in the language.
 
-The technique of producing an execution procedure for each instruction is just what we used in \link{Section 4.1.7} to speed up the evaluator by separating analysis from runtime execution.
-As we saw in \link{Chapter 4}, much useful analysis of Scheme expressions could be performed without knowing the actual values of variables.
+The technique of producing an execution procedure for each instruction is just what we used in \cref{Section 4.1.7} to speed up the evaluator by separating analysis from runtime execution.
+As we saw in \cref{Chapter 4}, much useful analysis of Scheme expressions could be performed without knowing the actual values of variables.
 Here, analogously, much useful analysis of register-machine-language expressions can be performed without knowing the actual contents of machine registers.
 For example, we can replace references to registers by pointers to the register objects, and we can replace references to labels by pointers to the place in the instruction sequence that the label designates.
 
@@ -80,7 +80,7 @@ Otherwise the element is accumulated onto the \code{insts} list.%
 	\end{smallscheme}
 	You can consider our use of \code{receive} as demonstrating an elegant way to return multiple values, or simply an excuse to show off a programming trick.
 	An argument like \code{receive} that is the next procedure to be invoked is called a “continuation.”
-	Recall that we also used continuations to implement the backtracking control structure in the \code{amb} evaluator in \link{Section 4.3.3}.
+	Recall that we also used continuations to implement the backtracking control structure in the \code{amb} evaluator in \cref{Section 4.3.3}.
 }
 
 \code{update-insts!} modifies the instruction list, which initially contains only the text of the instructions, to include the corresponding execution procedures:
@@ -112,7 +112,7 @@ The execution procedure is not yet available when \code{extract-labels} construc
   (define (set-instruction-execution-proc! inst proc)
     (set-cdr! inst proc))
 \end{scheme}
-The instruction text is not used by our simulator, but it is handy to keep around for debugging (see \link{Exercise 5.16}).
+The instruction text is not used by our simulator, but it is handy to keep around for debugging (see \cref{Exercise 5.16}).
 
 Elements of the label table are pairs:
 \begin{scheme}

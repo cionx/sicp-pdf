@@ -170,9 +170,9 @@ If the linkage is \code{next}, the true branch ends with a jump around the code 
             after-if))))))
 \end{scheme}
 \code{env} is preserved around the predicate code because it could be needed by the true and false branches, and \code{continue} is preserved because it could be needed by the linkage code in those branches.
-The code for the true and false branches (which are not executed sequentially) is appended using a special combiner \code{parallel-instruction-sequences} described in \link{Section 5.5.4}.
+The code for the true and false branches (which are not executed sequentially) is appended using a special combiner \code{parallel-instruction-sequences} described in \cref{Section 5.5.4}.
 
-Note that \code{cond} is a derived expression, so all that the compiler needs to do handle it is to apply the \code{cond->if} transformer (from \link{Section 4.1.2}) and compile the resulting \code{if} expression.
+Note that \code{cond} is a derived expression, so all that the compiler needs to do handle it is to apply the \code{cond->if} transformer (from \cref{Section 4.1.2}) and compile the resulting \code{if} expression.
 
 
 
@@ -218,7 +218,7 @@ The object code thus has the form
 The procedure object will be constructed at run time by combining the current environment (the environment at the point of definition) with the entry point to the compiled procedure body (a newly generated label).%
 \footnote{
 	\label{Footnote 38}
-	We need machine operations to implement a data structure for representing compiled procedures, analogous to the structure for compound procedures described in \link{Section 4.1.3}:
+	We need machine operations to implement a data structure for representing compiled procedures, analogous to the structure for compound procedures described in \cref{Section 4.1.3}:
 
 	\begin{smallscheme}
 	  (define (make-compiled-procedure entry env)
@@ -249,7 +249,7 @@ The procedure object will be constructed at run time by combining the current en
           (compile-lambda-body exp proc-entry))
          after-lambda))))
 \end{scheme}
-\code{compile-lambda} uses the special combiner \code{tack-on-instruction-sequence} rather than \code{append-instruction-sequences} (\link{Section 5.5.4}) to append the procedure body to the \code{lambda} expression code, because the body is not part of the sequence of instructions that will be executed when the combined sequence is entered;
+\code{compile-lambda} uses the special combiner \code{tack-on-instruction-sequence} rather than \code{append-instruction-sequences} (\cref{Section 5.5.4}) to append the procedure body to the \code{lambda} expression code, because the body is not part of the sequence of instructions that will be executed when the combined sequence is entered;
 rather, it is in the sequence only because that was a convenient place to put it.
 
 \code{compile-lambda-body} constructs the code for the body of the procedure.

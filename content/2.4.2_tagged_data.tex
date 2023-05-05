@@ -2,7 +2,7 @@
 \label{Section 2.4.2}
 
 One way to view data abstraction is as an application of the “principle of least commitment.”
-In implementing the complex-number system in \link{Section 2.4.1}, we can use either Ben’s rectangular representation or Alyssa’s polar representation.
+In implementing the complex-number system in \cref{Section 2.4.1}, we can use either Ben’s rectangular representation or Alyssa’s polar representation.
 The abstraction barrier formed by the selectors and constructors permits us to defer to the last possible moment the choice of a concrete representation for our data objects and thus retain maximum flexibility in our system design.
 
 The principle of least commitment can be carried to even further extremes.
@@ -42,7 +42,7 @@ Whenever Ben constructs a complex number, he tags it as rectangular.
 Whenever Alyssa constructs a complex number, she tags it as polar.
 In addition, Ben and Alyssa must make sure that the names of their procedures do not conflict.
 One way to do this is for Ben to append the suffix \code{rectangular} to the name of each of his representation procedures and for Alyssa to append \code{polar} to the names of hers.
-Here is Ben’s revised rectangular representation from \link{Section 2.4.1}:
+Here is Ben’s revised rectangular representation from \cref{Section 2.4.1}:
 \begin{scheme}
   (define (real-part-rectangular z) (car z))
 
@@ -117,7 +117,7 @@ In either case, we use \code{contents} to extract the bare, untagged datum and s
           (else (error "Unknown type: ANGLE" z))))
 \end{scheme}
 
-To implement the complex-number arithmetic operations, we can use the same procedures \code{add-complex}, \code{sub-complex}, \code{mul-complex}, and \code{div-complex} from \link{Section 2.4.1}, because the selectors they call are generic, and so will work with either representation.
+To implement the complex-number arithmetic operations, we can use the same procedures \code{add-complex}, \code{sub-complex}, \code{mul-complex}, and \code{div-complex} from \cref{Section 2.4.1}, because the selectors they call are generic, and so will work with either representation.
 For example, the procedure \code{add-complex} is still
 \begin{scheme}
   (define (add-complex z1 z2)
@@ -135,7 +135,7 @@ One reasonable choice is to construct rectangular numbers whenever we have real 
     (make-from-mag-ang-polar r a))
 \end{scheme}
 
-The resulting complex-number system has the structure shown in \link{Figure 2.21}.
+The resulting complex-number system has the structure shown in \cref{Figure 2.21}.
 The system has been decomposed into three relatively independent parts:
 the complex-number-arithmetic operations, Alyssa’s polar implementation, and Ben’s rectangular implementation.
 The polar and rectangular implementations could have been written by Ben and Alyssa working separately, and both of these can be used as underlying representations by a third programmer implementing the complex-arithmetic procedures in terms of the abstract constructor/selector interface.
@@ -155,4 +155,4 @@ Notice the general mechanism for interfacing the separate representations:
 Within a given representation implementation (say, Alyssa’s polar package) a complex number is an untyped pair (magnitude, angle).
 When a generic selector operates on a number of \code{polar} type, it strips off the tag and passes the contents on to Alyssa’s code.
 Conversely, when Alyssa constructs a number for general use, she tags it with a type so that it can be appropriately recognized by the higher-level procedures.
-This discipline of stripping off and attaching tags as data objects are passed from level to level can be an important organizational strategy, as we shall see in \link{Section 2.5}.
+This discipline of stripping off and attaching tags as data objects are passed from level to level can be an important organizational strategy, as we shall see in \cref{Section 2.5}.

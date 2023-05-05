@@ -1,7 +1,7 @@
 \subsection{Representing Expressions}
 \label{Section 4.1.2}
 
-The evaluator is reminiscent of the symbolic differentiation program discussed in \link{Section 2.3.2}.
+The evaluator is reminiscent of the symbolic differentiation program discussed in \cref{Section 2.3.2}.
 Both programs operate on symbolic expressions.
 In both programs, the result of operating on a compound expression is determined by operating recursively on the pieces of the expression and combining the results in a way that depends on the type of the expression.
 In both programs we used data abstraction to decouple the general rules of operation from the details of how expressions are represented.
@@ -31,9 +31,9 @@ Here is the specification of the syntax of our language:
 	\item
 		Quotations have the form \code{(quote ⟨\var{text-of-quotation}⟩)}:%
 		\footnote{
-			As mentioned in \link{Section 2.3.1}, the evaluator sees a quoted expression as a list beginning with \code{quote}, even if the expression is typed with the quotation mark.
+			As mentioned in \cref{Section 2.3.1}, the evaluator sees a quoted expression as a list beginning with \code{quote}, even if the expression is typed with the quotation mark.
 			For example, the expression \code{'a} would be seen by the evaluator as \code{(quote a)}.
-		See \link{Exercise 2.55}.
+		See \cref{Exercise 2.55}.
 		}
 		\begin{scheme}
 		  (define (quoted? exp) (tagged-list? exp 'quote))
@@ -114,7 +114,7 @@ Here is the specification of the syntax of our language:
 			The value of an \code{if} expression when the predicate is false and there is no alternative is unspecified in Scheme;
 			we have chosen here to make it false.
 			We will support the use of the variables \code{true} and \code{false} in expressions to be evaluated by binding them in the global environment.
-			See \link{Section 4.1.4}.
+			See \cref{Section 4.1.4}.
 		}
 
 		\begin{scheme}
@@ -142,7 +142,7 @@ Here is the specification of the syntax of our language:
 		We include syntax operations on \code{begin} expressions to extract the actual sequence from the \code{begin} expression, as well as selectors that return the first expression and the rest of the expressions in the sequence.%
 		\footnote{
 			These selectors for a list of expressions---and the corresponding ones for a list of operands---are not intended as a data abstraction.
-			They are introduced as mnemonic names for the basic list operations in order to make it easier to understand the explicit-control evaluator in \link{Section 5.4}.
+			They are introduced as mnemonic names for the basic list operations in order to make it easier to understand the explicit-control evaluator in \cref{Section 5.4}.
 		}
 
 		\begin{scheme}
@@ -248,13 +248,13 @@ A clause is an \code{else} clause if its predicate is the symbol \code{else}.%
 
 Expressions (such as \code{cond}) that we choose to implement as syntactic transformations are called \newterm{derived expressions}.
 \code{let} expressions are also derived expressions (see
-\link{Exercise 4.6}).%
+\cref{Exercise 4.6}).%
 \footnote{
 	Practical Lisp systems provide a mechanism that allows a user to add new derived expressions and specify their implementation as syntactic transformations without modifying the evaluator.
 	Such a user-defined transformation is called a \newterm{macro}.
 	Although it is easy to add an elementary mechanism for defining macros, the resulting language has subtle name-conflict problems.
 	There has been much research on mechanisms for macro definition that do not cause these difficulties.
-	See, for example, \link{Kohlbecker 1986}, \link{Clinger and Rees 1991}, and \link{Hanson 1991}.
+	See, for example, \cref{Kohlbecker 1986}, \cref{Clinger and Rees 1991}, and \cref{Hanson 1991}.
 }
 
 
@@ -284,7 +284,7 @@ Expressions (such as \code{cond}) that we choose to implement as syntactic trans
 \begin{exercise}
 	\label{Exercise 4.3}
 	Rewrite \code{eval} so that the dispatch is done in data-directed style.
-	Compare this with the data-directed differentiation procedure of \link{Exercise 2.73}.
+	Compare this with the data-directed differentiation procedure of \cref{Exercise 2.73}.
 	(You may use the \code{car} of a compound expression as the type of the expression, as is appropriate for the syntax implemented in this section.)
 \end{exercise}
 
@@ -293,7 +293,7 @@ Expressions (such as \code{cond}) that we choose to implement as syntactic trans
 \begin{exercise}
 	\label{Exercise 4.4}
 	Recall the definitions of the
-	special forms \code{and} and \code{or} from \link{Chapter 1}:
+	special forms \code{and} and \code{or} from \cref{Chapter 1}:
 	\begin{itemize}
 
 		\item
@@ -368,7 +368,7 @@ Expressions (such as \code{cond}) that we choose to implement as syntactic trans
 	\end{scheme}
 	returns \( 39 \).
 	Explain how a \code{let*} expression can be rewritten as a set of nested \code{let} expressions, and write a procedure \code{let*->nested-lets} that performs this transformation.
-	If we have already implemented \code{let} (\link{Exercise 4.6}) and we want to extend the evaluator to handle \code{let*}, is it sufficient to add a clause to \code{eval} whose action is
+	If we have already implemented \code{let} (\cref{Exercise 4.6}) and we want to extend the evaluator to handle \code{let*}, is it sufficient to add a clause to \code{eval} whose action is
 	\begin{scheme}
 	  (eval (let*->nested-lets exp) env)
 	\end{scheme}
@@ -385,7 +385,7 @@ Expressions (such as \code{cond}) that we choose to implement as syntactic trans
 	\end{scheme}
 	The \code{⟨\var{bindings}⟩} and \code{⟨\var{body}⟩} are just as in ordinary \code{let}, except that \code{⟨\var{var}⟩} is bound within \code{⟨\var{body}⟩} to a procedure whose body is \code{⟨\var{body}⟩} and whose parameters are the variables in the \code{⟨\var{bindings}⟩}.
 	Thus, one can repeatedly execute the \code{⟨\var{body}⟩} by invoking the procedure named \code{⟨\var{var}⟩}.
-	For example, the iterative Fibonacci procedure (\link{Section 1.2.2}) can be rewritten using named \code{let} as follows:
+	For example, the iterative Fibonacci procedure (\cref{Section 1.2.2}) can be rewritten using named \code{let} as follows:
 	\begin{scheme}
 	  (define (fib n)
 	    (let fib-iter ((a 1)
@@ -395,7 +395,7 @@ Expressions (such as \code{cond}) that we choose to implement as syntactic trans
 	          b
 	          (fib-iter (+ a b) a (- count 1)))))
 	\end{scheme}
-	Modify \code{let->combination} of \link{Exercise 4.6} to also support named \code{let}.
+	Modify \code{let->combination} of \cref{Exercise 4.6} to also support named \code{let}.
 \end{exercise}
 
 

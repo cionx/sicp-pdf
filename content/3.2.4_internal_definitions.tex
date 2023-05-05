@@ -1,7 +1,7 @@
 \subsection{Internal Definitions}
 \label{Section 3.2.4}
 
-\link{Section 1.1.8} introduced the idea that procedures can have internal definitions, thus leading to a block structure as in the following procedure to compute square roots:
+\cref{Section 1.1.8} introduced the idea that procedures can have internal definitions, thus leading to a block structure as in the following procedure to compute square roots:
 \begin{scheme}
   (define (sqrt x)
     (define (good-enough? guess)
@@ -15,7 +15,7 @@
     (sqrt-iter 1.0))
 \end{scheme}
 Now we can use the environment model to see why these internal definitions behave as desired.
-\link{Figure 3.11} shows the point in the evaluation of the expression \code{(sqrt 2)} where the internal procedure \code{good-enough?} has been called for the first time with \code{guess} equal to \( 1 \).
+\cref{Figure 3.11} shows the point in the evaluation of the expression \code{(sqrt 2)} where the internal procedure \code{good-enough?} has been called for the first time with \code{guess} equal to \( 1 \).
 
 Observe the structure of the environment.
 \code{sqrt} is a symbol in the global environment that is bound to a procedure object whose associated environment is the global environment.
@@ -29,7 +29,7 @@ Since the first expression in the body of \code{sqrt} is
 evaluating this expression defined the procedure \code{good-enough?}  in the environment E1.
 To be more precise, the symbol \code{good-enough?} was added to the first frame of E1, bound to a procedure object whose associated environment is E1.
 Similarly, \code{improve} and \code{sqrt-iter} were defined as procedures in E1.
-For conciseness, \link{Figure 3.11} shows only the procedure object for \code{good-enough?}.
+For conciseness, \cref{Figure 3.11} shows only the procedure object for \code{good-enough?}.
 
 \begin{figure}[tb]
 	\centering
@@ -65,10 +65,10 @@ The environment model thus explains the two key properties that make local proce
 
 \begin{exercise}
 	\label{Exercise 3.11}
-	In \link{Section 3.2.3} we saw how the environment model described the behavior of procedures with local state.
+	In \cref{Section 3.2.3} we saw how the environment model described the behavior of procedures with local state.
 	Now we have seen how internal definitions work.
 	A typical message-passing procedure contains both of these aspects.
-	Consider the bank account procedure of \link{Section 3.1.1}:
+	Consider the bank account procedure of \cref{Section 3.1.1}:
 	\begin{scheme}
 	  (define (make-account balance)
 	    (define (withdraw amount)

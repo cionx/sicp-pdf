@@ -2,7 +2,7 @@
 \label{Section 5.2.3}
 
 The assembler calls \code{make-execution-procedure} to generate the execution procedure for an instruction.
-Like the \code{analyze} procedure in the evaluator of \link{Section 4.1.7}, this dispatches on the type of instruction to generate the appropriate execution procedure.
+Like the \code{analyze} procedure in the evaluator of \cref{Section 4.1.7}, this dispatches on the type of instruction to generate the appropriate execution procedure.
 
 \begin{scheme}
   (define (make-execution-procedure
@@ -28,7 +28,7 @@ Like the \code{analyze} procedure in the evaluator of \link{Section 4.1.7}, this
 
 For each type of instruction in the register-machine language, there is a generator that builds an appropriate execution procedure.
 The details of these procedures determine both the syntax and meaning of the individual instructions in the register-machine language.
-We use data abstraction to isolate the detailed syntax of register-machine expressions from the general execution mechanism, as we did for evaluators in \link{Section 4.1.2}, by using syntax procedures to extract and classify the parts of an instruction.
+We use data abstraction to isolate the detailed syntax of register-machine expressions from the general execution mechanism, as we did for evaluators in \cref{Section 4.1.2}, by using syntax procedures to extract and classify the parts of an instruction.
 
 
 
@@ -65,7 +65,7 @@ The value expression is passed to \code{make-operation-exp} if the value is the 
 These procedures (shown below) parse the value expression and produce an execution procedure for the value.
 This is a procedure of no arguments, called \code{value-proc}, which will be evaluated during the simulation to produce the actual value to be assigned to the register.
 Notice that the work of looking up the register name and parsing the value expression is performed just once, at assembly time, not every time the instruction is simulated.
-This saving of work is the reason we use execution procedures, and corresponds directly to the saving in work we obtained by separating program analysis from execution in the evaluator of \link{Section 4.1.7}.
+This saving of work is the reason we use execution procedures, and corresponds directly to the saving in work we obtained by separating program analysis from execution in the evaluator of \cref{Section 4.1.7}.
 
 The result returned by \code{make-assign} is the execution procedure for the \code{assign} instruction.
 When this procedure is called (by the machine model’s \code{execute} procedure), it sets the contents of the target register to the result obtained by executing \code{value-proc}.
@@ -243,7 +243,7 @@ The syntax of operation expressions is determined by
     (cdr operation-exp))
 \end{scheme}
 
-Observe that the treatment of operation expressions is very much like the treatment of procedure applications by the \code{analyze-application} procedure in the evaluator of \link{Section 4.1.7} in that we generate an execution procedure for each operand.
+Observe that the treatment of operation expressions is very much like the treatment of procedure applications by the \code{analyze-application} procedure in the evaluator of \cref{Section 4.1.7} in that we generate an execution procedure for each operand.
 At simulation time, we call the operand procedures and apply the Scheme procedure that simulates the operation to the resulting values.
 The simulation procedure is found by looking up the operation name in the operation table for the machine:
 \begin{scheme}
@@ -275,7 +275,7 @@ The simulation procedure is found by looking up the operation name in the operat
 
 \begin{exercise}
 	\label{Exercise 5.11}
-	When we introduced \code{save} and \code{restore} in \link{Section 5.1.4}, we didn’t specify what would happen if you tried to restore a register that was not the last one saved, as in the sequence
+	When we introduced \code{save} and \code{restore} in \cref{Section 5.1.4}, we didn’t specify what would happen if you tried to restore a register that was not the last one saved, as in the sequence
 	\begin{scheme}
 	  (save y)  (save x)  (restore y)
 	\end{scheme}
@@ -285,7 +285,7 @@ The simulation procedure is found by looking up the operation name in the operat
 		\item
 			\code{(restore y)} puts into \code{y} the last value saved on the stack, regardless of what register that value came from.
 			This is the way our simulator behaves.
-			Show how to take advantage of this behavior to eliminate one instruction from the Fibonacci machine of \link{Section 5.1.4} (\link{Figure 5.12}).
+			Show how to take advantage of this behavior to eliminate one instruction from the Fibonacci machine of \cref{Section 5.1.4} (\cref{Figure 5.12}).
 
 		\item
 			\code{(restore y)} puts into \code{y} the last value saved on the stack, but only if that value was saved from \code{y};
@@ -320,11 +320,11 @@ The simulation procedure is found by looking up the operation name in the operat
 			a list (without duplicates) of the registers that are \code{save}d or \code{restore}d;
 
 		\item
-			for each register, a list (without duplicates) of the sources from which it is assigned (for example, the sources for register \code{val} in the factorial machine of \link{Figure 5.11} are \code{(const 1)} and \code{((op *) (reg n) (reg val))}).
+			for each register, a list (without duplicates) of the sources from which it is assigned (for example, the sources for register \code{val} in the factorial machine of \cref{Figure 5.11} are \code{(const 1)} and \code{((op *) (reg n) (reg val))}).
 
 	\end{itemize}
 	Extend the message-passing interface to the machine to provide access to this new information.
-	To test your analyzer, define the Fibonacci machine from \link{Figure 5.12} and examine the lists you constructed.
+	To test your analyzer, define the Fibonacci machine from \cref{Figure 5.12} and examine the lists you constructed.
 \end{exercise}
 
 

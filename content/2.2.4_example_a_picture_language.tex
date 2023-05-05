@@ -11,9 +11,9 @@
 \end{figure}
 
 This section presents a simple language for drawing pictures that illustrates the power of data abstraction and closure, and also exploits higher-order procedures in an essential way.
-The language is designed to make it easy to experiment with patterns such as the ones in \link{Figure 2.9}, which are composed of repeated elements that are shifted and scaled.%
+The language is designed to make it easy to experiment with patterns such as the ones in \cref{Figure 2.9}, which are composed of repeated elements that are shifted and scaled.%
 \footnote{
-	The picture language is based on the language Peter Henderson created to construct images like M.~C.~Escher’s “Square Limit” woodcut (see \link{Henderson 1982}).
+	The picture language is based on the language Peter Henderson created to construct images like M.~C.~Escher’s “Square Limit” woodcut (see \cref{Henderson 1982}).
 	The woodcut incorporates a repeated scaled pattern, similar to the arrangements drawn using the \code{square-limit} procedure in this section.
 }
 In this language, the data objects being combined are represented as procedures rather than as list structure.
@@ -23,7 +23,7 @@ Just as \code{cons}, which satisfies the closure property, allowed us to easily 
 
 \subsubsection*{The picture language}
 
-When we began our study of programming in \link{Section 1.1}, we emphasized the importance of describing a language by focusing on the language’s primitives, its means of combination, and its means of abstraction.
+When we began our study of programming in \cref{Section 1.1}, we emphasized the importance of describing a language by focusing on the language’s primitives, its means of combination, and its means of abstraction.
 We’ll follow that framework here.
 
 \begin{figure}[tb]
@@ -38,10 +38,10 @@ We’ll follow that framework here.
 
 Part of the elegance of this picture language is that there is only one kind of element, called a \newterm{painter}.
 A painter draws an image that is shifted and scaled to fit within a designated parallelogram-shaped frame.
-For example, there’s a primitive painter we’ll call \code{wave} that makes a crude line drawing, as shown in \link{Figure 2.10}.
-The actual shape of the drawing depends on the frame---all four images in \link{Figure 2.10} are produced by the same \code{wave} painter, but with respect to four different frames.
+For example, there’s a primitive painter we’ll call \code{wave} that makes a crude line drawing, as shown in \cref{Figure 2.10}.
+The actual shape of the drawing depends on the frame---all four images in \cref{Figure 2.10} are produced by the same \code{wave} painter, but with respect to four different frames.
 Painters can be more elaborate than this:
-The primitive painter called \code{rogers} paints a picture of \acronym{MIT}’s founder, William Barton Rogers, as shown in \link{Figure 2.11}.%
+The primitive painter called \code{rogers} paints a picture of \acronym{MIT}’s founder, William Barton Rogers, as shown in \cref{Figure 2.11}.%
 \footnote{
 	William Barton Rogers (1804--1882) was the founder and first president of \acronym{MIT}.
 	A geologist and talented teacher, he taught at William and Mary College and at the University of Virginia.
@@ -79,13 +79,13 @@ The primitive painter called \code{rogers} paints a picture of \acronym{MIT}’s
 		All his life he had borne himself most faithfully and heroically, and he died as so good a knight would surely have wished, in harness, at his post, and in the very part and act of public duty.
 	\end{quote}
 }
-The four images in \link{Figure 2.11} are drawn with respect to the same four frames as the \code{wave} images in \link{Figure 2.10}.
+The four images in \cref{Figure 2.11} are drawn with respect to the same four frames as the \code{wave} images in \cref{Figure 2.10}.
 
 \begin{figure}[tb]
 	\centering
 	\includesvg[width=48mm]{fig/chap2/Fig2.11.svg}
 	\caption{
-		Images of William Barton Rogers, founder and first president of \acronym{MIT}, painted with respect to the same four frames as in \link{Figure 2.10} (original image from Wikimedia Commons).
+		Images of William Barton Rogers, founder and first president of \acronym{MIT}, painted with respect to the same four frames as in \cref{Figure 2.10} (original image from Wikimedia Commons).
 	}
 	\label{Figure 2.11}
 \end{figure}
@@ -96,7 +96,7 @@ Similarly, \code{below} takes two painters and produces a compound painter that 
 Some operations transform a single painter to produce a new painter.
 For example, \code{flip-vert} takes a painter and produces a painter that draws its image upside-down, and \code{flip-horiz} produces a painter that draws the original painter’s image left-to-right reversed.
 
-\link{Figure 2.12} shows the drawing of a painter called \code{wave4} that is built up in two stages starting from \code{wave}:
+\cref{Figure 2.12} shows the drawing of a painter called \code{wave4} that is built up in two stages starting from \code{wave}:
 \begin{scheme}
   (define wave2 (beside wave (flip-vert wave)))
   (define wave4 (below wave2 wave2))
@@ -105,7 +105,7 @@ For example, \code{flip-vert} takes a painter and produces a painter that draws 
 	\centering
 	\includesvg[width=50mm]{fig/chap2/Fig2.12.svg}
 	\caption{
-		Creating a complex figure, starting from the \code{wave} painter of \link{Figure 2.10}.
+		Creating a complex figure, starting from the \code{wave} painter of \cref{Figure 2.10}.
 	}
 	\label{Figure 2.12}
 \end{figure}
@@ -139,7 +139,7 @@ and define \code{wave4} as an instance of this pattern:
 \end{figure}
 
 We can also define recursive operations.
-Here’s one that makes painters split and branch towards the right as shown in \link{Figure 2.13} and \link{Figure 2.14}:
+Here’s one that makes painters split and branch towards the right as shown in \cref{Figure 2.13} and \cref{Figure 2.14}:
 \begin{scheme}
   (define (right-split painter n)
     (if (= n 0)
@@ -147,7 +147,7 @@ Here’s one that makes painters split and branch towards the right as shown in 
         (let ((smaller (right-split painter (- n 1))))
           (beside painter (below smaller smaller)))))
 \end{scheme}
-We can produce balanced patterns by branching upwards as well as towards the right (see exercise \link{Exercise 2.44} and figures \link{Figure 2.13} and \link{Figure 2.14}):
+We can produce balanced patterns by branching upwards as well as towards the right (see exercise \cref{Exercise 2.44} and figures \cref{Figure 2.13} and \cref{Figure 2.14}):
 \begin{scheme}
   (define (corner-split painter n)
     (if (= n 0)
@@ -161,7 +161,7 @@ We can produce balanced patterns by branching upwards as well as towards the rig
                     (below bottom-right corner))))))
 \end{scheme}
 
-By placing four copies of a \code{corner-split} appropriately, we obtain a pattern called \code{square-limit}, whose application to \code{wave} and \code{rogers} is shown in \link{Figure 2.9}:
+By placing four copies of a \code{corner-split} appropriately, we obtain a pattern called \code{square-limit}, whose application to \code{wave} and \code{rogers} is shown in \cref{Figure 2.9}:
 \begin{scheme}
   (define (square-limit painter n)
     (let ((quarter (corner-split painter n)))
@@ -184,7 +184,7 @@ By placing four copies of a \code{corner-split} appropriately, we obtain a patte
 	\includesvg[width=91mm]{fig/chap2/Fig2.14b.svg}
 	\caption{
 		The recursive operations \code{right-split} and \code{corner-split} applied to the painters \code{wave} and \code{rogers}.
-		Combining four \code{corner-split} figures produces symmetric \code{square-limit} designs as shown in \link{Figure 2.9}.
+		Combining four \code{corner-split} figures produces symmetric \code{square-limit} designs as shown in \cref{Figure 2.9}.
 	}
 	\label{Figure 2.14}
 \end{figure}
@@ -223,8 +223,8 @@ Then \code{flipped-pairs} can be defined in terms of \code{square-of-four} as fo
 \end{scheme}
 and \code{square-limit} can be expressed as%
 \footnote{
-	\code{rotate180} rotates a painter by \( 180 \) degrees (see \link{Exercise 2.50}).
-	Instead of \code{rotate180} we could say \code{(compose flip-vert flip-horiz)}, using the \code{compose} procedure from \link{Exercise 1.42}.
+	\code{rotate180} rotates a painter by \( 180 \) degrees (see \cref{Exercise 2.50}).
+	Instead of \code{rotate180} we could say \code{(compose flip-vert flip-horiz)}, using the \code{compose} procedure from \cref{Exercise 1.42}.
 }
 \begin{scheme}
   (define (square-limit painter n)
@@ -256,8 +256,8 @@ The origin vector specifies the offset of the frame’s origin from some absolut
 If the edges are perpendicular, the frame will be rectangular.
 Otherwise the frame will be a more general parallelogram.
 
-\link{Figure 2.15} shows a frame and its associated vectors.
-In accordance with data abstraction, we need not be specific yet about how frames are represented, other than to say that there is a constructor \code{make-frame}, which takes three vectors and produces a frame, and three corresponding selectors \code{origin-frame}, \code{edge1-frame}, and \code{edge2-frame} (see \link{Exercise 2.47}).
+\cref{Figure 2.15} shows a frame and its associated vectors.
+In accordance with data abstraction, we need not be specific yet about how frames are represented, other than to say that there is a constructor \code{make-frame}, which takes three vectors and produces a frame, and three corresponding selectors \code{origin-frame}, \code{edge1-frame}, and \code{edge2-frame} (see \cref{Exercise 2.47}).
 
 \begin{figure}[tb]
 	\centering
@@ -279,7 +279,7 @@ The map transforms the unit square into the frame by mapping the vector \( v = (
 For example, \( (0, 0) \) is mapped to the origin of the frame, \( (1, 1) \) to the vertex diagonally opposite the origin, and \( (0.5, 0.5) \) to the center of the frame.
 We can create a frame’s coordinate map with the following procedure:%
 \footnote{
-	\code{frame-coord-map} uses the vector operations described in \link{Exercise 2.46} below, which we assume have been implemented using some representation for vectors.
+	\code{frame-coord-map} uses the vector operations described in \cref{Exercise 2.46} below, which we assume have been implemented using some representation for vectors.
 	Because of data abstraction, it doesn’t matter what this vector representation is, so long as the vector operations behave correctly.
 }
 \begin{scheme}
@@ -341,10 +341,10 @@ That is to say, if \code{p} is a painter and \code{f} is a frame, then we produc
 
 The details of how primitive painters are implemented depend on the particular characteristics of the graphics system and the type of image to be drawn.
 For instance, suppose we have a procedure \code{draw-line} that draws a line on the screen between two specified points.
-Then we can create painters for line drawings, such as the \code{wave} painter in \link{Figure 2.10}, from lists of line segments as follows:%
+Then we can create painters for line drawings, such as the \code{wave} painter in \cref{Figure 2.10}, from lists of line segments as follows:%
 \footnote{
-	\code{segments->painter} uses the representation for line segments described in \link{Exercise 2.48} below.
-	It also uses the \code{for-each} procedure described in \link{Exercise 2.23}.
+	\code{segments->painter} uses the representation for line segments described in \cref{Exercise 2.48} below.
+	It also uses the \code{for-each} procedure described in \cref{Exercise 2.23}.
 }
 \begin{scheme}
   (define (segments->painter segment-list)
@@ -366,11 +366,11 @@ We can create and intermix all sorts of primitive painters, based on a variety o
 The details of their implementation do not matter.
 Any procedure can serve as a painter, provided that it takes a frame as argument and draws something scaled to fit the frame.%
 \footnote{
-	For example, the \code{rogers} painter of \link{Figure 2.11} was constructed from a gray-level image.
+	For example, the \code{rogers} painter of \cref{Figure 2.11} was constructed from a gray-level image.
 	For each point in a given frame, the \code{rogers} painter determines the point in the image that is mapped to it under the frame coordinate map, and shades it accordingly.
-	By allowing different types of painters, we are capitalizing on the abstract data idea discussed in \link{Section 2.1.3}, where we argued that a rational-number representation could be anything at all that satisfies an appropriate condition.
+	By allowing different types of painters, we are capitalizing on the abstract data idea discussed in \cref{Section 2.1.3}, where we argued that a rational-number representation could be anything at all that satisfies an appropriate condition.
 	Here we’re using the fact that a painter can be implemented in any way at all, so long as it draws something in the designated frame.
-	\link{Section 2.1.3} also showed how pairs could be implemented as procedures.
+	\cref{Section 2.1.3} also showed how pairs could be implemented as procedures.
 	Painters are our second example of a procedural representation for data.
 }
 
@@ -379,7 +379,7 @@ Any procedure can serve as a painter, provided that it takes a frame as argument
 \begin{exercise}
 	\label{Exercise 2.48}
 	A directed line segment in the plane can be represented as a pair of vectors---the vector running from the origin to the start-point of the segment, and the vector running from the origin to the end-point of the segment.
-	Use your vector representation from \link{Exercise 2.46} to define a representation for segments with a constructor \code{make-segment} and selectors \code{start-segment} and \code{end-segment}.
+	Use your vector representation from \cref{Exercise 2.46} to define a representation for segments with a constructor \code{make-segment} and selectors \code{start-segment} and \code{end-segment}.
 \end{exercise}
 
 
@@ -458,7 +458,7 @@ Other transformations rotate images counterclockwise by \( 90 \) degrees%
 \end{scheme}
 or squash images towards the center of the frame:%
 \footnote{
-	The diamond-shaped images in \link{Figure 2.10} and \link{Figure 2.11} were created with \code{squash-inwards} applied to \code{wave} and \code{rogers}.
+	The diamond-shaped images in \cref{Figure 2.10} and \cref{Figure 2.11} were created with \code{squash-inwards} applied to \code{wave} and \code{rogers}.
 }
 \begin{scheme}
   (define (squash-inwards painter)
@@ -504,7 +504,7 @@ The \code{beside} procedure need not know anything about the details of the comp
 	Define the \code{below} operation for painters.
 	\code{below} takes two painters as arguments.
 	The resulting painter, given a frame, draws with the first painter in the bottom of the frame and with the second painter in the top.
-	Define \code{below} in two different ways---first by writing a procedure that is analogous to the \code{beside} procedure given above, and again in terms of \code{beside} and suitable rotation operations (from \link{Exercise 2.50}).
+	Define \code{below} in two different ways---first by writing a procedure that is analogous to the \code{beside} procedure given above, and again in terms of \code{beside} and suitable rotation operations (from \cref{Exercise 2.50}).
 \end{exercise}
 
 
@@ -524,7 +524,7 @@ The language used at each level of a stratified design has primitives, means of 
 Stratified design pervades the engineering of complex systems.
 For example, in computer engineering, resistors and transistors are combined (and described using a language of analog circuits) to produce parts such as and-gates and or-gates, which form the primitives of a language for digital-circuit design.%
 \footnote{
-	\link{Section 3.3.4} describes one such language.
+	\cref{Section 3.3.4} describes one such language.
 }
 These parts are combined to build processors, bus structures, and memory systems, which are in turn combined to form computers, using languages appropriate to computer architecture.
 Computers are combined to form distributed systems, using languages appropriate for describing network interconnections, and so on.
@@ -534,7 +534,7 @@ The bulk of our description of the picture language focused on combining these p
 We also worked at a higher level, regarding \code{beside} and \code{below} as primitives to be manipulated in a language whose operations, such as \code{square-of-four}, capture common patterns of combining geometric combiners.
 
 Stratified design helps make programs \newterm{robust}, that is, it makes it likely that small changes in a specification will require correspondingly small changes in the program.
-For instance, suppose we wanted to change the image based on \code{wave} shown in \link{Figure 2.9}.
+For instance, suppose we wanted to change the image based on \code{wave} shown in \cref{Figure 2.9}.
 We could work at the lowest level to change the detailed appearance of the \code{wave} element;
 we could work at the middle level to change the way \code{corner-split} replicates the \code{wave};
 we could work at the highest level to change how \code{square-limit} arranges the four copies of the corner.
@@ -544,12 +544,12 @@ In general, each level of a stratified design provides a different vocabulary fo
 
 \begin{exercise}
 	\label{Exercise 2.52}
-	Make changes to the square limit of \code{wave} shown in \link{Figure 2.9} by working at each of the levels described above.
+	Make changes to the square limit of \code{wave} shown in \cref{Figure 2.9} by working at each of the levels described above.
 	In particular:
 	\begin{enumerate}[label = \alph*., leftmargin = *]
 
 		\item
-			Add some segments to the primitive \code{wave} painter of \link{Exercise 2.49} (to add a smile, for example).
+			Add some segments to the primitive \code{wave} painter of \cref{Exercise 2.49} (to add a smile, for example).
 
 		\item
 			Change the pattern constructed by \code{corner-split} (for example, by using only one copy of the \code{up-split} and \code{right-split} images instead of two).

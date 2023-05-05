@@ -26,31 +26,31 @@ It modifies this pair, replacing the \code{car} pointer by a pointer to the seco
 	\centering
 	\includesvg[width=72mm]{fig/chap3/Fig3.13b.svg}
 	\caption{
-		Effect of \code{(set-car! x y)} on the lists in \link{Figure 3.12}.
+		Effect of \code{(set-car! x y)} on the lists in \cref{Figure 3.12}.
 	}
 	\label{Figure 3.13}
 \end{figure}
 
-As an example, suppose that \code{x} is bound to the list \code{((a b) c d)} and \code{y} to the list \code{(e f)} as illustrated in \link{Figure 3.12}.
+As an example, suppose that \code{x} is bound to the list \code{((a b) c d)} and \code{y} to the list \code{(e f)} as illustrated in \cref{Figure 3.12}.
 Evaluating the expression \code{ (set-car! x y)} modifies the pair to which \code{x} is bound, replacing its \code{car} by the value of \code{y}.
-The result of the operation is shown in \link{Figure 3.13}.
+The result of the operation is shown in \cref{Figure 3.13}.
 The structure \code{x} has been modified and would now be printed as \code{((e f) c d)}.
 The pairs representing the list \code{(a b)}, identified by the pointer that was replaced, are now detached from the original structure.%
 \footnote{
 	We see from this that mutation operations on lists can create “garbage” that is not part of any accessible structure.
-	We will see in \link{Section 5.3.2} that Lisp memory-management systems include a \newterm{garbage collector}, which identifies and recycles the memory space used by unneeded pairs.
+	We will see in \cref{Section 5.3.2} that Lisp memory-management systems include a \newterm{garbage collector}, which identifies and recycles the memory space used by unneeded pairs.
 }
 
 \begin{figure}[tp]
 	\centering
 	\includesvg[width=72mm]{fig/chap3/Fig3.14b.svg}
 	\caption{
-		Effect of \code{(define z (cons y (cdr x)))} on the lists in \link{Figure 3.12}.
+		Effect of \code{(define z (cons y (cdr x)))} on the lists in \cref{Figure 3.12}.
 	}
 	\label{Figure 3.14}
 \end{figure}
 
-Compare \link{Figure 3.13} with \link{Figure 3.14}, which illustrates the result of executing \code{(define z (cons y (cdr x)))} with \code{x} and \code{y} bound to the original lists of \link{Figure 3.12}.
+Compare \cref{Figure 3.13} with \cref{Figure 3.14}, which illustrates the result of executing \code{(define z (cons y (cdr x)))} with \code{x} and \code{y} bound to the original lists of \cref{Figure 3.12}.
 The variable \code{z} is now bound to a new pair created by the \code{cons} operation;
 the list to which \code{x} is bound is unchanged.
 
@@ -58,14 +58,14 @@ the list to which \code{x} is bound is unchanged.
 	\centering
 	\includesvg[width=72mm]{fig/chap3/Fig3.15b.svg}
 	\caption{
-		Effect of \code{(set-cdr! x y)} on the lists in \link{Figure 3.12}.
+		Effect of \code{(set-cdr! x y)} on the lists in \cref{Figure 3.12}.
 	}
 	\label{Figure 3.15}
 \end{figure}
 
 The \code{set-cdr!} operation is similar to \code{set-car!}.
 The only difference is that the \code{cdr} pointer of the pair, rather than the \code{car} pointer, is replaced.
-The effect of executing \code{(set-cdr! x y)} on the lists of \link{Figure 3.12} is shown in \link{Figure 3.15}.
+The effect of executing \code{(set-cdr! x y)} on the lists of \cref{Figure 3.12} is shown in \cref{Figure 3.15}.
 Here the \code{cdr} pointer of \code{x} has been replaced by the pointer to \code{(e f)}.
 Also, the list \code{(c d)}, which used to be the \code{cdr} of \code{x}, is now detached from the structure.
 
@@ -74,7 +74,7 @@ Indeed, we could implement \code{cons} in terms of the two mutators, together wi
 We obtain the new pair, set its \code{car} and \code{cdr} pointers to the designated objects, and return the new pair as the result of the \code{cons}.%
 \footnote{
 	\code{get-new-pair} is one of the operations that must be implemented as part of the memory management required by a Lisp implementation.
-	We will discuss this in \link{Section 5.3.1}.
+	We will discuss this in \cref{Section 5.3.1}.
 }
 \begin{scheme}
   (define (cons x y)
@@ -88,7 +88,7 @@ We obtain the new pair, set its \code{car} and \code{cdr} pointers to the design
 
 \begin{exercise}
 	\label{Exercise 3.12}
-	The following procedure for appending lists was introduced in \link{Section 2.2.1}:
+	The following procedure for appending lists was introduced in \cref{Section 2.2.1}:
 	\begin{scheme}
 	  (define (append x y)
 	    (if (null? x)
@@ -139,7 +139,7 @@ We obtain the new pair, set its \code{car} and \code{cdr} pointers to the design
 
 \begin{exercise}
 	\label{Exercise 3.13}
-	Consider the following \code{make-cycle} procedure, which uses the \code{last-pair} procedure defined in \link{Exercise 3.12}:
+	Consider the following \code{make-cycle} procedure, which uses the \code{last-pair} procedure defined in \cref{Exercise 3.12}:
 	\begin{scheme}
 	  (define (make-cycle x)
 	    (set-cdr! (last-pair x) x)
@@ -180,18 +180,18 @@ We obtain the new pair, set its \code{car} and \code{cdr} pointers to the design
 
 \subsubsection*{Sharing and identity}
 
-We mentioned in \link{Section 3.1.3} the theoretical issues of “sameness” and “change” raised by the introduction of assignment.
+We mentioned in \cref{Section 3.1.3} the theoretical issues of “sameness” and “change” raised by the introduction of assignment.
 These issues arise in practice when individual pairs are \newterm{shared} among different data objects.
 For example, consider the structure formed by
 \begin{scheme}
   (define x (list 'a 'b))
   (define z1 (cons x x))
 \end{scheme}
-As shown in \link{Figure 3.16}, \code{z1} is a pair whose \code{car} and \code{cdr} both point to the same pair \code{x}.
+As shown in \cref{Figure 3.16}, \code{z1} is a pair whose \code{car} and \code{cdr} both point to the same pair \code{x}.
 This sharing of \code{x} by the \code{car} and \code{cdr} of \code{z1} is a consequence of the straightforward way in which \code{cons} is implemented.
 In general, using \code{cons} to construct lists will result in an interlinked structure of pairs in which many individual pairs are shared by many different structures.
 
-In contrast to \link{Figure 3.16}, \link{Figure 3.17} shows the structure created by
+In contrast to \cref{Figure 3.16}, \cref{Figure 3.17} shows the structure created by
 \begin{scheme}
   (define z2 (cons (list 'a 'b) (list 'a 'b)))
 \end{scheme}
@@ -248,16 +248,16 @@ and the \code{cdr} are the same pair.  With \code{z2}, the \code{car} and
 	~\outprint{((wow b) a b)}~
 \end{scheme}
 
-One way to detect sharing in list structures is to use the predicate \code{eq?}, which we introduced in \link{Section 2.3.1} as a way to test whether two symbols are equal.
+One way to detect sharing in list structures is to use the predicate \code{eq?}, which we introduced in \cref{Section 2.3.1} as a way to test whether two symbols are equal.
 More generally, \code{(eq? x y)} tests whether \code{x} and \code{y} are the same object (that is, whether \code{x} and \code{y} are equal as pointers).
-Thus, with \code{z1} and \code{z2} as defined in \link{Figure 3.16} and \link{Figure 3.17}, \code{(eq? (car z1) (cdr z1))} is true and \code{(eq? (car z2) (cdr z2))} is false.
+Thus, with \code{z1} and \code{z2} as defined in \cref{Figure 3.16} and \cref{Figure 3.17}, \code{(eq? (car z1) (cdr z1))} is true and \code{(eq? (car z2) (cdr z2))} is false.
 
 As will be seen in the following sections, we can exploit sharing to greatly extend the repertoire of data structures that can be represented by pairs.
 On the other hand, sharing can also be dangerous, since modifications made to structures will also affect other structures that happen to share the modified parts.
 The mutation operations \code{set-car!} and \code{set-cdr!} should be used with care;
 unless we have a good understanding of how our data objects are shared, mutation can have unanticipated results.%
 \footnote{
-	The subtleties of dealing with sharing of mutable data objects reflect the underlying issues of “sameness”  and  “change” that were raised in \link{Section 3.1.3}.
+	The subtleties of dealing with sharing of mutable data objects reflect the underlying issues of “sameness”  and  “change” that were raised in \cref{Section 3.1.3}.
 	We mentioned there that admitting change to our language requires that a compound object must have an “identity” that is something different from the pieces from which it is composed.
 	In Lisp, we consider this “identity” to be the quality that is tested by \code{eq?}, i.e., by equality of pointers.
 	Since in most Lisp implementations a pointer is essentially a memory address, we are “solving the problem” of defining the identity of objects by stipulating that a data object “itself” is the information stored in some particular set of memory locations in the computer.
@@ -298,7 +298,7 @@ unless we have a good understanding of how our data objects are shared, mutation
 
 \begin{exercise}
 	\label{Exercise 3.17}
-	Devise a correct version of the \code{count-pairs} procedure of \link{Exercise 3.16} that returns the number of distinct pairs in any structure.
+	Devise a correct version of the \code{count-pairs} procedure of \cref{Exercise 3.16} that returns the number of distinct pairs in any structure.
 	(Hint:
 	Traverse the structure, maintaining an auxiliary data structure that is used to keep track of which pairs have already been counted.)
 \end{exercise}
@@ -307,14 +307,14 @@ unless we have a good understanding of how our data objects are shared, mutation
 
 \begin{exercise}
 	\label{Exercise 3.18} Write a procedure that examines a list and determines whether it contains a cycle, that is, whether a program that tried to find the end of the list by taking successive \code{cdr}s would go into an infinite loop.
-	\link{Exercise 3.13} constructed such lists.
+	\cref{Exercise 3.13} constructed such lists.
 \end{exercise}
 
 
 
 \begin{exercise}
 	\label{Exercise 3.19}
-	Redo \link{Exercise 3.18} using an algorithm that takes only a constant amount of space.
+	Redo \cref{Exercise 3.18} using an algorithm that takes only a constant amount of space.
 	(This requires a very clever idea.)
 \end{exercise}
 
@@ -322,7 +322,7 @@ unless we have a good understanding of how our data objects are shared, mutation
 
 \subsubsection*{Mutation is just assignment}
 
-When we introduced compound data, we observed in \link{Section 2.1.3} that pairs can be represented purely in terms of procedures:
+When we introduced compound data, we observed in \cref{Section 2.1.3} that pairs can be represented purely in terms of procedures:
 \begin{scheme}
   (define (cons x y)
     (define (dispatch m)
@@ -335,7 +335,7 @@ When we introduced compound data, we observed in \link{Section 2.1.3} that pairs
 \end{scheme}
 The same observation is true for mutable data.
 We can implement mutable data objects as procedures using assignment and local state.
-For instance, we can extend the above pair implementation to handle \code{set-car!} and \code{set-cdr!} in a manner analogous to the way we implemented bank accounts using \code{make-account} in \link{Section 3.1.1}:
+For instance, we can extend the above pair implementation to handle \code{set-car!} and \code{set-cdr!} in a manner analogous to the way we implemented bank accounts using \code{make-account} in \cref{Section 3.1.1}:
 \begin{scheme}
   (define (cons x y)
     (define (set-x! v) (set! x v))
@@ -377,5 +377,5 @@ As soon as we admit \code{set!} to our language, we raise all the issues, not on
 	  ~\outprint{17}~
 	\end{scheme}
 	using the procedural implementation of pairs given above.
-	(Compare \link{Exercise 3.11}.)
+	(Compare \cref{Exercise 3.11}.)
 \end{exercise}

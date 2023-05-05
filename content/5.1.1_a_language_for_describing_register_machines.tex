@@ -69,7 +69,7 @@ Except when a branch changes the flow of control, instructions are executed in t
 	\label{Figure 5.3}
 \end{figure}
 
-\link{Figure 5.3} shows the \acronym{GCD} machine described in this way.
+\cref{Figure 5.3} shows the \acronym{GCD} machine described in this way.
 This example only hints at the generality of these descriptions, since the \acronym{GCD} machine is a very simple case:
 Each register has only one button, and each button and test is used only once in the controller.
 
@@ -94,7 +94,7 @@ Thus, the \acronym{GCD} machine is described as follows:
    gcd-done)
 \end{scheme}
 
-This form of description is easier to read than the kind illustrated in \link{Figure 5.3}, but it also has disadvantages:
+This form of description is easier to read than the kind illustrated in \cref{Figure 5.3}, but it also has disadvantages:
 \begin{itemize}
 
 	\item
@@ -117,7 +117,7 @@ We should keep in mind, however, that data-path design is crucial in designing r
 
 \begin{exercise}
 	\label{Exercise 5.2}
-	Use the register-machine language to describe the iterative factorial machine of \link{Exercise 5.1}.
+	Use the register-machine language to describe the iterative factorial machine of \cref{Exercise 5.1}.
 \end{exercise}
 
 
@@ -159,6 +159,6 @@ Thus, the action of printing the contents of register \code{a} is represented in
   (perform (op print) (reg a))
 \end{scheme}
 
-\link{Figure 5.4} shows the data paths and controller for the new \acronym{GCD} machine.
+\cref{Figure 5.4} shows the data paths and controller for the new \acronym{GCD} machine.
 Instead of having the machine stop after printing the answer, we have made it start over, so that it repeatedly reads a pair of numbers, computes their \acronym{GCD}, and prints the result.
-This structure is like the driver loops we used in the interpreters of \link{Chapter 4}.
+This structure is like the driver loops we used in the interpreters of \cref{Chapter 4}.

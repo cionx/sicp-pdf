@@ -1,7 +1,7 @@
 \subsection{What Is Meant by Data?}
 \label{Section 2.1.3}
 
-We began the rational-number implementation in \link{Section 2.1.1} by implementing the rational-number operations \code{add-rat}, \code{sub-rat}, and so on in terms of three unspecified procedures:
+We began the rational-number implementation in \cref{Section 2.1.1} by implementing the rational-number operations \code{add-rat}, \code{sub-rat}, and so on in terms of three unspecified procedures:
 \code{make-rat}, \code{numer}, and \code{denom}.
 At that point, we could think of the operations as being defined in terms of data objects---numerators, denominators, and rational numbers---whose behavior was specified by the latter three procedures.
 
@@ -20,14 +20,14 @@ In general, we can think of data as defined by some collection of selectors and 
 \footnote{
 	Surprisingly, this idea is very difficult to formulate rigorously.
 	There are two approaches to giving such a formulation.
-	One, pioneered by C.~A.~R. \link{Hoare (1972)}, is known as the method of \newterm{abstract models}.
+	One, pioneered by C.~A.~R. \cref{Hoare (1972)}, is known as the method of \newterm{abstract models}.
 	It formalizes the “procedures plus conditions” specification as outlined in the rational-number example above.
 	Note that the condition on the rational-number representation was stated in terms of facts about integers (equality and division).
 	In general, abstract models define new kinds of data objects in terms of previously defined types of data objects.
 	Assertions about data objects can therefore be checked by reducing them to assertions about previously defined data objects.
-	Another approach, introduced by Zilles at \acronym{MIT}, by Goguen, Thatcher, Wagner, and Wright at \acronym{IBM} (see \link{Thatcher et al. 1978}), and by Guttag at Toronto (see \link{Guttag 1977}), is called \newterm{algebraic specification}.
+	Another approach, introduced by Zilles at \acronym{MIT}, by Goguen, Thatcher, Wagner, and Wright at \acronym{IBM} (see \cref{Thatcher et al. 1978}), and by Guttag at Toronto (see \cref{Guttag 1977}), is called \newterm{algebraic specification}.
 	It regards the “procedures” as elements of an abstract algebraic system whose behavior is specified by axioms that correspond to our “conditions,” and uses the techniques of abstract algebra to check assertions about data objects.
-	Both methods are surveyed in the paper by \link{Liskov and Zilles (1975)}.
+	Both methods are surveyed in the paper by \cref{Liskov and Zilles (1975)}.
 }
 
 This point of view can serve to define not only “high-level” data objects, such as rational numbers, but lower-level objects as well.
@@ -65,7 +65,7 @@ The point of exhibiting the procedural representation of pairs is not that our l
 The procedural representation, although obscure, is a perfectly adequate way to represent pairs, since it fulfills the only conditions that pairs need to fulfill.
 This example also demonstrates that the ability to manipulate procedures as objects automatically provides the ability to represent compound data.
 This may seem a curiosity now, but procedural representations of data will play a central role in our programming repertoire.
-This style of programming is often called \newterm{message passing}, and we will be using it as a basic tool in \link{Chapter 3} when we address the issues of modeling and simulation.
+This style of programming is often called \newterm{message passing}, and we will be using it as a basic tool in \cref{Chapter 3} when we address the issues of modeling and simulation.
 
 
 
@@ -82,7 +82,7 @@ This style of programming is often called \newterm{message passing}, and we will
 	\end{scheme}
 	What is the corresponding definition of \code{cdr}?
 	(Hint:
-	To verify that this works, make use of the substitution model of \link{Section 1.1.5}.)
+	To verify that this works, make use of the substitution model of \cref{Section 1.1.5}.)
 \end{exercise}
 
 

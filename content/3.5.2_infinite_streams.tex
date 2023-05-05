@@ -43,7 +43,7 @@ For a look at a more exciting infinite stream, we can generalize the \code{no-se
 \footnote{
 	Eratosthenes, a third-century \acronym{B.C.} Alexandrian Greek philosopher, is famous for giving the first accurate estimate of the circumference of the Earth, which he computed by observing shadows cast at noon on the day of the summer solstice.
 	Eratosthenes’s sieve method, although ancient, has formed the basis for special-purpose hardware “sieves” that, until recently, were the most powerful tools in existence for locating large primes.
-	Since the 70s, however, these methods have been superseded by outgrowths of the probabilistic techniques discussed in \link{Section 1.2.6}.
+	Since the 70s, however, these methods have been superseded by outgrowths of the probabilistic techniques discussed in \cref{Section 1.2.6}.
 }
 We start with the integers beginning with 2, which is the first prime.
 To get the rest of the primes, we start by filtering the multiples of 2 from the rest of the integers.
@@ -70,7 +70,7 @@ Now to find a particular prime we need only ask for it:
   ~\outprint{233}~
 \end{scheme}
 
-It is interesting to contemplate the signal-processing system set up by \code{sieve}, shown in the “Henderson diagram” in \link{Figure 3.31}.%
+It is interesting to contemplate the signal-processing system set up by \code{sieve}, shown in the “Henderson diagram” in \cref{Figure 3.31}.%
 \footnote{
 	We have named these figures after Peter Henderson, who was the first person to show us diagrams of this sort as a way of thinking about stream processing.
 	Each solid line represents a stream of values being transmitted.
@@ -106,7 +106,7 @@ Evaluating the \code{cdr} gives us again a \( 1 \) and a promise to evaluate \co
 
 We can do more interesting things by manipulating streams with operations such as \code{add-streams}, which produces the elementwise sum of two given streams:%
 \footnote{
-	This uses the generalized version of \code{stream-map} from \link{Exercise 3.50}.
+	This uses the generalized version of \code{stream-map} from \cref{Exercise 3.50}.
 }
 \begin{scheme}
   (define (add-streams s1 s2) (stream-map + s1 s2))
@@ -181,7 +181,7 @@ That is, for every \( n \) we test for primality, either \( n \) is not prime (i
 	Estimates such as these are very difficult to establish.
 	The ancient proof by Euclid that there are an infinite number of primes shows that \( p_{n+1} ≤ p_1 p_2 \dotsm p_n + 1 \), and no substantially better result was proved until 1851, when the Russian mathematician P.~L.~Chebyshev established that \( p_{n+1} ≤ 2 p_n \) for all \( n \).
 	This result, originally conjectured in 1845, is known as \newterm{Bertrand’s hypothesis}.
-	A proof can be found in section 22.3 of \link{Hardy and Wright 1960}.
+	A proof can be found in section 22.3 of \cref{Hardy and Wright 1960}.
 }
 
 
@@ -272,9 +272,9 @@ That is, for every \( n \) we test for primality, either \( n \) is not prime (i
 \begin{exercise}
 	\label{Exercise 3.57}
 		How many additions are performed when we compute the \( n \)\nth{th} Fibonacci number using the definition of \code{fibs} based on the \code{add-streams} procedure?
-		Show that the number of additions would be exponentially greater if we had implemented \code{(delay ⟨\var{exp}⟩)} simply as \code{(lambda () ⟨\var{exp}⟩)}, without using the optimization provided by the \code{memo-proc} procedure described in \link{Section 3.5.1}.%
+		Show that the number of additions would be exponentially greater if we had implemented \code{(delay ⟨\var{exp}⟩)} simply as \code{(lambda () ⟨\var{exp}⟩)}, without using the optimization provided by the \code{memo-proc} procedure described in \cref{Section 3.5.1}.%
 	\footnote{
-		This exercise shows how call-by-need is closely related to ordinary memoization as described in \link{Exercise 3.27}.
+		This exercise shows how call-by-need is closely related to ordinary memoization as described in \cref{Exercise 3.27}.
 		In that exercise, we used assignment to explicitly construct a local table.
 		Our call-by-need stream optimization effectively constructs such a table automatically, storing values in the previously forced parts of the stream.
 	}
@@ -299,7 +299,7 @@ That is, for every \( n \) we test for primality, either \( n \) is not prime (i
 
 \begin{exercise}
 	\label{Exercise 3.59}
-	In \link{Section 2.5.3} we saw how to implement a polynomial arithmetic system representing polynomials as lists of terms.
+	In \cref{Section 2.5.3} we saw how to implement a polynomial arithmetic system representing polynomials as lists of terms.
 	In a similar way, we can work with \newterm{power series}, such as
 	\begin{itemize}
 
@@ -359,20 +359,20 @@ That is, for every \( n \) we test for primality, either \( n \) is not prime (i
 
 \begin{exercise}
 	\label{Exercise 3.60}
-	With power series represented as streams of coefficients as in \link{Exercise 3.59}, adding series is implemented by \code{add-streams}.
+	With power series represented as streams of coefficients as in \cref{Exercise 3.59}, adding series is implemented by \code{add-streams}.
 	Complete the definition of the following procedure for multiplying series:
 	\begin{scheme}
 	  (define (mul-series s1 s2)
 	    (cons-stream ⟨??⟩ (add-streams ⟨??⟩ ⟨??⟩)))
 	\end{scheme}
-	You can test your procedure by verifying that \( \sin^2 x + \cos^2 x = 1 \), using the series from \link{Exercise 3.59}.
+	You can test your procedure by verifying that \( \sin^2 x + \cos^2 x = 1 \), using the series from \cref{Exercise 3.59}.
 \end{exercise}
 
 
 
 \begin{exercise}
 	\label{Exercise 3.61}
-	Let \( S \) be a power series (\link{Exercise 3.59}) whose constant term is \( 1 \).
+	Let \( S \) be a power series (\cref{Exercise 3.59}) whose constant term is \( 1 \).
 	Suppose we want to find the power series \( 1 / S \), that is, the series \( X \) such that \( S X = 1 \).
 	Write \( S = 1 + S_R \) where \( S_R \) is the part of \( S \) after the constant term.
 	Then we can solve for \( X \) as follows:
@@ -384,15 +384,15 @@ That is, for every \( n \) we test for primality, either \( n \) is not prime (i
 	\end{align*}
 	In other words, \( X \) is the power series whose constant term is \( 1 \) and whose higher-order terms are given by the negative of \( S_R ⋅ X \).
 	Use this idea to write a procedure \code{invert-unit-series} that computes \( 1 / S \) for a power series \( S \) with constant term \( 1 \).
-	You will need to use \code{mul-series} from \link{Exercise 3.60}.
+	You will need to use \code{mul-series} from \cref{Exercise 3.60}.
 \end{exercise}
 
 
 
 \begin{exercise}
 	\label{Exercise 3.62}
-	Use the results of \link{Exercise 3.60} and \link{Exercise 3.61} to define a procedure \code{div-series} that divides two power series.
+	Use the results of \cref{Exercise 3.60} and \cref{Exercise 3.61} to define a procedure \code{div-series} that divides two power series.
 	\code{div-series} should work for any two series, provided that the denominator series begins with a nonzero constant term.
 	(If the denominator has a zero constant term, then \code{div-series} should signal an error.)
-	Show how to use \code{div-series} together with the result of \link{Exercise 3.59} to generate the power series for tangent.
+	Show how to use \code{div-series} together with the result of \cref{Exercise 3.59} to generate the power series for tangent.
 \end{exercise}

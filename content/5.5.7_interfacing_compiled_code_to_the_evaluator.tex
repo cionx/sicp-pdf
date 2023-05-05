@@ -2,7 +2,7 @@
 \label{Section 5.5.7}
 
 We have not yet explained how to load compiled code into the evaluator machine or how to run it.
-We will assume that the explicit-control-evaluator machine has been defined as in \link{Section 5.4.4}, with the additional operations specified in \link{Footnote 38}.
+We will assume that the explicit-control-evaluator machine has been defined as in \cref{Section 5.4.4}, with the additional operations specified in \cref{Footnote 38}.
 We will implement a procedure \code{compile-and-go} that compiles a Scheme expression, loads the resulting object code into the evaluator machine, and causes the machine to run the code in the evaluator global environment, print the result, and enter the evaluator’s driver loop.
 We will also modify the evaluator so that interpreted expressions can call compiled procedures as well as interpreted ones.
 We can then put a compiled procedure into the machine and use the evaluator to call it:
@@ -22,7 +22,7 @@ We can then put a compiled procedure into the machine and use the evaluator to c
   ~\outprint{120}~
 \end{scheme}
 
-To allow the evaluator to handle compiled procedures (for example, to evaluate the call to \code{factorial} above), we need to change the code at \code{apply-dispatch} (\link{Section 5.4.1}) so that it recognizes compiled procedures (as distinct from compound or primitive procedures) and transfers control directly to the entry point of the compiled code:%
+To allow the evaluator to handle compiled procedures (for example, to evaluate the call to \code{factorial} above), we need to change the code at \code{apply-dispatch} (\cref{Section 5.4.1}) so that it recognizes compiled procedures (as distinct from compound or primitive procedures) and transfers control directly to the entry point of the compiled code:%
 \footnote{
 	Of course, compiled procedures as well as interpreted procedures are compound (nonprimitive).
 	For compatibility with the terminology used in the explicit-control evaluator, in this section we will use “compound” to mean interpreted (as opposed to compiled).
@@ -66,7 +66,7 @@ read-eval-print-loop
 \code{external-entry} assumes that the machine is started with \code{val} containing the location of an instruction sequence that puts a result into \code{val} and ends with \code{(goto (reg continue))}.
 Starting at this entry point jumps to the location designated by \code{val}, but first assigns \code{continue} so that execution will return to \code{print-result}, which prints the value in \code{val} and then goes to the beginning of the evaluator’s read-eval-print loop.%
 \footnote{
-	Since a compiled procedure is an object that the system may try to print, we also modify the system print operation \code{user-print} (from \link{Section 4.1.4}) so that it will not attempt to print the components of a compiled procedure:
+	Since a compiled procedure is an object that the system may try to print, we also modify the system print operation \code{user-print} (from \cref{Section 4.1.4}) so that it will not attempt to print the components of a compiled procedure:
 	\begin{smallscheme}
 	  (define (user-print object)
 	    (cond ((compound-procedure? object)
@@ -89,7 +89,7 @@ Starting at this entry point jumps to the location designated by \code{val}, but
 
 Now we can use the following procedure to compile a procedure definition, execute the compiled code, and run the read-eval-print loop so we can try the procedure.
 Because we want the compiled code to return to the location in \code{continue} with its result in \code{val}, we compile the expression with a target of \code{val} and a linkage of \code{return}.
-In order to transform the object code produced by the compiler into executable instructions for the evaluator register machine, we use the procedure \code{assemble} from the register-machine simulator (\link{Section 5.2.2}).
+In order to transform the object code produced by the compiler into executable instructions for the evaluator register machine, we use the procedure \code{assemble} from the register-machine simulator (\cref{Section 5.2.2}).
 We then initialize the \code{val} register to point to the list of instructions, set the \code{flag} so that the evaluator will go to \code{external-entry}, and start the evaluator.
 \begin{scheme}
   (define (compile-and-go expression)
@@ -104,7 +104,7 @@ We then initialize the \code{val} register to point to the list of instructions,
       (start eceval)))
 \end{scheme}
 
-If we have set up stack monitoring, as at the end of \link{Section 5.4.4}, we
+If we have set up stack monitoring, as at the end of \cref{Section 5.4.4}, we
 can examine the stack usage of compiled code:
 \begin{scheme}
   (compile-and-go
@@ -124,7 +124,7 @@ can examine the stack usage of compiled code:
   ~\outprint{120}~
 \end{scheme}
 
-Compare this example with the evaluation of \code{(factorial 5)} using the interpreted version of the same procedure, shown at the end of \link{Section 5.4.4}.
+Compare this example with the evaluation of \code{(factorial 5)} using the interpreted version of the same procedure, shown at the end of \cref{Section 5.4.4}.
 The interpreted version required 144 pushes and a maximum stack depth of \( 28 \).
 This illustrates the optimization that results from our compilation strategy.
 
@@ -135,7 +135,7 @@ This illustrates the optimization that results from our compilation strategy.
 With the programs in this section, we can now experiment with the alternative execution strategies of interpretation and compilation.%
 \footnote{
 	We can do even better by extending the compiler to allow compiled code to call interpreted procedures.
-	See \link{Exercise 5.47}.
+	See \cref{Exercise 5.47}.
 }
 An interpreter raises the machine to the level of the user program;
 a compiler lowers the user program to the level of the machine language.
@@ -153,12 +153,12 @@ Compiled code can execute faster, because the steps of program execution are org
 	Unfortunately, people often neglect to do this, even in critical applications where speed is not a constraint.
 	Their programs lead fast and dangerous lives.
 	For example, the notorious “Worm” that paralyzed the Internet in 1988 exploited the \acronym{UNIX}(tm) operating system’s failure to check whether the input buffer has overflowed in the finger daemon.
-	(See \link{Spafford 1989}.)
+	(See \cref{Spafford 1989}.)
 }
 
 The alternatives of interpretation and compilation also lead to different strategies for porting languages to new computers.
 Suppose that we wish to implement Lisp for a new machine.
-One strategy is to begin with the explicit-control evaluator of \link{Section 5.4} and translate its instructions to instructions for the new machine.
+One strategy is to begin with the explicit-control evaluator of \cref{Section 5.4} and translate its instructions to instructions for the new machine.
 A different strategy is to begin with the compiler and change the code generators so that they generate code for the new machine.
 The second strategy allows us to run any Lisp program on the new machine by first compiling it with the compiler running on our original Lisp system, and linking it with a compiled version of the run-time library.%
 \footnote{
@@ -171,7 +171,7 @@ Better yet, we can compile the compiler itself, and run this on the new machine 
 	This strategy leads to amusing tests of correctness of the compiler, such as checking whether the compilation of a program on the new machine, using the compiled compiler, is identical with the compilation of the program on the original Lisp system.
 	Tracking down the source of differences is fun but often frustrating, because the results are extremely sensitive to minuscule details.
 }
-Or we can compile one of the interpreters of \link{Section 4.1} to produce an interpreter that runs on the new machine.
+Or we can compile one of the interpreters of \cref{Section 4.1} to produce an interpreter that runs on the new machine.
 
 
 
@@ -182,8 +182,8 @@ Or we can compile one of the interpreters of \link{Section 4.1} to produce an in
 	\begin{enumerate}[label = \alph*., leftmargin = *]
 
 		\item
-			\link{Exercise 5.27} asked you to determine, as a function of \( n \), the number of pushes and the maximum stack depth needed by the evaluator to compute \( n! \) using the recursive factorial procedure given above.
-			\link{Exercise 5.14} asked you to do the same measurements for the special-purpose factorial machine shown in \link{Figure 5.11}.
+			\cref{Exercise 5.27} asked you to determine, as a function of \( n \), the number of pushes and the maximum stack depth needed by the evaluator to compute \( n! \) using the recursive factorial procedure given above.
+			\cref{Exercise 5.14} asked you to do the same measurements for the special-purpose factorial machine shown in \cref{Figure 5.11}.
 			Now perform the same analysis using the compiled \code{factorial} procedure.
 
 			Take the ratio of the number of pushes in the compiled version to the number of pushes in the interpreted version, and do the same for the maximum stack depth.
@@ -203,7 +203,7 @@ Or we can compile one of the interpreters of \link{Section 4.1} to produce an in
 
 \begin{exercise}
 	\label{Exercise 5.46}
-	Carry out an analysis like the one in \link{Exercise 5.45} to determine the effectiveness of compiling the tree-recursive Fibonacci procedure
+	Carry out an analysis like the one in \cref{Exercise 5.45} to determine the effectiveness of compiling the tree-recursive Fibonacci procedure
 	\begin{scheme}
 	  (define (fib n)
 	    (if (< n 2)
@@ -211,8 +211,8 @@ Or we can compile one of the interpreters of \link{Section 4.1} to produce an in
 	        (+ (fib (- n 1))
 	          (fib (- n 2)))))
 	\end{scheme}
-	compared to the effectiveness of using the special-purpose Fibonacci machine of \link{Figure 5.12}.
-	(For measurement of the interpreted performance, see \link{Exercise 5.29}.)
+	compared to the effectiveness of using the special-purpose Fibonacci machine of \cref{Figure 5.12}.
+	(For measurement of the interpreted performance, see \cref{Exercise 5.29}.)
 	For Fibonacci, the time resource used is not linear in \( n \);
 	hence the ratios of stack operations will not approach a limiting value that is independent of \( n \).
 \end{exercise}
@@ -271,7 +271,7 @@ Or we can compile one of the interpreters of \link{Section 4.1} to produce an in
 
 \begin{exercise}
 	\label{Exercise 5.50}
-	Use the compiler to compile the metacircular evaluator of \link{Section 4.1} and run this program using the register-machine simulator.
+	Use the compiler to compile the metacircular evaluator of \cref{Section 4.1} and run this program using the register-machine simulator.
 	(To compile more than one definition at a time, you can package the definitions in a \code{begin}.)
 	The resulting interpreter will run very slowly because of the multiple levels of interpretation, but getting all the details to work is an instructive exercise.
 \end{exercise}
@@ -280,7 +280,7 @@ Or we can compile one of the interpreters of \link{Section 4.1} to produce an in
 
 \begin{exercise}
 	\label{Exercise 5.51}
-	Develop a rudimentary implementation of Scheme in C (or some other low-level language of your choice) by translating the explicit-control evaluator of \link{Section 5.4} into C.
+	Develop a rudimentary implementation of Scheme in C (or some other low-level language of your choice) by translating the explicit-control evaluator of \cref{Section 5.4} into C.
 	In order to run this code you will need to also provide appropriate storage-allocation routines and other run-time support.
 \end{exercise}
 
@@ -288,6 +288,6 @@ Or we can compile one of the interpreters of \link{Section 4.1} to produce an in
 
 \begin{exercise}
 	\label{Exercise 5.52}
-	As a counterpoint to \link{Exercise 5.51}, modify the compiler so that it compiles Scheme procedures into sequences of C instructions.
-	Compile the metacircular evaluator of \link{Section 4.1} to produce a Scheme interpreter written in C.
+	As a counterpoint to \cref{Exercise 5.51}, modify the compiler so that it compiles Scheme procedures into sequences of C instructions.
+	Compile the metacircular evaluator of \cref{Section 4.1} to produce a Scheme interpreter written in C.
 \end{exercise}

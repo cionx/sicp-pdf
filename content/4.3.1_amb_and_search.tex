@@ -3,7 +3,7 @@
 
 To extend Scheme to support nondeterminism, we introduce a new special form called \code{amb}.%
 \footnote{
-	The idea of \code{amb} for nondeterministic programming was first described in 1961 by John McCarthy (see \link{McCarthy 1963}).
+	The idea of \code{amb} for nondeterministic programming was first described in 1961 by John McCarthy (see \cref{McCarthy 1963}).
 }
 The expression
 \begin{scheme}
@@ -46,7 +46,7 @@ The following procedure potentially returns any integer greater than or equal to
     (amb n (an-integer-starting-from (+ n 1))))
 \end{scheme}
 
-This is like the stream procedure \code{integers-starting-from} described in \link{Section 3.5.2}, but with an important difference:
+This is like the stream procedure \code{integers-starting-from} described in \cref{Section 3.5.2}, but with an important difference:
 The stream procedure returns an object that represents the sequence of all integers beginning with \( n \), whereas the \code{amb} procedure returns a single integer.%
 \footnote{
 	In actuality, the distinction between nondeterministically returning a single choice and returning all choices depends somewhat on our point of view.
@@ -82,7 +82,7 @@ If a choice results in a failure, then the evaluator automagically%
 \footnote{
 	Automagically:
 	“Automatically, but in a way which, for some reason (typically because it is too complicated, or too ugly, or perhaps even too trivial), the speaker doesn’t feel like explaining.”
-	(\link{Steele et al. 1983}, \link{Raymond 1993})\label{Footnote 4.47}
+	(\cref{Steele et al. 1983}, \cref{Raymond 1993})\label{Footnote 4.47}
 }
 
 \newterm{backtracks} to the most recent choice point and tries the next alternative.
@@ -90,21 +90,21 @@ If it runs out of alternatives at any choice point, the evaluator will back up t
 This process leads to a search strategy known as \newterm{depth-first search} or \newterm{chronological backtracking}.%
 \footnote{
 	The integration of automatic search strategies into programming languages has had a long and checkered history.
-	The first suggestions that nondeterministic algorithms might be elegantly encoded in a programming language with search and automatic backtracking came from Robert \link{Floyd (1967)}.
-	Carl \link{Hewitt (1969)} invented a programming language called Planner that explicitly supported automatic chronological backtracking, providing for a built-in depth-first search strategy.
-	\link{Sussman et al.
+	The first suggestions that nondeterministic algorithms might be elegantly encoded in a programming language with search and automatic backtracking came from Robert \cref{Floyd (1967)}.
+	Carl \cref{Hewitt (1969)} invented a programming language called Planner that explicitly supported automatic chronological backtracking, providing for a built-in depth-first search strategy.
+	\cref{Sussman et al.
 	(1971)} implemented a subset of this language, called MicroPlanner, which was used to support work in problem solving and robot planning.
-	Similar ideas, arising from logic and theorem proving, led to the genesis in Edinburgh and Marseille of the elegant language Prolog (which we will discuss in \link{Section 4.4}).
-	After sufficient frustration with automatic search, \link{McDermott and Sussman (1972)} developed a language called Conniver, which included mechanisms for placing the search strategy under programmer control.
-	This proved unwieldy, however, and \link{Sussman and Stallman 1975} found a more tractable approach while investigating methods of symbolic analysis for electrical circuits.
+	Similar ideas, arising from logic and theorem proving, led to the genesis in Edinburgh and Marseille of the elegant language Prolog (which we will discuss in \cref{Section 4.4}).
+	After sufficient frustration with automatic search, \cref{McDermott and Sussman (1972)} developed a language called Conniver, which included mechanisms for placing the search strategy under programmer control.
+	This proved unwieldy, however, and \cref{Sussman and Stallman 1975} found a more tractable approach while investigating methods of symbolic analysis for electrical circuits.
 	They developed a non-chronological backtracking scheme that was based on tracing out the logical dependencies connecting facts, a technique that has come to be known as \newterm{dependency-directed backtracking}.
 	Although their method was complex, it produced reasonably efficient programs because it did little redundant search.
-	\link{Doyle (1979)} and \link{McAllester (1978; 1980)} generalized and clarified the methods of Stallman and Sussman, developing a new paradigm for formulating search that is now called \newterm{truth maintenance}.
+	\cref{Doyle (1979)} and \cref{McAllester (1978; 1980)} generalized and clarified the methods of Stallman and Sussman, developing a new paradigm for formulating search that is now called \newterm{truth maintenance}.
 	Modern problem-solving systems all use some form of truth-maintenance system as a substrate.
-	See \link{Forbus and deKleer 1993} for a discussion of elegant ways to build truth-maintenance systems and applications using truth maintenance.
-	\link{Zabih et al. 1987} describes a nondeterministic extension to Scheme that is based on \code{amb};
+	See \cref{Forbus and deKleer 1993} for a discussion of elegant ways to build truth-maintenance systems and applications using truth maintenance.
+	\cref{Zabih et al. 1987} describes a nondeterministic extension to Scheme that is based on \code{amb};
 	it is similar to the interpreter described in this section, but more sophisticated, because it uses dependency-directed backtracking rather than chronological backtracking.
-	\link{Winston 1992} gives an introduction to both kinds of backtracking.
+	\cref{Winston 1992} gives an introduction to both kinds of backtracking.
 }
 
 
@@ -166,8 +166,8 @@ Here is a sample interaction:
 
 \begin{exercise}
 	\label{Exercise 4.36}
-	\link{Exercise 3.69} discussed how to generate the stream of \emph{all} Pythagorean triples, with no upper bound on the size of the integers to be searched.
-	Explain why simply replacing \code{an-integer-between} by \code{an-integer-starting-from} in the procedure in \link{Exercise 4.35} is not an adequate way to generate arbitrary Pythagorean triples.
+	\cref{Exercise 3.69} discussed how to generate the stream of \emph{all} Pythagorean triples, with no upper bound on the size of the integers to be searched.
+	Explain why simply replacing \code{an-integer-between} by \code{an-integer-starting-from} in the procedure in \cref{Exercise 4.35} is not an adequate way to generate arbitrary Pythagorean triples.
 	Write a procedure that actually will accomplish this.
 	(That is, write a procedure for which repeatedly typing \code{try-again} would in principle eventually generate all Pythagorean triples.)
 \end{exercise}
@@ -176,7 +176,7 @@ Here is a sample interaction:
 
 \begin{exercise}
 	\label{Exercise 4.37}
-	Ben Bitdiddle claims that the following method for generating Pythagorean triples is more efficient than the one in \link{Exercise 4.35}.
+	Ben Bitdiddle claims that the following method for generating Pythagorean triples is more efficient than the one in \cref{Exercise 4.35}.
 	Is he correct?
 	(Hint:
 	Consider the number of possibilities that must be explored.)

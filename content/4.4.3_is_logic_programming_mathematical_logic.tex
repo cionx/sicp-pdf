@@ -86,14 +86,14 @@ Unfortunately, this will drive the system into an infinite loop, as follows:
 The system is now in an infinite loop.
 Indeed, whether the system will find the simple answer \code{(married Minnie Mickey)} before it goes into the loop depends on implementation details concerning the order in which the system checks the items in the data base.
 This is a very simple example of the kinds of loops that can occur.
-Collections of interrelated rules can lead to loops that are much harder to anticipate, and the appearance of a loop can depend on the order of clauses in an \code{and} (see \link{Exercise 4.64}) or on low-level details concerning the order in which the system processes queries.%
+Collections of interrelated rules can lead to loops that are much harder to anticipate, and the appearance of a loop can depend on the order of clauses in an \code{and} (see \cref{Exercise 4.64}) or on low-level details concerning the order in which the system processes queries.%
 \footnote{
 	This is not a problem of the logic but one of the procedural interpretation of the logic provided by our interpreter.
 	We could write an interpreter that would not fall into a loop here.
 	For example, we could enumerate all the proofs derivable from our assertions and our rules in a breadth-first rather than a depth-first order.
 	However, such a system makes it more difficult to take advantage of the order of deductions in our programs.
-	One attempt to build sophisticated control into such a program is described in \link{deKleer et al. 1977}.
-	Another technique, which does not lead to such serious control problems, is to put in special knowledge, such as detectors for particular kinds of loops (\link{Exercise 4.67}).
+	One attempt to build sophisticated control into such a program is described in \cref{deKleer et al. 1977}.
+	Another technique, which does not lead to such serious control problems, is to put in special knowledge, such as detectors for particular kinds of loops (\cref{Exercise 4.67}).
 	However, there can be no general scheme for reliably preventing a system from going down infinite paths in performing deductions.
 	Imagine a diabolical rule of the form “To show \( P(x) \) is true, show that \( P(f(x)) \) is true,” for some suitably chosen function \( f \).
 }
@@ -103,7 +103,7 @@ Collections of interrelated rules can lead to loops that are much harder to anti
 \subsubsection*{Problems with \code{not}}
 
 Another quirk in the query system concerns \code{not}.
-Given the data base of \link{Section 4.4.1}, consider the following two queries:
+Given the data base of \cref{Section 4.4.1}, consider the following two queries:
 \begin{scheme}
   (and (supervisor ?x ?y)
        (not (job ?x (computer programmer))))
@@ -121,12 +121,12 @@ Consequently, the entire compound query returns an empty stream.
 The trouble is that our implementation of \code{not} really is meant to serve as a filter on values for the variables.
 If a \code{not} clause is processed with a frame in which some of the variables remain unbound (as does \code{?x} in the example above), the system will produce unexpected results.
 Similar problems occur with the use of \code{lisp-value}---the Lisp predicate can’t work if some of its arguments are unbound.
-See \link{Exercise 4.77}.
+See \cref{Exercise 4.77}.
 
 There is also a much more serious way in which the \code{not} of the query language differs from the \code{not} of mathematical logic.
 In logic, we interpret the statement “not \( P \)” to mean that \( P \) is not true.
 In the query system, however, “not \( P \)” means that \( P \) is not deducible from the knowledge in the data base.
-For example, given the personnel data base of \link{Section 4.4.1}, the system would happily deduce all sorts of \code{not} statements, such as that Ben Bitdiddle is not a baseball fan, that it is not raining outside, and that \( 2 + 2 \) is not \( 4 \).%
+For example, given the personnel data base of \cref{Section 4.4.1}, the system would happily deduce all sorts of \code{not} statements, such as that Ben Bitdiddle is not a baseball fan, that it is not raining outside, and that \( 2 + 2 \) is not \( 4 \).%
 \footnote{
 	Consider the query \code{(not (baseball-fan (Bitdiddle Ben)))}.
 	The system finds that \code{(baseball-fan (Bitdiddle Ben))} is not in the data base, so the empty frame does not satisfy the pattern and is not filtered out of the initial stream of frames.
@@ -134,14 +134,14 @@ For example, given the personnel data base of \link{Section 4.4.1}, the system w
 }
 In other words, the \code{not} of logic programming languages reflects the so-called \newterm{closed world assumption} that all relevant information has been included in the data base.%
 \footnote{
-	A discussion and justification of this treatment of \code{not} can be found in the article by \link{Clark (1978)}.
+	A discussion and justification of this treatment of \code{not} can be found in the article by \cref{Clark (1978)}.
 }
 
 
 
 \begin{exercise}
 	\label{Exercise 4.64}
-	Louis Reasoner mistakenly deletes the \code{outranked-by} rule (\link{Section 4.4.1}) from the data base.
+	Louis Reasoner mistakenly deletes the \code{outranked-by} rule (\cref{Section 4.4.1}) from the data base.
 	When he realizes this, he quickly reinstalls it.
 	Unfortunately, he makes a slight change in the rule, and types it in as
 	\begin{scheme}
@@ -163,7 +163,7 @@ In other words, the \code{not} of logic programming languages reflects the so-ca
 
 \begin{exercise}
 	\label{Exercise 4.65}
-	Cy D. Fect, looking forward to the day when he will rise in the organization, gives a query to find all the wheels (using the \code{wheel} rule of \link{Section 4.4.1}):
+	Cy D. Fect, looking forward to the day when he will rise in the organization, gives a query to find all the wheels (using the \code{wheel} rule of \cref{Section 4.4.1}):
 	\begin{scheme}
 	  (wheel ?who)
 	\end{scheme}
@@ -198,7 +198,7 @@ In other words, the \code{not} of logic programming languages reflects the so-ca
 	He will simply feed the query pattern to \code{qeval}.
 	This will produce a stream of frames.
 	He will then pass this stream through a mapping function that extracts the value of the designated variable from each frame in the stream and feed the resulting stream of values to the accumulation function.
-	Just as Ben completes the implementation and is about to try it out, Cy walks by, still puzzling over the \code{wheel} query result in \link{Exercise 4.65}.
+	Just as Ben completes the implementation and is about to try it out, Cy walks by, still puzzling over the \code{wheel} query result in \cref{Exercise 4.65}.
 	When Cy shows Ben the system’s response, Ben groans, “Oh, no, my simple accumulation scheme won’t work!”
 
 	What has Ben just realized?
@@ -209,17 +209,17 @@ In other words, the \code{not} of logic programming languages reflects the so-ca
 
 \begin{exercise}
 	\label{Exercise 4.67}
-	Devise a way to install a loop detector in the query system so as to avoid the kinds of simple loops illustrated in the text and in \link{Exercise 4.64}.
+	Devise a way to install a loop detector in the query system so as to avoid the kinds of simple loops illustrated in the text and in \cref{Exercise 4.64}.
 	The general idea is that the system should maintain some sort of history of its current chain of deductions and should not begin processing a query that it is already working on.
 	Describe what kind of information (patterns and frames) is included in this history, and how the check should be made.
-	(After you study the details of the query-system implementation in \link{Section 4.4.4}, you may want to modify the system to include your loop detector.)
+	(After you study the details of the query-system implementation in \cref{Section 4.4.4}, you may want to modify the system to include your loop detector.)
 \end{exercise}
 
 
 
 \begin{exercise}
 	\label{Exercise 4.68}
-	Define rules to implement the \code{reverse} operation of \link{Exercise 2.18}, which returns a list containing the same elements as a given list in reverse order.
+	Define rules to implement the \code{reverse} operation of \cref{Exercise 2.18}, which returns a list containing the same elements as a given list in reverse order.
 	(Hint: Use \code{append-to-form}.)
 	Can your rules answer both \code{(reverse (1 2 3) ?x)} and \code{(reverse ?x (1 2 3))} ?
 \end{exercise}
@@ -228,7 +228,7 @@ In other words, the \code{not} of logic programming languages reflects the so-ca
 
 \begin{exercise}
 	\label{Exercise 4.69}
-	Beginning with the data base and the rules you formulated in \link{Exercise 4.63}, devise a rule for adding “greats” to a grandson relationship.
+	Beginning with the data base and the rules you formulated in \cref{Exercise 4.63}, devise a rule for adding “greats” to a grandson relationship.
 	This should enable the system to deduce that Irad is the great-grandson of Adam, or that Jabal and Jubal are the great-great-great-great-great-grandsons of Adam.
 	(Hint:
 	Represent the fact about Irad, for example, as \code{((great grandson) Adam Irad)}.

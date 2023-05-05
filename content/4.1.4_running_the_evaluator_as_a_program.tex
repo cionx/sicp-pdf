@@ -61,7 +61,7 @@ We have chosen to represent a primitive procedure as a list beginning with the s
 To apply a primitive procedure, we simply apply the implementation procedure to the arguments, using the underlying Lisp system:%
 \footnote{
 	\code{apply-in-underlying-scheme} is the \code{apply} procedure we have used in earlier chapters.
-	The metacircular evaluator’s \code{apply} procedure (\link{Section 4.1.1}) models the working of this primitive.
+	The metacircular evaluator’s \code{apply} procedure (\cref{Section 4.1.1}) models the working of this primitive.
 	Having two different things called \code{apply} leads to a technical problem in running the metacircular evaluator, because defining the metacircular evaluator’s \code{apply} will mask the definition of the primitive.
 	One way around this is to rename the metacircular \code{apply} to avoid conflict with the name of the primitive procedure.
 	We have assumed instead that we have saved a reference to the underlying \code{apply} by doing

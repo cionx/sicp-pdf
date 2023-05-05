@@ -9,11 +9,11 @@ rectangular form (real part and imaginary part) and polar form (magnitude and an
 	This is why the complex-number example is unrealistic.
 	Nevertheless, it provides a clear illustration of the design of a system using generic operations and a good introduction to the more substantial systems to be developed later in this chapter.
 }
-\link{Section 2.4.2} will show how both representations can be made to coexist in a single system through the use of type tags and generic operations.
+\cref{Section 2.4.2} will show how both representations can be made to coexist in a single system through the use of type tags and generic operations.
 
 Like rational numbers, complex numbers are naturally represented as ordered pairs.
 The set of complex numbers can be thought of as a two-dimensional space with two orthogonal axes, the “real”  axis and the  “imaginary” axis.
-(See \link{Figure 2.20}.)
+(See \cref{Figure 2.20}.)
 From this point of view, the complex number \( z = x + i y \) (where \( i^2 = -1 \)) can be thought of as the point in the plane whose real coordinate is \( x \) and whose imaginary coordinate is \( y \).
 Addition of complex numbers reduces in this representation to addition of coordinates:
 \begin{gather*}
@@ -30,7 +30,7 @@ Addition of complex numbers reduces in this representation to addition of coordi
 	\label{Figure 2.20}
 \end{figure}
 
-When multiplying complex numbers, it is more natural to think in terms of representing a complex number in polar form, as a magnitude and an angle (\( r \) and \( A \) in \link{Figure 2.20}).
+When multiplying complex numbers, it is more natural to think in terms of representing a complex number in polar form, as a magnitude and an angle (\( r \) and \( A \) in \cref{Figure 2.20}).
 The product of two complex numbers is the vector obtained by stretching one complex number by the length of the other and then rotating it through the angle of the other:
 \begin{gather*}
 	\Magnitude(z_1 ⋅ z_2) = \Magnitude(z_1) ⋅ \Magnitude(z_2) \,, \\
@@ -42,7 +42,7 @@ Yet, from the viewpoint of someone writing a program that uses complex numbers, 
 For example, it is often useful to be able to find the magnitude of a complex number that is specified by rectangular coordinates.
 Similarly, it is often useful to be able to determine the real part of a complex number that is specified by polar coordinates.
 
-To design such a system, we can follow the same data-abstraction strategy we followed in designing the rational-number package in \link{Section 2.1.1}.
+To design such a system, we can follow the same data-abstraction strategy we followed in designing the rational-number package in \cref{Section 2.1.1}.
 Assume that the operations on complex numbers are implemented in terms of four selectors:
 \code{real-part}, \code{imag-part}, \code{magnitude} and \code{angle}.
 Also assume that we have two procedures for constructing complex numbers:
@@ -57,7 +57,7 @@ and
 \end{scheme}
 produce complex numbers that are equal to \code{z}.
 
-Using these constructors and selectors, we can implement arithmetic on complex numbers using the “abstract data” specified by the constructors and selectors, just as we did for rational numbers in \link{Section 2.1.1}.
+Using these constructors and selectors, we can implement arithmetic on complex numbers using the “abstract data” specified by the constructors and selectors, just as we did for rational numbers in \cref{Section 2.1.1}.
 As shown in the formulas above, we can add and subtract complex numbers in terms of real and imaginary parts while multiplying and dividing complex numbers in terms of magnitudes and angles:
 \begin{scheme}
   (define (add-complex z1 z2)

@@ -6,13 +6,13 @@ Notice that the definition of \code{sqrt-iter} is \newterm{recursive};
 that is, the procedure is defined in terms of itself.
 The idea of being able to define a procedure in terms of itself may be disturbing;
 it may seem unclear how such a “circular” definition could make sense at all, much less specify a well-defined process to be carried out by a computer.
-This will be addressed more carefully in \link{Section 1.2}.
+This will be addressed more carefully in \cref{Section 1.2}.
 But first let’s consider some other important points illustrated by the \code{sqrt} example.
 
 Observe that the problem of computing square roots breaks up naturally into a number of subproblems:
 how to tell whether a guess is good enough, how to improve a guess, and so on.
 Each of these tasks is accomplished by a separate procedure.
-The entire \code{sqrt} program can be viewed as a cluster of procedures (shown in \link{Figure 1.2}) that mirrors the decomposition of the problem into subproblems.
+The entire \code{sqrt} program can be viewed as a cluster of procedures (shown in \cref{Figure 1.2}) that mirrors the decomposition of the problem into subproblems.
 
 \begin{figure}[tb]
 	\centering
@@ -152,7 +152,7 @@ This discipline is called \newterm{lexical scoping}.%
 \footnote{
 	Lexical scoping dictates that free variables in a procedure are taken to refer to bindings made by enclosing procedure definitions;
 	that is, they are looked up in the environment in which the procedure was defined.
-	We will see how this works in detail in \link{Chapter 3} when we study environments and the detailed behavior of the interpreter.
+	We will see how this works in detail in \cref{Chapter 3} when we study environments and the detailed behavior of the interpreter.
 	\label{Footnote 28}
 }
 \begin{scheme}

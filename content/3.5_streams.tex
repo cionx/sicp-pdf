@@ -21,15 +21,15 @@ If we concentrate on \( x \) instant by instant, we think of it as a changing qu
 Yet if we concentrate on the entire time history of values, we do not emphasize change---the function itself does not change.%
 \footnote{
 	Physicists sometimes adopt this view by introducing the “world lines” of particles as a device for reasoning about motion.
-	We’ve also already mentioned (\link{Section 2.2.3}) that this is the natural way to think about signal-processing systems.
-	We will explore applications of streams to signal processing in \link{Section 3.5.3}.
+	We’ve also already mentioned (\cref{Section 2.2.3}) that this is the natural way to think about signal-processing systems.
+	We will explore applications of streams to signal processing in \cref{Section 3.5.3}.
 }
 
 If time is measured in discrete steps, then we can model a time function as a (possibly infinite) sequence.
 In this section, we will see how to model change in terms of sequences that represent the time histories of the systems being modeled.
 To accomplish this, we introduce new data structures called \newterm{streams}.
 From an abstract point of view, a stream is simply a sequence.
-However, we will find that the straightforward implementation of streams as lists (as in \link{Section 2.2.1}) doesn’t fully reveal the power of stream processing.
+However, we will find that the straightforward implementation of streams as lists (as in \cref{Section 2.2.1}) doesn’t fully reveal the power of stream processing.
 As an alternative, we introduce the technique of \newterm{delayed evaluation}, which enables us to represent very large (even infinite) sequences as streams.
 
 Stream processing lets us model systems that have state without ever using assignment or mutable data.

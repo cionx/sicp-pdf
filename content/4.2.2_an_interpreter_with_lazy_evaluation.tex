@@ -3,7 +3,7 @@
 
 In this section we will implement a normal-order language that is the same as Scheme except that compound procedures are non-strict in each argument.
 Primitive procedures will still be strict.
-It is not difficult to modify the evaluator of \link{Section 4.1.1} so that the language it interprets behaves this way.
+It is not difficult to modify the evaluator of \cref{Section 4.1.1} so that the language it interprets behaves this way.
 Almost all the required changes center around procedure application.
 
 The basic idea is that, when applying a procedure, the interpreter must determine which arguments are to be evaluated and which are to be delayed.
@@ -12,21 +12,21 @@ instead, they are transformed into objects called \newterm{thunks}.%
 \footnote{
 	The word \newterm{thunk} was invented by an informal working group that was discussing the implementation of call-by-name in Algol~60.
 	They observed that most of the analysis of (“thinking about”) the expression could be done at compile time;
-	thus, at run time, the expression would already have been “thunk” about (\link{Ingerman et al. 1960}).
+	thus, at run time, the expression would already have been “thunk” about (\cref{Ingerman et al. 1960}).
 }
 The thunk must contain the information required to produce the value of the argument when it is needed, as if it had been evaluated at the time of the application.
 Thus, the thunk must contain the argument expression and the environment in which the procedure application is being evaluated.
 
 The process of evaluating the expression in a thunk is called \newterm{forcing}.%
 \footnote{
-	This is analogous to the use of \code{force} on the delayed objects that were introduced in \link{Chapter 3} to represent streams.
-	The critical difference between what we are doing here and what we did in \link{Chapter 3} is that we are building delaying and forcing into the evaluator, and thus making this uniform and automatic throughout the language.
+	This is analogous to the use of \code{force} on the delayed objects that were introduced in \cref{Chapter 3} to represent streams.
+	The critical difference between what we are doing here and what we did in \cref{Chapter 3} is that we are building delaying and forcing into the evaluator, and thus making this uniform and automatic throughout the language.
 }
 In general, a thunk will be forced only when its value is needed:
 when it is passed to a primitive procedure that will use the value of the thunk;
 when it is the value of a predicate of a conditional;
 and when it is the value of an operator that is about to be applied as a procedure.
-One design choice we have available is whether or not to \newterm{memoize} thunks, as we did with delayed objects in \link{Section 3.5.1}.
+One design choice we have available is whether or not to \newterm{memoize} thunks, as we did with delayed objects in \cref{Section 3.5.1}.
 With memoization, the first time a thunk is forced, it stores the value that is computed.
 Subsequent forcings simply return the stored value without repeating the computation.
 We’ll make our interpreter memoize, because this is more efficient for many applications.
@@ -34,17 +34,17 @@ There are tricky considerations here, however.%
 \footnote{
 	Lazy evaluation combined with memoization is sometimes referred to as \newterm{call-by-need} argument passing, in contrast to \newterm{call-by-name} argument passing.
 	(Call-by-name, introduced in Algol~60, is similar to non-memoized lazy evaluation.)
-	As language designers, we can build our evaluator to memoize, not to memoize, or leave this an option for programmers (\link{Exercise 4.31}).
-	As you might expect from \link{Chapter 3}, these choices raise issues that become both subtle and confusing in the presence of assignments.
-	(See \link{Exercise 4.27} and \link{Exercise 4.29}.)
-	An excellent article by \link{Clinger (1982)} attempts to clarify the multiple dimensions of confusion that arise here.
+	As language designers, we can build our evaluator to memoize, not to memoize, or leave this an option for programmers (\cref{Exercise 4.31}).
+	As you might expect from \cref{Chapter 3}, these choices raise issues that become both subtle and confusing in the presence of assignments.
+	(See \cref{Exercise 4.27} and \cref{Exercise 4.29}.)
+	An excellent article by \cref{Clinger (1982)} attempts to clarify the multiple dimensions of confusion that arise here.
 }
 
 
 
 \subsubsection*{Modifying the evaluator}
 
-The main difference between the lazy evaluator and the one in \link{Section 4.1} is in the handling of procedure applications in \code{eval} and \code{apply}.
+The main difference between the lazy evaluator and the one in \cref{Section 4.1} is in the handling of procedure applications in \code{eval} and \code{apply}.
 
 The \code{application?} clause of \code{eval} becomes
 \begin{scheme}
@@ -53,7 +53,7 @@ The \code{application?} clause of \code{eval} becomes
           (operands exp)
           env))
 \end{scheme}
-This is almost the same as the \code{application?} clause of \code{eval} in \link{Section 4.1.1}.
+This is almost the same as the \code{application?} clause of \code{eval} in \cref{Section 4.1.1}.
 For lazy evaluation, however, we call \code{apply} with the operand expressions, rather than the arguments produced by evaluating them.
 Since we will need the environment to construct thunks if the arguments are to be delayed, we must pass this as well.
 We still evaluate the operator, because \code{apply} needs the actual procedure to be applied in order to dispatch on its type (primitive versus compound) and apply it.
@@ -65,7 +65,7 @@ Whenever we need the actual value of an expression, we use
 \end{scheme}
 instead of just \code{eval}, so that if the expression’s value is a thunk, it will be forced.
 
-Our new version of \code{apply} is also almost the same as the version in \link{Section 4.1.1}.
+Our new version of \code{apply} is also almost the same as the version in \cref{Section 4.1.1}.
 The difference is that \code{eval} has passed in unevaluated operand expressions:
 For primitive procedures (which are strict), we evaluate all the arguments before applying the primitive;
 for compound procedures (which are non-strict) we delay all the arguments before applying the procedure.
@@ -85,7 +85,7 @@ for compound procedures (which are non-strict) we delay all the arguments before
           (else (error "Unknown procedure type: APPLY"
                        procedure))))
 \end{scheme}
-The procedures that process the arguments are just like \code{list-of-values} from \link{Section 4.1.1}, except that \code{list-of-delayed-args} delays the arguments instead of evaluating them, and \code{list-of-arg-values} uses \code{actual-value} instead of \code{eval}:
+The procedures that process the arguments are just like \code{list-of-values} from \cref{Section 4.1.1}, except that \code{list-of-delayed-args} delays the arguments instead of evaluating them, and \code{list-of-arg-values} uses \code{actual-value} instead of \code{eval}:
 \begin{scheme}
   (define (list-of-arg-values exps env)
     (if (no-operands? exps)
@@ -112,7 +112,7 @@ The other place we must change the evaluator is in the handling of \code{if}, wh
         (eval (if-alternative exp) env)))
 \end{scheme}
 
-Finally, we must change the \code{driver-loop} procedure (\link{Section 4.1.4}) to use \code{actual-value} instead of \code{eval}, so that if a delayed value is propagated back to the read-eval-print loop, it will be forced before being printed.
+Finally, we must change the \code{driver-loop} procedure (\cref{Section 4.1.4}) to use \code{actual-value} instead of \code{eval}, so that if a delayed value is propagated back to the read-eval-print loop, it will be forced before being printed.
 We also change the prompts to indicate that this is the lazy evaluator:
 \begin{scheme}
   (define input-prompt  ";;; L-Eval input:")
@@ -131,7 +131,7 @@ We also change the prompts to indicate that this is the lazy evaluator:
 
 With these changes made, we can start the evaluator and test it.  The
 successful evaluation of the \code{try} expression discussed in
-\link{Section 4.2.1} indicates that the interpreter is performing lazy evaluation:
+\cref{Section 4.2.1} indicates that the interpreter is performing lazy evaluation:
 \begin{scheme}
   (define the-global-environment (setup-environment))
 
@@ -182,9 +182,9 @@ When a thunk is forced, we will turn it into an evaluated thunk by replacing the
 \footnote{
 	Notice that we also erase the \code{env} from the thunk once the expression’s value has been computed.
 	This makes no difference in the values returned by the interpreter.
-	It does help save space, however, because removing the reference from the thunk to the \code{env} once it is no longer needed allows this structure to be \newterm{garbage-collected} and its space recycled, as we will discuss in \link{Section 5.3}.
+	It does help save space, however, because removing the reference from the thunk to the \code{env} once it is no longer needed allows this structure to be \newterm{garbage-collected} and its space recycled, as we will discuss in \cref{Section 5.3}.
 
-	Similarly, we could have allowed unneeded environments in the memoized delayed objects of \link{Section 3.5.1} to be garbage-collected, by having \code{memo-proc} do something like \code{(set! proc '())} to discard the procedure \code{proc} (which includes the environment in which the \code{delay} was evaluated) after storing its value.
+	Similarly, we could have allowed unneeded environments in the memoized delayed objects of \cref{Section 3.5.1} to be garbage-collected, by having \code{memo-proc} do something like \code{(set! proc '())} to discard the procedure \code{proc} (which includes the environment in which the \code{delay} was evaluated) after storing its value.
 }
 \begin{scheme}
   (define (evaluated-thunk? obj)
@@ -222,7 +222,7 @@ memoization.
 	Give the missing values in the following sequence of interactions, and explain your answers.%
 	\footnote{
 		This exercise demonstrates that the interaction between lazy evaluation and side effects can be very confusing.
-		This is just what you might expect from the discussion in \link{Chapter 3}.
+		This is just what you might expect from the discussion in \cref{Chapter 3}.
 	}
 	\begin{scheme}
 	  (define w (id (id 10)))
@@ -257,7 +257,7 @@ memoization.
 \begin{exercise}
 	\label{Exercise 4.29}
 	Exhibit a program that you would expect to run much more slowly without memoization than with memoization.
-	Also, consider the following interaction, where the \code{id} procedure is defined as in \link{Exercise 4.27} and \code{count} starts at \( 0 \):
+	Also, consider the following interaction, where the \code{id} procedure is defined as in \cref{Exercise 4.27} and \code{count} starts at \( 0 \):
 	\begin{scheme}
 	  (define (square x) (* x x))
 
@@ -281,7 +281,7 @@ memoization.
 	Cy~D.~Fect, a reformed C~programmer, is worried that some side effects may never take place, because the lazy evaluator doesn’t force the expressions in a sequence.
 	Since the value of an expression in a sequence other than the last one is not used (the expression is there only for its effect, such as assigning to a variable or printing), there can be no subsequent use of this value (e.g., as an argument to a primitive procedure) that will cause it to be forced.
 	Cy thus thinks that when evaluating sequences, we must force all expressions in the sequence except the final one.
-	He proposes to modify \code{eval-sequence} from \link{Section 4.1.1} to use \code{actual-value} rather than \code{eval}:
+	He proposes to modify \code{eval-sequence} from \cref{Section 4.1.1} to use \code{actual-value} rather than \code{eval}:
 	\begin{scheme}
 	  (define (eval-sequence exps env)
 	    (cond ((last-exp? exps) (eval (first-exp exps) env))
@@ -292,7 +292,7 @@ memoization.
 
 		\item
 			Ben Bitdiddle thinks Cy is wrong.
-			He shows Cy the \code{for-each} procedure described in \link{Exercise 2.23}, which gives an important example of a sequence with side effects:
+			He shows Cy the \code{for-each} procedure described in \cref{Exercise 2.23}, which gives an important example of a sequence with side effects:
 			\begin{scheme}
 			  (define (for-each proc items)
 			    (if (null? items)

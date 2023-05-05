@@ -45,7 +45,7 @@ The \code{car} of the pair is the entry in \code{the-cars} with the designated i
 We also need a representation for objects other than pairs (such as numbers and symbols) and a way to distinguish one kind of data from another.
 There are many methods of accomplishing this, but they all reduce to using \newterm{typed pointers}, that is, to extending the notion of “pointer” to include information on data type.%
 \footnote{
-	This is precisely the same “tagged data” idea we introduced in \link{Chapter 2} for dealing with generic operations.
+	This is precisely the same “tagged data” idea we introduced in \cref{Chapter 2} for dealing with generic operations.
 	Here, however, the data types are included at the primitive machine level rather than constructed through the use of lists.
 }
 The data type enables the system to distinguish a pointer to a pair (which consists of the “pair” data type and an index into the memory vectors) from pointers to other kinds of data (which consist of some other data type and whatever is being used to represent data of that type).
@@ -60,7 +60,7 @@ Two data objects are considered to be the same (\code{eq?}) if their pointers ar
 	How efficiently can the primitive machine instructions be used to manipulate the type fields of pointers?
 	Machines that include special hardware for the efficient handling of type fields are said to have \newterm{tagged architectures}.
 }
-\link{Figure 5.14} illustrates the use of this method to represent the list \code{((1 2) 3 4)}, whose box-and-pointer diagram is also shown.
+\cref{Figure 5.14} illustrates the use of this method to represent the list \code{((1 2) 3 4)}, whose box-and-pointer diagram is also shown.
 We use letter prefixes to denote the data-type information.
 Thus, a pointer to the pair with index 5 is denoted \code{p5}, the empty list is denoted by the pointer \code{e0}, and a pointer to the number 4 is denoted \code{n4}.
 In the box-and-pointer diagram, we have indicated at the lower left of each pair the vector index that specifies where the \code{car} and \code{cdr} of the pair are stored.
@@ -133,7 +133,7 @@ We presume that there is a special register, \code{free}, that always holds a pa
 \footnote{
 	There are other ways of finding free storage.
 	For example, we could link together all the unused pairs into a \newterm{free list}.
-	Our free locations are consecutive (and hence can be accessed by incrementing a pointer) because we are using a compacting garbage collector, as we will see in \link{Section 5.3.2}.
+	Our free locations are consecutive (and hence can be accessed by incrementing a pointer) because we are using a compacting garbage collector, as we will see in \cref{Section 5.3.2}.
 }
 For example, the instruction
 \begin{scheme}
@@ -142,7 +142,7 @@ For example, the instruction
 
 is implemented as the following sequence of vector operations:%
 \footnote{
-	This is essentially the implementation of \code{cons} in terms of \code{set-car!} and \code{set-cdr!}, as described in \link{Section 3.3.1}.
+	This is essentially the implementation of \code{cons} in terms of \code{set-car!} and \code{set-cdr!}, as described in \cref{Section 3.3.1}.
 	The operation \code{get-new-pair} used in that implementation is realized here by the \code{free} pointer.
 }
 \begin{scheme}
@@ -186,7 +186,7 @@ Then pushing and popping the stack can be accomplished by incrementing or decrem
 
 \begin{exercise}
 	\label{Exercise 5.20}
-	Draw the box-and-pointer representation and the memory-vector representation (as in \link{Figure 5.14}) of the list structure produced by
+	Draw the box-and-pointer representation and the memory-vector representation (as in \cref{Figure 5.14}) of the list structure produced by
 	\begin{scheme}
 	  (define x (cons 1 2))
 	  (define y (list x x))
@@ -236,7 +236,7 @@ Then pushing and popping the stack can be accomplished by incrementing or decrem
 
 \begin{exercise}
 	\label{Exercise 5.22}
-	\link{Exercise 3.12} of \link{Section 3.3.1} presented an \code{append} procedure that appends two lists to form a new list and an \code{append!} procedure that splices two lists together.
+	\cref{Exercise 3.12} of \cref{Section 3.3.1} presented an \code{append} procedure that appends two lists to form a new list and an \code{append!} procedure that splices two lists together.
 	Design a register machine to implement each of these procedures.
 	Assume that the list-structure memory operations are available as primitive operations.
 \end{exercise}
