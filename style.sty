@@ -188,8 +188,48 @@
 \setlength{\DefaultFindent}{1pt}
 \setlength{\DefaultNindent}{0em}
 
+% table of contents
+
+% We mimic the look of the table of contents (toc) of the original printing.
+% This entails the following:
+% - Chapters (level 0), sections (level 1), subsections (level 2) and
+%   subsubsections (level 3) are numbered,
+% - but only chapters, sections and subsections appear in the toc.
+% In the table of content, we need the following:
+% - Subsections have the same indentation as sections.
+% - Section numbers have the same width (including the horizontal space
+%   between the number and the followeng section title) as subsection numbers.
+% - There is additional space before each section entry, which visually groups
+%   together all subsections belonging to the same section into a block.
+% - Reduced space between subsection numbers and the following subsection
+%   title when compared to the standard KOMA values.
+% We also need to slightly increase the width afforded to page numbers, because
+% otherwise the page number 'xxv' for the Acknowledgements is too large,
+% resulting in an overfull hbox warning (even though the hbox isn’t visible).
+%
+% Our method  of configuration is taken from Chapter 15 of the KOMA script
+% manual (Managing Content Lists with tocbasics), and in particular from
+% Section 15.3 (Configuring Content-List Entries)
+
 \setcounter{secnumdepth}{3}
-\setcounter{tocdepth}{3}
+
+\setcounter{tocdepth}{2}
+
+\DeclareTOCStyleEntry[
+	indent:=section,
+	numwidth+=-0.7em
+]{tocline}{subsection}
+\DeclareTOCStyleEntry[
+	numwidth:=subsection,
+	beforeskip = 0.5em plus 1pt % default for chapter is 1em plus 1pt
+]{tocline}{section}
+\DeclareTOCStyleEntry[
+	pagenumberwidth+=1pt
+	% the default value is 1.55em, set in the primive LaTeX macro @pnumwidth
+]{tocline}{chapter}
+
+
+% general spacing
 
 \frenchspacing
 \binoppenalty = \maxdimen % breaking of binary operators
