@@ -1,3 +1,10 @@
+% To silence out the warning issued by xsim regarding XeLateX.
+% The approach is taken from https://tex.stackexchange.com/a/681701/108717
+% and the message name from https://github.com/cgnieder/xsim/blob/06e3dba43b96ed493968ddd54add9fc8a1d9a264/code/xsim.sty#L4226.
+\ExplSyntaxOn
+\msg_redirect_name:nnn {xsim} {random-numbers-unavailable} {none}
+\ExplSyntaxOff
+
 \usepackage{microtype}
 
 \usepackage{xstring}
@@ -70,7 +77,7 @@
 \usepackage{menukeys}
 \renewmenumacro{\keys}{shadowedroundedkeys}
 
-\usepackage{svg}
+\usepackage[usetransparent = false]{svg}
 \svgsetup{
 	inkscapelatex = false
 }
@@ -145,6 +152,8 @@
 
 \crefname{exercise}{Exercise}{Exercises}
 \Crefname{exercise}{Exercise}{Exercises}
+
+
 
 \definecolor{LinkRed}{HTML}{80171F}
 \hypersetup{
