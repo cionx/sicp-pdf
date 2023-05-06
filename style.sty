@@ -109,10 +109,25 @@
 \ifoot{}
 
 
+% If the pre-defined template style 'runin' is to be used (or any other non-
+% default predefined template style, for that matter), then we first need to
+% load the 'layouts' style file. See subsection 13.2 (Templates Provided by
+% the Package) for more details on this.
+% However, for our purposes, it should be enough to keep the default template
+% and only change the exercise headings command from the default \subsection*
+% to \paragraph*.
+% There is also a slight font difference: runin uses the text font and makes
+% the text bold via \textbf, whereas \paragraph* uses KOMA’s headings font,
+% which is sans serif by default.
+
+% \loadxsimstyle{layouts}
+
 \xsimsetup{
 	path = {exercises},
+	exercise/heading = {\paragraph*},
 	exercise/within = {chapter},
 	exercise/the-counter = {\thechapter.\arabic{exercise}}
+	%exercise/template = {runin},
 }
 
 \crefname{exercise}{Exercise}{Exercises}
